@@ -88,3 +88,24 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+  assets:
+    - assets/images/
+
+  fonts:
+    - family: GrueneType
+      fonts:
+        - asset: assets/fonts/GrueneType/GrueneType-BlackCondensedItalic.otf
+    - family: PTSans
+      fonts:
+        - asset: assets/fonts/PTSans/PTS55F.ttf
+          weight: 400
+          style: normal
+        - asset: assets/fonts/PTSans/PTS56F.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/PTSans/PTS75F.ttf
+          weight: 700
+          style: normal
+        - asset: assets/fonts/PTSans/PTS76F.ttf
+          weight: 700
+          style: italic
