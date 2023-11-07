@@ -245,102 +245,167 @@ class _VerifyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Consumer<AuthenticatorModel>(
-      builder: (context, model, child) => ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          Column(
+      builder: (context, model, child) => ConstrainedBox(
+        constraints: BoxConstraints(
+          minWidth: size.width,
+          minHeight: size.height,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Stack(
-                alignment: Alignment.center,
+              SizedBox(height: 24, width: size.width),
+              Column(
                 children: [
-                  Icon(
-                    Icons.shield_outlined,
-                    size: 40,
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.5),
-                  ),
-                  SizedBox(
-                    height: 140,
-                    width: 140,
-                    child: TweenAnimationBuilder<double>(
-                      tween: Tween<double>(begin: 1, end: 0),
-                      duration: const Duration(
-                        seconds: 60,
-                      ),
-                      onEnd: () => model.deny(),
-                      builder: (context, value, _) => CircularProgressIndicator(
-                        value: value,
-                      ),
-                    ),
-                  ),
+                  _timer(context, model),
                 ],
+              ),
+              const Padding(
+                padding: EdgeInsets.only(top: 24, bottom: 24),
+                child: Text(
+                  'Login Verifizieren',
+                  style: TextStyle(
+                    fontSize: 22,
+                    letterSpacing: 1,
+                    fontFamily: 'GrueneType',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 24),
+                child: Text(
+                  'Prüfe die Angaben für die Login-Anfrage deines Kontos',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              _loginDetails(model),
+              const Spacer(flex: 2),
+              FilledButton.icon(
+                style: model.isLoading
+                    ? ButtonStyle(
+                        backgroundColor: MaterialStatePropertyAll<Color>(
+                            Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withAlpha(100)),
+                      )
+                    : null,
+                icon: Icon(Icons.check),
+                label: Text('Freigeben'),
+                onPressed: () => model.confirm(),
+              ),
+              FilledButton.icon(
+                style: model.isLoading
+                    ? ButtonStyle(
+                        backgroundColor: MaterialStatePropertyAll<Color>(
+                            Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withAlpha(100)),
+                      )
+                    : null,
+                icon: const Icon(Icons.close),
+                label: const Text('Ablehnen'),
+                onPressed: () => model.deny(),
+              ),
+              Opacity(
+                opacity: model.isLoading ? 1 : 0,
+                child: const Padding(
+                  padding: EdgeInsets.fromLTRB(60, 4, 60, 4),
+                  child: LinearProgressIndicator(
+                    minHeight: 4,
+                    borderRadius: BorderRadius.all(Radius.circular(180)),
+                  ),
+                ),
               ),
             ],
           ),
-          loginDetails(model),
-          const SizedBox(height: 40),
-          FilledButton.icon(
-            style: model.isLoading
-                ? ButtonStyle(
-                    backgroundColor: MaterialStatePropertyAll<Color>(
-                        Theme.of(context).colorScheme.primary.withAlpha(100)),
-                  )
-                : null,
-            icon: Icon(Icons.check),
-            label: Text('Freigeben'),
-            onPressed: () => model.confirm(),
-          ),
-          FilledButton.icon(
-            style: model.isLoading
-                ? ButtonStyle(
-                    backgroundColor: MaterialStatePropertyAll<Color>(
-                        Theme.of(context).colorScheme.primary.withAlpha(100)),
-                  )
-                : null,
-            icon: const Icon(Icons.close),
-            label: const Text('Ablehnen'),
-            onPressed: () => model.deny(),
-          ),
-          Opacity(
-            opacity: model.isLoading ? 1 : 0,
-            child: const LinearProgressIndicator(),
-          )
-        ],
+        ),
       ),
     );
   }
 
-  Widget loginDetails(AuthenticatorModel model) {
+  Stack _timer(BuildContext context, AuthenticatorModel model) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Icon(
+          Icons.shield_outlined,
+          size: 40,
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+        ),
+        SizedBox(
+          height: 140,
+          width: 140,
+          child: TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 1, end: 0),
+            duration: Duration(
+              seconds: model.loginAttempt!.expiresIn,
+            ),
+            onEnd: () => model.deny(),
+            builder: (context, value, _) => CircularProgressIndicator(
+              value: value,
+              strokeWidth: 5,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _loginDetails(AuthenticatorModel model) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Gerät',
-          style: TextStyle(
-            fontSize: 18,
+        const Padding(
+          padding: EdgeInsets.only(bottom: 4.0),
+          child: Text(
+            'Gerät',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-        Text(model.loginAttempt!.os),
-        Text(model.loginAttempt!.browser),
+        Column(
+          children: [
+            Text(model.loginAttempt!.os),
+            Text(model.loginAttempt!.browser),
+          ],
+        ),
         const SizedBox(height: 8),
-        const Text(
-          'IP Adresse',
-          style: TextStyle(
-            fontSize: 18,
+        const Padding(
+          padding: EdgeInsets.only(bottom: 4),
+          child: Text(
+            'IP Adresse',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         Text(model.loginAttempt!.ipAddress),
         const SizedBox(height: 8),
-        const Text(
-          'Zeitpunkt',
-          style: TextStyle(
-            fontSize: 18,
+        const Padding(
+          padding: EdgeInsets.only(bottom: 4),
+          child: Text(
+            'Zeitpunkt',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         Text(
           formatDate(model.loginAttempt!.loggedInAt,
-              [yyyy, '-', mm, '-', dd, ' ', HH, ':', nn, ':', ss]),
+              [dd, '.', M, '.', yyyy, ', ', HH, ':', nn]),
         ),
       ],
     );

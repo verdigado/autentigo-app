@@ -98,6 +98,7 @@ class AuthenticatorModel extends ChangeNotifier {
             DateTime.fromMillisecondsSinceEpoch(challenge.updatedTimestamp),
         os: challenge.os,
         challenge: challenge,
+        expiresIn: 60,
       );
     } on Exception catch (e) {
       errorMessage = 'Anfrage fehlgeschlagen';

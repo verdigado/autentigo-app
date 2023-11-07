@@ -6,6 +6,7 @@ class LoginAttemptDto {
   final String browser;
   final String os;
   final Challenge challenge;
+  final int expiresIn;
 
   LoginAttemptDto({
     required this.loggedInAt,
@@ -13,5 +14,6 @@ class LoginAttemptDto {
     required this.browser,
     required this.os,
     required this.challenge,
+    required this.expiresIn,
   });
 }
