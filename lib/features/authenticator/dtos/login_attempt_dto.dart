@@ -1,13 +1,13 @@
 import 'package:keycloak_authenticator/keycloak_authenticator.dart';
 
-class LoginAttempt {
+class LoginAttemptDto {
   final DateTime loggedInAt;
   final String ipAddress;
   final String browser;
   final String os;
   final Challenge challenge;
 
-  LoginAttempt({
+  LoginAttemptDto({
     required this.loggedInAt,
     required this.ipAddress,
     required this.browser,

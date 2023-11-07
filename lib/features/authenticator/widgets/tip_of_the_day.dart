@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gruene_auth_app/app/theme/custom_colors.dart';
-import 'package:gruene_auth_app/features/authenticator/models/authenticator_model.dart';
+import 'package:gruene_auth_app/features/authenticator/models/tip_of_the_day_model.dart';
 import 'package:provider/provider.dart';
 
 class TipOfTheDay extends StatelessWidget {
@@ -9,8 +9,19 @@ class TipOfTheDay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthenticatorModel>(
-      builder: (context, model, child) => Stack(
+    return Consumer<TipOfTheDayModel>(
+      builder: (context, model, child) => model.current != null
+          ? _renderTip(model)
+          : const SizedBox(height: 240),
+    );
+  }
+
+  Widget _renderTip(TipOfTheDayModel model) {
+    return GestureDetector(
+      onTap: () {
+        model.next();
+      },
+      child: Stack(
         children: [
           const Positioned(
             top: 8,
@@ -30,26 +41,26 @@ class TipOfTheDay extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
                   Text(
-                    model.tipOfTheDay.title,
+                    model.current!.title,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  if (model.tipOfTheDay.iconPath != null)
+                  if (model.current!.iconPath != null)
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       child: SvgPicture.asset(
-                        model.tipOfTheDay.iconPath!,
+                        model.current!.iconPath!,
                         height: 120,
                       ),
                     ),
                   Text(
-                    model.tipOfTheDay.text,
+                    model.current!.text,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 13,
@@ -58,17 +69,17 @@ class TipOfTheDay extends StatelessWidget {
                       fontStyle: FontStyle.italic,
                     ),
                   ),
-                  if (model.tipOfTheDay.url?.isNotEmpty ?? false)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 12.0),
-                      child: TextButton(
-                        child: Text(model.tipOfTheDay.buttonText ?? 'Ansehen',
-                            style: const TextStyle(
-                              fontStyle: FontStyle.italic,
-                            )),
-                        onPressed: () => (),
-                      ),
-                    ),
+                  // if (model.current!.url?.isNotEmpty ?? false)
+                  //   Padding(
+                  //     padding: const EdgeInsets.only(top: 12.0),
+                  //     child: TextButton(
+                  //       child: Text(model.current!.buttonText ?? 'Ansehen',
+                  //           style: const TextStyle(
+                  //             fontStyle: FontStyle.italic,
+                  //           )),
+                  //       onPressed: () => (),
+                  //     ),
+                  //   ),
                   // Container(
                   //   height: 45,
                   //   width: 130,
