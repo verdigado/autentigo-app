@@ -36,9 +36,15 @@ class _AuthenticatorScreenState extends State<AuthenticatorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Grünes Netz Authenticator'),
+        title: const Text(
+          'Grünes Netz Authenticator',
+          style: TextStyle(
+            fontSize: 16,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
         actions: [
-          IconButton(icon: const Icon(Icons.help), onPressed: () => ())
+          // IconButton(icon: const Icon(Icons.help), onPressed: () => ())
         ],
       ),
       body: Consumer<AuthenticatorModel>(
@@ -122,7 +128,7 @@ class _SetupViewState extends State<_SetupView> {
               Container(
                 width: 260,
                 decoration: BoxDecoration(
-                  color: CustomColors.himmel.withOpacity(0.5),
+                  color: CustomColors.himmel.shade500.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(180),
                 ),
                 child: Padding(
@@ -210,7 +216,7 @@ class _ReadyView extends StatelessWidget {
               ),
               SizedBox(
                 width: 240,
-                child: OutlinedButton.icon(
+                child: TextButton.icon(
                   icon: model.isLoading
                       ? Container(
                           width: 24,
@@ -226,8 +232,9 @@ class _ReadyView extends StatelessWidget {
                   onPressed: () => model.refresh(),
                 ),
               ),
+              const SizedBox(height: 450),
               OutlinedButton(
-                child: Text('Delete'),
+                child: Text('Unregister'),
                 onPressed: () async {
                   await model.unregister();
                 },
@@ -294,7 +301,7 @@ class _VerifyView extends StatelessWidget {
                             Theme.of(context)
                                 .colorScheme
                                 .primary
-                                .withAlpha(100)),
+                                .withAlpha(80)),
                       )
                     : null,
                 icon: Icon(Icons.check),
@@ -305,12 +312,12 @@ class _VerifyView extends StatelessWidget {
                 style: model.isLoading
                     ? ButtonStyle(
                         backgroundColor: MaterialStatePropertyAll<Color>(
-                            Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withAlpha(100)),
+                            Theme.of(context).colorScheme.error.withAlpha(80)),
                       )
-                    : null,
+                    : ButtonStyle(
+                        backgroundColor: MaterialStatePropertyAll<Color>(
+                            Theme.of(context).colorScheme.error.withAlpha(200)),
+                      ),
                 icon: const Icon(Icons.close),
                 label: const Text('Ablehnen'),
                 onPressed: () => model.deny(),

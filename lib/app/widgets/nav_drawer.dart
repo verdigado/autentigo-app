@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:gruene_auth_app/app/app.dart';
 
 class NavDrawer extends StatefulWidget {
   const NavDrawer({super.key});
@@ -29,14 +28,6 @@ class _NavDrawerState extends State<NavDrawer> {
             OutlinedButton(
               onPressed: () => context.go('/authenticator'),
               child: const Text('Authenticator'),
-            ),
-            Text(
-                'Theme: ${MyApp.of(context).themeMode == ThemeMode.dark ? 'Dunkel' : 'Hell'}'),
-            Switch(
-              value: MyApp.of(context).themeMode == ThemeMode.dark,
-              onChanged: (bool value) {
-                MyApp.of(context).toggleThemeMode();
-              },
             ),
           ],
         ),

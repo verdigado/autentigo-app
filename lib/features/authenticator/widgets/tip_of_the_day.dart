@@ -23,22 +23,10 @@ class TipOfTheDay extends StatelessWidget {
       },
       child: Stack(
         children: [
-          const Positioned(
-            top: 8,
-            right: 8,
-            child: Text(
-              "Grüner IT-Tip",
-              style: TextStyle(
-                fontStyle: FontStyle.italic,
-                fontSize: 11,
-                letterSpacing: 0.4,
-              ),
-            ),
-          ),
           Container(
             decoration: BoxDecoration(
-              color: CustomColors.klee.shade200.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(8),
+              color: CustomColors.tanne.shade300,
+              borderRadius: BorderRadius.circular(18),
             ),
             child: Padding(
               padding: const EdgeInsets.all(24),
@@ -102,6 +90,18 @@ class TipOfTheDay extends StatelessWidget {
                   //   ),
                   // ),
                 ],
+              ),
+            ),
+          ),
+          const Positioned(
+            top: 8,
+            right: 8,
+            child: Text(
+              "Grüner IT-Tip",
+              style: TextStyle(
+                fontStyle: FontStyle.italic,
+                fontSize: 11,
+                letterSpacing: 0.4,
               ),
             ),
           ),

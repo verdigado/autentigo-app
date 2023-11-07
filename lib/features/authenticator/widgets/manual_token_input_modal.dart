@@ -84,7 +84,6 @@ class _ManualTokenInputModalState extends State<ManualTokenInputModal> {
               child: TextField(
                 controller: tokenInput,
                 decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
                   hintText: 'Aktivierungstoken',
                 ),
               ),

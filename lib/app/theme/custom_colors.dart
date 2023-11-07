@@ -41,6 +41,7 @@ abstract final class CustomColors {
   static const int _sandPrimaryValue = 0xFFF5F1E9;
   static const MaterialColor sand =
       MaterialColor(_sandPrimaryValue, <int, Color>{
+    400: Color(0xFFF9F6F1),
     500: Color(0xFFF7F4ED),
     600: Color(_sandPrimaryValue),
     700: Color(0xFFEFE8DB),
