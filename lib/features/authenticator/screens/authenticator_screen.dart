@@ -381,12 +381,8 @@ class _VerifyView extends StatelessWidget {
             ),
           ),
         ),
-        Column(
-          children: [
-            Text(model.loginAttempt!.os),
-            Text(model.loginAttempt!.browser),
-          ],
-        ),
+        Text(model.loginAttempt!.browser),
+        Text(model.loginAttempt!.os),
         const SizedBox(height: 8),
         const Padding(
           padding: EdgeInsets.only(bottom: 4),
