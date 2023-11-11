@@ -4,21 +4,86 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gruene_auth_app/app/constants/image_paths.dart';
 import 'package:gruene_auth_app/app/theme/custom_colors.dart';
 import 'package:gruene_auth_app/app/widgets/alert_box.dart';
-import 'package:gruene_auth_app/app/widgets/barcode_scanner_window.dart';
+import 'package:gruene_auth_app/app/widgets/nav_drawer.dart';
 import 'package:gruene_auth_app/features/authenticator/models/authenticator_model.dart';
+import 'package:gruene_auth_app/features/authenticator/models/tip_of_the_day_model.dart';
+import 'package:gruene_auth_app/features/authenticator/screens/activation_token_scan_screen.dart';
 import 'package:gruene_auth_app/features/authenticator/widgets/manual_token_input_modal.dart';
-import 'package:gruene_auth_app/features/authenticator/widgets/setup_instructions_modal.dart';
 import 'package:gruene_auth_app/features/authenticator/widgets/tip_of_the_day.dart';
 import 'package:provider/provider.dart';
 
-class AuthenticatorScreen extends StatefulWidget {
+class AuthenticatorScreen extends StatelessWidget {
   const AuthenticatorScreen({super.key});
 
   @override
-  State<AuthenticatorScreen> createState() => _AuthenticatorScreenState();
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => AuthenticatorModel(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => TipOfTheDayModel(),
+        ),
+      ],
+      child: Consumer<AuthenticatorModel>(
+        builder: (context, model, child) => Scaffold(
+          drawer: const NavDrawer(),
+          appBar: AppBar(
+            title: const Text(
+              'Grünes Netz Authenticator',
+              style: TextStyle(
+                fontSize: 16,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+            actions: [
+              if (model.status == AuthenticatorStatus.ready)
+                MenuAnchor(
+                  builder: (BuildContext context, MenuController controller,
+                          Widget? child) =>
+                      IconButton(
+                    onPressed: () => controller.isOpen
+                        ? controller.close()
+                        : controller.open(),
+                    icon: const Icon(Icons.settings_outlined),
+                    tooltip: 'Menü anzeigen',
+                  ),
+                  menuChildren: [
+                    MenuItemButton(
+                      onPressed: () => {model.unregister()},
+                      child: const Text('Entfernen'),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+          body: Builder(builder: (context) {
+            switch (model.status) {
+              case AuthenticatorStatus.setup:
+                return const _SetupView();
+              case AuthenticatorStatus.ready:
+                return const _ReadyView();
+              case AuthenticatorStatus.verify:
+                return const _VerifyView();
+              default:
+                return const _InitView();
+            }
+          }),
+        ),
+      ),
+    );
+  }
 }
 
-class _AuthenticatorScreenState extends State<AuthenticatorScreen> {
+class _InitView extends StatefulWidget {
+  const _InitView({super.key});
+
+  @override
+  State<_InitView> createState() => _InitViewState();
+}
+
+class _InitViewState extends State<_InitView> {
   @override
   void initState() {
     super.initState();
@@ -33,57 +98,7 @@ class _AuthenticatorScreenState extends State<AuthenticatorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Grünes Netz Authenticator',
-          style: TextStyle(
-            fontSize: 16,
-            fontStyle: FontStyle.italic,
-          ),
-        ),
-        actions: [
-          // IconButton(icon: const Icon(Icons.help), onPressed: () => ())
-        ],
-      ),
-      body: Consumer<AuthenticatorModel>(
-        builder: (context, model, child) {
-          if (model.status == AuthenticatorStatus.setup) {
-            return const _SetupView();
-          }
-          if (model.status == AuthenticatorStatus.ready) {
-            return const _ReadyView();
-          }
-          if (model.status == AuthenticatorStatus.verify) {
-            return const _VerifyView();
-          }
-          return const SizedBox.shrink();
-          // return const AuthenticatorInitView();
-        },
-      ),
-    );
-  }
-}
-
-class _InitView extends StatelessWidget {
-  const _InitView({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Center(
-          child: SizedBox(
-            width: 80,
-            height: 80,
-            child: CircularProgressIndicator(
-              strokeWidth: 8,
-            ),
-          ),
-        )
-      ],
-    );
+    return const SizedBox.shrink();
   }
 }
 
@@ -141,15 +156,14 @@ class _SetupViewState extends State<_SetupView> {
               SizedBox(
                 width: 240,
                 child: FilledButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).push(
+                  onPressed: () async {
+                    var value = await Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => BarcodeScannerWindow(
-                          title: 'Scan',
-                          onDetect: (String activationToken) {
-                            _activationToken.value = activationToken;
-                            return true;
-                          },
+                        maintainState: false,
+                        builder: (context) =>
+                            ListenableProvider<AuthenticatorModel>.value(
+                          value: model,
+                          child: const ScanActivationTokenScreen(),
                         ),
                       ),
                     );
@@ -166,7 +180,11 @@ class _SetupViewState extends State<_SetupView> {
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => const ManualTokenInputModal(),
+                        builder: (context) =>
+                            ListenableProvider<AuthenticatorModel>.value(
+                          value: model,
+                          child: const ManualTokenInputModal(),
+                        ),
                       ),
                     );
                   },
@@ -215,7 +233,6 @@ class _ReadyView extends StatelessWidget {
                           height: 24,
                           padding: const EdgeInsets.all(2.0),
                           child: const CircularProgressIndicator(
-                            // color: Colors.white,
                             strokeWidth: 3,
                           ),
                         )
@@ -224,13 +241,6 @@ class _ReadyView extends StatelessWidget {
                   onPressed: () => model.refresh(),
                 ),
               ),
-              const SizedBox(height: 450),
-              OutlinedButton(
-                child: Text('Unregister'),
-                onPressed: () async {
-                  await model.unregister();
-                },
-              )
             ],
           )
         ],
