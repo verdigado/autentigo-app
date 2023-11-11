@@ -17,9 +17,15 @@ class _NavDrawerState extends State<NavDrawer> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const SizedBox(height: 24),
             const Text(
-              'Grüne Authenticator App',
-              style: TextStyle(fontSize: 18),
+              'Menü',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: Divider(),
             ),
             OutlinedButton(
               onPressed: () => context.goNamed('home'),
