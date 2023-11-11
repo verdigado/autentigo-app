@@ -7,7 +7,6 @@ class AlertBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 260,
       decoration: BoxDecoration(
         color: Colors.deepOrange.withOpacity(0.5),
         borderRadius: BorderRadius.circular(8),

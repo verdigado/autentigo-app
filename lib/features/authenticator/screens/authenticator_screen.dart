@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gruene_auth_app/app/constants/image_paths.dart';
 import 'package:gruene_auth_app/app/theme/custom_colors.dart';
-import 'package:gruene_auth_app/app/widgets/alert_box.dart';
 import 'package:gruene_auth_app/app/widgets/nav_drawer.dart';
 import 'package:gruene_auth_app/features/authenticator/models/authenticator_model.dart';
 import 'package:gruene_auth_app/features/authenticator/models/tip_of_the_day_model.dart';
+import 'package:gruene_auth_app/features/authenticator/screens/activation_token_input_screen.dart';
 import 'package:gruene_auth_app/features/authenticator/screens/activation_token_scan_screen.dart';
-import 'package:gruene_auth_app/features/authenticator/widgets/manual_token_input_modal.dart';
 import 'package:gruene_auth_app/features/authenticator/widgets/tip_of_the_day.dart';
 import 'package:provider/provider.dart';
 
@@ -102,26 +101,8 @@ class _InitViewState extends State<_InitView> {
   }
 }
 
-class _SetupView extends StatefulWidget {
+class _SetupView extends StatelessWidget {
   const _SetupView({super.key});
-
-  @override
-  State<_SetupView> createState() => _SetupViewState();
-}
-
-class _SetupViewState extends State<_SetupView> {
-  ValueNotifier<String?> _activationToken = ValueNotifier<String?>(null);
-
-  @override
-  void initState() {
-    super.initState();
-    _activationToken.addListener(() {
-      var model = Provider.of<AuthenticatorModel>(context, listen: false);
-      if (_activationToken.value != null) {
-        model.setup(_activationToken.value!);
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -156,14 +137,14 @@ class _SetupViewState extends State<_SetupView> {
               SizedBox(
                 width: 240,
                 child: FilledButton.icon(
-                  onPressed: () async {
-                    var value = await Navigator.of(context).push(
+                  onPressed: () {
+                    Navigator.of(context).push(
                       MaterialPageRoute(
                         maintainState: false,
                         builder: (context) =>
                             ListenableProvider<AuthenticatorModel>.value(
                           value: model,
-                          child: const ScanActivationTokenScreen(),
+                          child: const ActivationTokenScanScreen(),
                         ),
                       ),
                     );
@@ -183,7 +164,7 @@ class _SetupViewState extends State<_SetupView> {
                         builder: (context) =>
                             ListenableProvider<AuthenticatorModel>.value(
                           value: model,
-                          child: const ManualTokenInputModal(),
+                          child: const ActivationTokenInputScreen(),
                         ),
                       ),
                     );
@@ -191,15 +172,6 @@ class _SetupViewState extends State<_SetupView> {
                   child: const Text('Manuelle Eingabe'),
                 ),
               ),
-              const SizedBox(height: 24),
-              if (model.isLoading)
-                const SizedBox(
-                  height: 64,
-                  width: 64,
-                  child: CircularProgressIndicator(),
-                ),
-              if (model.errorMessage != null)
-                AlertBox(text: model.errorMessage!),
             ],
           )
         ],

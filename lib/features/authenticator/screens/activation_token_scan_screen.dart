@@ -5,17 +5,17 @@ import 'package:gruene_auth_app/features/authenticator/models/authenticator_mode
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 
-class ScanActivationTokenScreen extends StatefulWidget {
-  const ScanActivationTokenScreen({
+class ActivationTokenScanScreen extends StatefulWidget {
+  const ActivationTokenScanScreen({
     super.key,
   });
 
   @override
-  State<ScanActivationTokenScreen> createState() =>
-      _ScanActivationTokenScreenState();
+  State<ActivationTokenScanScreen> createState() =>
+      _ActivationTokenScanScreenState();
 }
 
-class _ScanActivationTokenScreenState extends State<ScanActivationTokenScreen> {
+class _ActivationTokenScanScreenState extends State<ActivationTokenScanScreen> {
   void onDetect(BarcodeCapture barcode) async {
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('QR Code erkannt'),
