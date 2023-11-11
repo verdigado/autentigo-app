@@ -278,8 +278,8 @@ class _VerifyView extends StatelessWidget {
                                 .withAlpha(80)),
                       )
                     : null,
-                icon: Icon(Icons.check),
-                label: Text('Freigeben'),
+                icon: const Icon(Icons.check),
+                label: const Text('Freigeben'),
                 onPressed: () => model.confirm(),
               ),
               FilledButton.icon(
@@ -383,43 +383,6 @@ class _VerifyView extends StatelessWidget {
         Text(
           formatDate(model.loginAttempt!.loggedInAt,
               [dd, '.', M, '.', yyyy, ', ', HH, ':', nn]),
-        ),
-      ],
-    );
-  }
-
-  Table loginDetails2(AuthenticatorModel model) {
-    return Table(
-      children: [
-        TableRow(
-          children: [
-            const TableCell(
-              child: Text('Datum'),
-            ),
-            TableCell(
-              child: Text(model.loginAttempt?.loggedInAt.toString() ?? ''),
-            ),
-          ],
-        ),
-        TableRow(
-          children: [
-            const TableCell(
-              child: Text('Browser'),
-            ),
-            TableCell(
-              child: Text(model.loginAttempt?.browser ?? ''),
-            ),
-          ],
-        ),
-        TableRow(
-          children: [
-            const TableCell(
-              child: Text('IPAdress'),
-            ),
-            TableCell(
-              child: Text(model.loginAttempt?.ipAddress ?? ''),
-            ),
-          ],
         ),
       ],
     );
