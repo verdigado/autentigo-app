@@ -146,21 +146,17 @@ class _SetupViewState extends State<_SetupView> {
                 width: 240,
                 child: FilledButton.icon(
                   onPressed: () {
-                    // Navigator.of(context).push(
-                    //   MaterialPageRoute(
-                    //     builder: (context) => BarcodeScannerWindow(
-                    //       title: 'Scan',
-                    //       onDetect: (String activationToken) {
-                    //         // model.setup(activationToken);
-                    //         _activationToken.value = activationToken;
-                    //         // print(activationToken);
-                    //         return true;
-                    //       },
-                    //     ),
-                    //   ),
-                    // );
-                    _activationToken.value =
-                        'http://192.168.2.179:8080/realms/dev/login-actions/action-token?key=eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIxYWEzY2FhMS00ZmEwLTQzNTUtYWE1ZC1lZTVhNzc4OTA0NGYifQ.eyJleHAiOjE2OTkyMjg5MTQsImlhdCI6MTY5OTIyODYxNCwianRpIjoiNTVjMjkyMzUtOWZjNC00MzhjLTk2YjAtY2UwZTI0OGEyY2Q4IiwiaXNzIjoiaHR0cDovLzE5Mi4xNjguMi4xNzk6ODA4MC9yZWFsbXMvZGV2IiwiYXVkIjoiaHR0cDovLzE5Mi4xNjguMi4xNzk6ODA4MC9yZWFsbXMvZGV2Iiwic3ViIjoiYjViZjYzOTYtMjFjZC00NjZjLTk2MzMtMGRlM2ExNTJiYTYzIiwidHlwIjoiYXBwLXNldHVwLWFjdGlvbi10b2tlbiIsIm5vbmNlIjoiNTVjMjkyMzUtOWZjNC00MzhjLTk2YjAtY2UwZTI0OGEyY2Q4Iiwib2FzaWQiOiJhZGE5ZjhiMC1hMzgzLTQ1M2YtOTdjNC00MjdhN2IwMmIzYjYuWmZEdFlBdndRZ0kuMjk1OTViZmEtNzU4ZS00MjFiLWE4ZDMtMGFmYjQ4ZDE3MjhkIn0.YbNUqA7MBpStBLDlbxMqpky_EjorWUrXDpyJFWSi5SE&client_id=account-console&tab_id=ZfDtYAvwQgI';
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => BarcodeScannerWindow(
+                          title: 'Scan',
+                          onDetect: (String activationToken) {
+                            _activationToken.value = activationToken;
+                            return true;
+                          },
+                        ),
+                      ),
+                    );
                   },
                   icon: const Icon(Icons.qr_code_2),
                   label: const Text('Code Scannen'),

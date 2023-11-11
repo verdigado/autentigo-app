@@ -11,13 +11,12 @@ import 'package:provider/provider.dart';
 void main() {
   var appConfig = AppConfig(
     environment: Environment.development,
-    keycloakBaseUrl: 'http://192.168.2.179:8080',
+    keycloakBaseUrl: 'http://192.168.2.196:8080',
     keycloakRealm: 'dev',
   );
   GetIt.I.registerSingleton<AppConfig>(appConfig);
 
-  GetIt.I
-      .registerFactory<AuthenticatorInterface>(AuthenticatorFactory.createMock);
+  GetIt.I.registerFactory<AuthenticatorInterface>(AuthenticatorFactory.create);
 
   runApp(MultiProvider(
     providers: [
