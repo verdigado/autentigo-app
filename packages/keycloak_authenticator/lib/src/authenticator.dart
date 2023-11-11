@@ -25,21 +25,6 @@ class KeycloakAuthenticator implements AuthenticatorInterface {
     required KeycloakAuthenticatorClient client,
   }) : _client = client;
 
-  inspect() async {
-    var keyPair = await _getKeyPair();
-    // print(keyPair?.toJson());
-    if (keyPair == null) {
-      print("no key pair");
-    }
-    _signer.importKey(keyPair!);
-    // log(jsonEncode(keyPair?.toJson()));
-    // debugPrint(jsonEncode(keyPair?.toJson()), wrapWidth: 20024);
-    // debugPrint(keyPair.publicKey, wrapWidth: 20024);
-    // debugPrint(keyPair.privateKey, wrapWidth: 20024);
-
-    print(await _signer.getPublicKey());
-  }
-
   _saveKeyPair(AsymmetricKeyDto keyPair) async {
     var serialized = json.encode(keyPair.toJson());
     await _secureStorage.write(
@@ -88,7 +73,6 @@ class KeycloakAuthenticator implements AuthenticatorInterface {
 
     // var publicKey = _removePemHeader(keyPair.publicKey);
     var publicKey = await _signer.getPublicKey();
-    print(publicKey);
 
     // send request
     final uri = Uri.parse(activationToken);
@@ -130,7 +114,6 @@ class KeycloakAuthenticator implements AuthenticatorInterface {
 
   @override
   confirm(Challenge challenge) async {
-    print('authenticator confirm');
     return _sendResponse(challenge, true);
   }
 
@@ -140,7 +123,6 @@ class KeycloakAuthenticator implements AuthenticatorInterface {
   }
 
   _sendResponse(Challenge challenge, bool granted) async {
-    print('_sendReponse ${granted ? 'TRUE' : 'FALSE'}');
     var keyPair = await _getKeyPair();
     if (keyPair == null) {
       throw Exception('No key pair');

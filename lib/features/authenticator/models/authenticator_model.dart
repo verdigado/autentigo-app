@@ -11,9 +11,7 @@ enum AuthenticatorStatus {
 }
 
 class AuthenticatorModel extends ChangeNotifier {
-  AuthenticatorModel() {
-    print('AuthenticatorModel Constructor');
-  }
+  AuthenticatorModel();
 
   AuthenticatorStatus status = AuthenticatorStatus.init;
   String? errorMessage;

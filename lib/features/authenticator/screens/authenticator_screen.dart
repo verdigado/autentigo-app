@@ -28,7 +28,6 @@ class _AuthenticatorScreenState extends State<AuthenticatorScreen> {
 
   @override
   void dispose() {
-    print('Screen Dispose');
     super.dispose();
   }
 
@@ -102,9 +101,6 @@ class _SetupViewState extends State<_SetupView> {
   void initState() {
     super.initState();
     _activationToken.addListener(() {
-      // Do something when the counter changes
-      print('activation token changed');
-      print(_activationToken.value);
       var model = Provider.of<AuthenticatorModel>(context, listen: false);
       if (_activationToken.value != null) {
         model.setup(_activationToken.value!);

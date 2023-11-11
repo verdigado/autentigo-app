@@ -13,7 +13,6 @@ class PointycastleSigner implements ChallengeSigner {
 
   @override
   Future<AsymmetricKeyDto> exportKey() async {
-    print('pointycastle exportKey');
     if (_keyPair == null) {
       throw Exception('no key pair set');
     }
@@ -170,7 +169,6 @@ class PointycastleSigner implements ChallengeSigner {
 //     ]).encode();
 //     // And finally base 64 encode it
 //     final signature = base64UrlEncode(encoded);
-//     print(signature);
 //   }
 // }
 
@@ -398,50 +396,38 @@ class RsaKeyHelper {
   }
 
   String encodePublicKeyToPemPKCS8_2(RSAPublicKey publicKey) {
-    try {
-      ASN1ObjectIdentifier.registerFrequentNames();
-      var algorithmSeq = ASN1Sequence();
-      var paramsAsn1Obj = ASN1Object.fromBytes(Uint8List.fromList([0x5, 0x0]));
-      algorithmSeq.add(ASN1ObjectIdentifier.fromName('rsaEncryption'));
-      algorithmSeq.add(paramsAsn1Obj);
+    ASN1ObjectIdentifier.registerFrequentNames();
+    var algorithmSeq = ASN1Sequence();
+    var paramsAsn1Obj = ASN1Object.fromBytes(Uint8List.fromList([0x5, 0x0]));
+    algorithmSeq.add(ASN1ObjectIdentifier.fromName('rsaEncryption'));
+    algorithmSeq.add(paramsAsn1Obj);
 
-      var publicKeySeq = ASN1Sequence();
-      publicKeySeq.add(ASN1Integer(publicKey.modulus!));
-      publicKeySeq.add(ASN1Integer(publicKey.exponent!));
-      var publicKeySeqBitString =
-          ASN1BitString(Uint8List.fromList(publicKeySeq.encodedBytes));
+    var publicKeySeq = ASN1Sequence();
+    publicKeySeq.add(ASN1Integer(publicKey.modulus!));
+    publicKeySeq.add(ASN1Integer(publicKey.exponent!));
+    var publicKeySeqBitString =
+        ASN1BitString(Uint8List.fromList(publicKeySeq.encodedBytes));
 
-      var topLevelSeq = ASN1Sequence();
-      topLevelSeq.add(algorithmSeq);
-      topLevelSeq.add(publicKeySeqBitString);
-      return base64.encode(topLevelSeq.encodedBytes);
-    } on ASN1Exception catch (e) {
-      print("err");
-      print(e.message);
-      rethrow;
-    }
+    var topLevelSeq = ASN1Sequence();
+    topLevelSeq.add(algorithmSeq);
+    topLevelSeq.add(publicKeySeqBitString);
+    return base64.encode(topLevelSeq.encodedBytes);
   }
 
   String encodePublicKeyToPemPKCS8(RSAPublicKey publicKey) {
     // Encode the public key in PKCS#8 format
-    try {
-      final publicKeyASN1 = ASN1Sequence();
-      publicKeyASN1.add(ASN1Integer(publicKey.modulus!));
-      publicKeyASN1.add(ASN1Integer(publicKey.exponent!));
+    final publicKeyASN1 = ASN1Sequence();
+    publicKeyASN1.add(ASN1Integer(publicKey.modulus!));
+    publicKeyASN1.add(ASN1Integer(publicKey.exponent!));
 
-      final publicKeyInfo = ASN1Sequence();
-      ASN1ObjectIdentifier.registerFrequentNames();
-      publicKeyInfo.add(ASN1ObjectIdentifier.fromName('rsaEncryption'));
-      publicKeyInfo.add(ASN1Null());
-      publicKeyInfo.add(publicKeyASN1);
+    final publicKeyInfo = ASN1Sequence();
+    ASN1ObjectIdentifier.registerFrequentNames();
+    publicKeyInfo.add(ASN1ObjectIdentifier.fromName('rsaEncryption'));
+    publicKeyInfo.add(ASN1Null());
+    publicKeyInfo.add(publicKeyASN1);
 
-      final publicKeyBytes = publicKeyInfo.encodedBytes;
-      return base64Encode(publicKeyBytes);
-    } on ASN1Exception catch (e) {
-      print("err");
-      print(e.message);
-      rethrow;
-    }
+    final publicKeyBytes = publicKeyInfo.encodedBytes;
+    return base64Encode(publicKeyBytes);
   }
 }
 

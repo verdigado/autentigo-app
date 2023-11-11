@@ -31,13 +31,8 @@ class KeycloakAuthenticatorClient {
       first = false;
     });
     var payload = buffer.toString();
-    print('payload: $payload');
-    // var signature = base64.encode(utf8.encode(await signFn(payload)));
     var signature = await signFn(payload);
-    // buffer.writeAll([',', 'keyId', ':', keyId]);
-    // buffer.writeAll([',', 'signature', ':', signature]);
     return 'keyId:$keyId,$payload,signature:$signature';
-    // return buffer.toString();
   }
 
   Future<void> register({
@@ -52,14 +47,6 @@ class KeycloakAuthenticatorClient {
     required SignatureAlgorithm signatureAlgorithm,
     required Future<String> Function(String) signFn,
   }) async {
-    // var signatureHeader = await buildSignatureHeader(
-    //   deviceId,
-    //   {
-    //     'created': DateTime.now().millisecondsSinceEpoch.toString(),
-    //   },
-    //   signFn,
-    // );
-    // print(signatureHeader);
     var queryParameters = {
       'client_id': clientId,
       'tab_id': tabId,
@@ -71,25 +58,13 @@ class KeycloakAuthenticatorClient {
       'public_key': publicKey,
       'key': oneTimeJwt,
     };
-    print(queryParameters);
-    // print(queryParameters);
     try {
-      var res = await _dio.get(
+      await _dio.get(
         '/login-actions/action-token',
         queryParameters: queryParameters,
-        // options: Options(
-        //   headers: {
-        //     'signature': signatureHeader,
-        //   },
-        // ),
       );
-      print(res.statusCode);
-      print(res.data);
     } on DioException catch (err) {
-      print('request failed');
-      print(err.requestOptions.baseUrl);
       rethrow;
-      // log(err.response?.data ?? 'no data');
     }
   }
 
@@ -105,7 +80,6 @@ class KeycloakAuthenticatorClient {
       },
       signFn,
     );
-    print(signatureHeader);
     try {
       var res = await _dio.get(
         '/challenges',
