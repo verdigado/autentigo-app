@@ -16,19 +16,33 @@ class ActivationTokenScanScreen extends StatefulWidget {
 }
 
 class _ActivationTokenScanScreenState extends State<ActivationTokenScanScreen> {
-  void onDetect(BarcodeCapture barcode) async {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('QR Code erkannt'),
-      backgroundColor: Colors.indigo,
-      showCloseIcon: true,
-    ));
-
+  void onDetect(BarcodeCapture barcode, BuildContext context) async {
     String value = barcode.barcodes.firstOrNull?.displayValue ?? '';
     var model = Provider.of<AuthenticatorModel>(context, listen: false);
-
+    if (model.isLoading) {
+      return;
+    }
     await model.setup(value);
+
+    if (!context.mounted) return;
+
     if (model.status == AuthenticatorStatus.ready) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text('Einrichtung erfolgreich'),
+          backgroundColor: Colors.greenAccent.shade700,
+          showCloseIcon: false));
       Navigator.of(context).pop();
+      return;
+    }
+    if (model.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(model.errorMessage!),
+          backgroundColor: Theme.of(context).colorScheme.errorContainer,
+          showCloseIcon: true,
+          duration: const Duration(milliseconds: 4000),
+        ),
+      );
     }
   }
 
@@ -36,28 +50,30 @@ class _ActivationTokenScanScreenState extends State<ActivationTokenScanScreen> {
   Widget build(BuildContext context) {
     final scanWindow = Rect.fromCenter(
       center: MediaQuery.of(context).size.center(Offset.zero),
-      width: 220,
-      height: 220,
+      width: 230,
+      height: 230,
     );
 
     return Consumer<AuthenticatorModel>(
       builder: (context, model, child) {
         return Scaffold(
+          backgroundColor: Colors.black,
           body: Stack(
             fit: StackFit.expand,
             children: [
               MobileScanner(
                 controller: MobileScannerController(
-                  detectionSpeed: DetectionSpeed.noDuplicates,
+                  detectionSpeed: DetectionSpeed.normal,
+                  detectionTimeoutMs: 4000,
                   formats: const [BarcodeFormat.qrCode],
                   autoStart: true,
                   facing: CameraFacing.back,
                   torchEnabled: false,
                   cameraResolution: const Size(1920, 2560),
                 ),
-                onDetect: onDetect,
-                // scanWindow: scanWindow,
-                fit: BoxFit.cover,
+                onDetect: (barcode) => onDetect(barcode, context),
+                scanWindow: scanWindow,
+                fit: BoxFit.contain,
               ),
               Positioned(
                 top: 0,
@@ -76,7 +92,7 @@ class _ActivationTokenScanScreenState extends State<ActivationTokenScanScreen> {
                     const Align(
                         alignment: Alignment.bottomCenter,
                         child: Padding(
-                          padding: EdgeInsets.only(bottom: 24),
+                          padding: EdgeInsets.only(bottom: 40),
                           child: Text(
                               'Platziere den QR-Code innheralb des Rechtecks',
                               style: TextStyle(color: Colors.white)),
@@ -84,7 +100,6 @@ class _ActivationTokenScanScreenState extends State<ActivationTokenScanScreen> {
                   ],
                 ),
               if (model.isLoading) _loadingOverlay(),
-              if (model.errorMessage != null) _alertBox(context, model),
             ],
           ),
         );
@@ -108,26 +123,6 @@ class _ActivationTokenScanScreenState extends State<ActivationTokenScanScreen> {
               strokeWidth: 6,
               color: Colors.white,
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Align _alertBox(BuildContext context, AuthenticatorModel model) {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 24),
-        child: Container(
-          width: 260,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.error.withOpacity(0.9),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Text(model.errorMessage!),
           ),
         ),
       ),
