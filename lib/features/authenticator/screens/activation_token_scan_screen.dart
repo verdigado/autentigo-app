@@ -137,20 +137,61 @@ class _ScannerOverlay extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final backgroundPath = Path()..addRect(Rect.largest);
-    final cutoutPath = Path()..addRect(scanWindow);
+    double borderWith = 3;
+    double edgeLengthPercent = 0.15;
 
+    final backgroundPath = Path()..addRect(Rect.largest);
+    var seekerWindow =
+        RRect.fromRectAndRadius(scanWindow, const Radius.circular(20));
+    final seekerPath = Path()..addRRect(seekerWindow);
+    final seekerInnerPath = Path()..addRRect(seekerWindow.deflate(borderWith));
+
+    // draw background overlay with the seeker window cut out
     final backgroundPaint = Paint()
-      ..color = Colors.black.withOpacity(0.5)
+      ..color = Colors.black.withOpacity(0.3)
       ..style = PaintingStyle.fill
       ..blendMode = BlendMode.dstOut;
 
     final backgroundWithCutout = Path.combine(
       PathOperation.difference,
       backgroundPath,
-      cutoutPath,
+      seekerInnerPath,
     );
     canvas.drawPath(backgroundWithCutout, backgroundPaint);
+
+    // draw the seeker border
+    double edgeWith = scanWindow.width * edgeLengthPercent;
+    double edgeHeight = scanWindow.height * edgeLengthPercent;
+
+    final borderCutoutVertical = Path()
+      ..addRect(Rect.fromLTWH(
+        scanWindow.left + edgeWith,
+        scanWindow.top,
+        scanWindow.width - 2 * edgeWith,
+        scanWindow.height,
+      ));
+    final borderCutoutHorizontal = Path()
+      ..addRect(Rect.fromLTWH(
+        scanWindow.left,
+        scanWindow.top + edgeHeight,
+        scanWindow.width,
+        scanWindow.height - 2 * edgeHeight,
+      ));
+
+    var borderPath = Path.combine(
+      PathOperation.difference,
+      seekerPath,
+      seekerInnerPath,
+    );
+    borderPath = Path.combine(
+        PathOperation.difference, borderPath, borderCutoutVertical);
+    borderPath = Path.combine(
+        PathOperation.difference, borderPath, borderCutoutHorizontal);
+
+    final borderPaint = Paint()
+      ..color = Colors.white.withOpacity(0.9)
+      ..style = PaintingStyle.fill;
+    canvas.drawPath(borderPath, borderPaint);
   }
 
   @override
