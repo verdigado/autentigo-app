@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:keycloak_authenticator/keycloak_authenticator.dart';
+import 'package:keycloak_authenticator/api.dart';
 import '../dtos/login_attempt_dto.dart';
 import 'package:get_it/get_it.dart';
 
@@ -17,8 +17,7 @@ class AuthenticatorModel extends ChangeNotifier {
   String? errorMessage;
   bool isLoading = false;
   LoginAttemptDto? loginAttempt;
-  final AuthenticatorInterface _authenticator =
-      GetIt.I<AuthenticatorInterface>();
+  final Authenticator _authenticator = GetIt.I<Authenticator>();
 
   Future<void> init() async {
     if (status != AuthenticatorStatus.init) {
@@ -47,7 +46,7 @@ class AuthenticatorModel extends ChangeNotifier {
     errorMessage = null;
     notifyListeners();
     try {
-      await _authenticator.register(activationToken);
+      await _authenticator.setup(activationToken);
     } on Exception catch (e) {
       errorMessage = 'Registerierung fehlgeschlagen:\n${e.toString()}';
       isLoading = false;
@@ -66,7 +65,7 @@ class AuthenticatorModel extends ChangeNotifier {
       return;
     }
     try {
-      await _authenticator.unregister();
+      await _authenticator.remove();
     } on Exception catch (e) {
       errorMessage = 'Unregister fehlgeschlagen';
       isLoading = false;
@@ -89,23 +88,26 @@ class AuthenticatorModel extends ChangeNotifier {
     notifyListeners();
     try {
       var challenge = await _authenticator.fetchChallenge();
-      loginAttempt = LoginAttemptDto(
-        browser: challenge.browser,
-        ipAddress: challenge.ipAddress,
-        loggedInAt:
-            DateTime.fromMillisecondsSinceEpoch(challenge.updatedTimestamp),
-        os: challenge.os,
-        challenge: challenge,
-        expiresIn: 60,
-      );
+      if (challenge != null) {
+        loginAttempt = LoginAttemptDto(
+          browser: challenge.browser,
+          ipAddress: challenge.ipAddress,
+          loggedInAt:
+              DateTime.fromMillisecondsSinceEpoch(challenge.updatedTimestamp),
+          os: challenge.os,
+          challenge: challenge,
+          expiresIn: 60,
+        );
+        status = AuthenticatorStatus.verify;
+      }
     } on Exception catch (e) {
       errorMessage = 'Anfrage fehlgeschlagen';
       isLoading = false;
+      loginAttempt = null;
       notifyListeners();
       return;
     }
 
-    status = AuthenticatorStatus.verify;
     isLoading = false;
     notifyListeners();
   }
@@ -128,11 +130,10 @@ class AuthenticatorModel extends ChangeNotifier {
     errorMessage = null;
     notifyListeners();
     try {
-      if (granted) {
-        await _authenticator.confirm(loginAttempt!.challenge);
-      } else {
-        await _authenticator.deny(loginAttempt!.challenge);
-      }
+      await _authenticator.reply(
+        challenge: loginAttempt!.challenge,
+        granted: granted,
+      );
     } on Exception catch (e) {
       errorMessage = 'Aktion fehlgeschlagen';
       isLoading = false;

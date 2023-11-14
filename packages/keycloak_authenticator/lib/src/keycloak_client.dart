@@ -1,14 +1,15 @@
 import 'package:dio/dio.dart';
 
+import 'types.dart';
 import 'enums/enums.dart';
 import 'dtos/challenge.dart';
 
-class KeycloakAuthenticatorClient {
+class KeycloakClient {
   final String baseUrl;
   final String realm;
   late Dio _dio;
 
-  KeycloakAuthenticatorClient({
+  KeycloakClient({
     required this.baseUrl,
     required this.realm,
   }) {
@@ -19,7 +20,7 @@ class KeycloakAuthenticatorClient {
   Future<String> buildSignatureHeader(
     String keyId,
     Map<String, String> keyValues,
-    Future<String> Function(String) signFn,
+    SignFn sign,
   ) async {
     var buffer = StringBuffer();
     var first = true;
@@ -31,7 +32,7 @@ class KeycloakAuthenticatorClient {
       first = false;
     });
     var payload = buffer.toString();
-    var signature = await signFn(payload);
+    var signature = await sign(payload);
     return 'keyId:$keyId,$payload,signature:$signature';
   }
 
@@ -45,7 +46,7 @@ class KeycloakAuthenticatorClient {
     required String publicKey,
     required KeyAlgorithm keyAlgorithm,
     required SignatureAlgorithm signatureAlgorithm,
-    required Future<String> Function(String) signFn,
+    required SignFn sign,
   }) async {
     var queryParameters = {
       'client_id': clientId,
@@ -70,7 +71,7 @@ class KeycloakAuthenticatorClient {
 
   Future<List<Challenge>> getChallenges(
     String deviceId,
-    Future<String> Function(String) signFn,
+    SignFn sign,
   ) async {
     var signatureHeader = await buildSignatureHeader(
       deviceId,
@@ -78,7 +79,7 @@ class KeycloakAuthenticatorClient {
         'created': DateTime.now().millisecondsSinceEpoch.toString(),
         // 'request-target': 'get_/realms/$realm/challenge-resource/$deviceId',
       },
-      signFn,
+      sign,
     );
     try {
       var res = await _dio.get(
@@ -109,7 +110,7 @@ class KeycloakAuthenticatorClient {
     required String value,
     required bool granted,
     required int timestamp,
-    required Future<String> Function(String) signFn,
+    required SignFn sign,
   }) async {
     var signatureHeader = await buildSignatureHeader(
       deviceId,
@@ -119,7 +120,7 @@ class KeycloakAuthenticatorClient {
         'secret': value,
         'granted': granted ? 'true' : 'false',
       },
-      signFn,
+      sign,
     );
     var res = await _dio.get(
       '/login-actions/action-token',

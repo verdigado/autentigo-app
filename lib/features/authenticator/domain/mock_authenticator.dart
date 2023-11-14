@@ -1,16 +1,6 @@
-import 'package:keycloak_authenticator/keycloak_authenticator.dart';
+import 'package:keycloak_authenticator/api.dart';
 
-class MockAuthenticator implements AuthenticatorInterface {
-  @override
-  Future<void> confirm(Challenge challenge) async {
-    await Future.delayed(const Duration(seconds: 1));
-  }
-
-  @override
-  Future<void> deny(Challenge challenge) async {
-    await Future.delayed(const Duration(seconds: 1));
-  }
-
+class MockAuthenticator implements Authenticator {
   @override
   Future<Challenge> fetchChallenge() async {
     await Future.delayed(const Duration(seconds: 1));
@@ -30,12 +20,12 @@ class MockAuthenticator implements AuthenticatorInterface {
   }
 
   @override
-  Future<void> register(String activationToken) async {
+  Future<void> setup(String activationToken) async {
     await Future.delayed(const Duration(seconds: 1));
   }
 
   @override
-  Future<void> unregister() async {
+  Future<void> remove() async {
     await Future.delayed(const Duration(seconds: 1));
   }
 
@@ -43,5 +33,17 @@ class MockAuthenticator implements AuthenticatorInterface {
   Future<bool> isRegistered() async {
     await Future.delayed(const Duration(seconds: 1));
     return false;
+  }
+
+  @override
+  Future<AuthenticatorInfo> getInfo() {
+    // TODO: implement getInfo
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> reply(
+      {required Challenge challenge, required bool granted}) async {
+    await Future.delayed(const Duration(seconds: 1));
   }
 }

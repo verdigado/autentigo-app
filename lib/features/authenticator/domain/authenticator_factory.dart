@@ -1,20 +1,24 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:gruene_auth_app/app/config/config.dart';
-import 'package:keycloak_authenticator/keycloak_authenticator.dart';
+import 'package:keycloak_authenticator/api.dart';
 import 'mock_authenticator.dart';
 
 class AuthenticatorFactory {
-  static AuthenticatorInterface create() {
+  static Authenticator create() {
     var config = GetIt.I<AppConfig>();
     return KeycloakAuthenticator(
-      client: KeycloakAuthenticatorClient(
-        baseUrl: config.keycloakBaseUrl,
-        realm: config.keycloakRealm,
-      ),
+      baseUrl: config.keycloakBaseUrl,
+      realm: config.keycloakRealm,
+      storage: FlutterSecureStorageAdapter(const FlutterSecureStorage(
+        aOptions: AndroidOptions(
+          encryptedSharedPreferences: true,
+        ),
+      )),
     );
   }
 
-  static AuthenticatorInterface createMock() {
+  static Authenticator createMock() {
     return MockAuthenticator();
   }
 }

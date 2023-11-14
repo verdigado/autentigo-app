@@ -1,4 +1,4 @@
-import 'package:keycloak_authenticator/keycloak_authenticator.dart';
+import 'package:keycloak_authenticator/api.dart';
 
 class LoginAttemptDto {
   final DateTime loggedInAt;

@@ -13,7 +13,7 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   dio: ^5.3.3
   pointycastle: ^3.7.3
-  asn1lib: ^1.5.0
+  dart_jsonwebtoken: ^2.12.1
 
 dev_dependencies:
   flutter_test:
