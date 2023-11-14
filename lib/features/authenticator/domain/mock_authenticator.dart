@@ -20,30 +20,13 @@ class MockAuthenticator implements Authenticator {
   }
 
   @override
-  Future<void> setup(String activationToken) async {
-    await Future.delayed(const Duration(seconds: 1));
-  }
-
-  @override
-  Future<void> remove() async {
-    await Future.delayed(const Duration(seconds: 1));
-  }
-
-  @override
-  Future<bool> isRegistered() async {
-    await Future.delayed(const Duration(seconds: 1));
-    return false;
-  }
-
-  @override
-  Future<AuthenticatorInfo> getInfo() {
-    // TODO: implement getInfo
-    throw UnimplementedError();
-  }
-
-  @override
   Future<void> reply(
       {required Challenge challenge, required bool granted}) async {
     await Future.delayed(const Duration(seconds: 1));
+  }
+
+  @override
+  String getId() {
+    return 'mock_authenticator';
   }
 }

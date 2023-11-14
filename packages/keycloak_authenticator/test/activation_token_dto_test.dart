@@ -1,0 +1,17 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:keycloak_authenticator/src/dtos/activation_token_dto.dart';
+
+void main() {
+  test('can be constructed from url', () {
+    var activationTokenUrl =
+        'http://localhost:8080/realms/dev/login-actions/action-token?key=eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIxYWEzY2FhMS00ZmEwLTQzNTUtYWE1ZC1lZTVhNzc4OTA0NGYifQ.eyJleHAiOjE2OTk5OTUwNTgsImlhdCI6MTY5OTk5NDc1OCwianRpIjoiN2U4ZWFjM2UtMzRjMi00MzBhLWI4YTYtN2U1Mjk1NWZmY2MzIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9kZXYiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgwODAvcmVhbG1zL2RldiIsInN1YiI6ImI1YmY2Mzk2LTIxY2QtNDY2Yy05NjMzLTBkZTNhMTUyYmE2MyIsInR5cCI6ImFwcC1zZXR1cC1hY3Rpb24tdG9rZW4iLCJub25jZSI6IjdlOGVhYzNlLTM0YzItNDMwYS1iOGE2LTdlNTI5NTVmZmNjMyIsIm9hc2lkIjoiNDhiYWM3NmItYTQyNi00MGMwLWI1ZjYtYmY2OWY2N2UwN2IzLndQZFdndW8xUXdvLjI5NTk1YmZhLTc1OGUtNDIxYi1hOGQzLTBhZmI0OGQxNzI4ZCJ9.zjSQaG9LOwNu24y6-jJ6dKkc_v8-EJ2wbD37k5NsnA8&client_id=account-console&tab_id=wPdWguo1Qwo';
+    var token = ActivationTokenDto.fromUrl(activationTokenUrl);
+
+    expect(token.clientId, 'account-console');
+    expect(token.tabId, 'wPdWguo1Qwo');
+    expect(token.key,
+        'eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIxYWEzY2FhMS00ZmEwLTQzNTUtYWE1ZC1lZTVhNzc4OTA0NGYifQ.eyJleHAiOjE2OTk5OTUwNTgsImlhdCI6MTY5OTk5NDc1OCwianRpIjoiN2U4ZWFjM2UtMzRjMi00MzBhLWI4YTYtN2U1Mjk1NWZmY2MzIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9kZXYiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgwODAvcmVhbG1zL2RldiIsInN1YiI6ImI1YmY2Mzk2LTIxY2QtNDY2Yy05NjMzLTBkZTNhMTUyYmE2MyIsInR5cCI6ImFwcC1zZXR1cC1hY3Rpb24tdG9rZW4iLCJub25jZSI6IjdlOGVhYzNlLTM0YzItNDMwYS1iOGE2LTdlNTI5NTVmZmNjMyIsIm9hc2lkIjoiNDhiYWM3NmItYTQyNi00MGMwLWI1ZjYtYmY2OWY2N2UwN2IzLndQZFdndW8xUXdvLjI5NTk1YmZhLTc1OGUtNDIxYi1hOGQzLTBhZmI0OGQxNzI4ZCJ9.zjSQaG9LOwNu24y6-jJ6dKkc_v8-EJ2wbD37k5NsnA8');
+    expect(token.baseUrl, 'http://localhost:8080/realms/dev');
+    expect(token.realm, 'dev');
+  });
+}

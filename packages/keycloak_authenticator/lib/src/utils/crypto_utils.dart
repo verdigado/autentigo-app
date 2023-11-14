@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 
 class CryptoUtils {
+  CryptoUtils._();
+
   static AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey> generateRsaKeyPair({
     int bitLength = 2048,
   }) {

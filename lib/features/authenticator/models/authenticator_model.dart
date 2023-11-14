@@ -17,16 +17,25 @@ class AuthenticatorModel extends ChangeNotifier {
   String? errorMessage;
   bool isLoading = false;
   LoginAttemptDto? loginAttempt;
-  final Authenticator _authenticator = GetIt.I<Authenticator>();
+  final AuthenticatorService _service = GetIt.I<AuthenticatorService>();
+  Authenticator? _authenticator;
 
   Future<void> init() async {
     if (status != AuthenticatorStatus.init) {
       return;
     }
     try {
-      status = await _authenticator.isRegistered()
-          ? AuthenticatorStatus.ready
-          : AuthenticatorStatus.setup;
+      var entries = await _service.getList();
+      var entry = entries.firstOrNull;
+      if (entry != null) {
+        _authenticator = await _service.get(entry.id);
+        if (_authenticator != null) {
+          status = AuthenticatorStatus.ready;
+        }
+        status = AuthenticatorStatus.setup;
+      } else {
+        status = AuthenticatorStatus.setup;
+      }
     } on Exception catch (e) {
       errorMessage = e.toString();
       loginAttempt = null;
@@ -46,7 +55,7 @@ class AuthenticatorModel extends ChangeNotifier {
     errorMessage = null;
     notifyListeners();
     try {
-      await _authenticator.setup(activationToken);
+      _authenticator = await _service.create(activationToken);
     } on Exception catch (e) {
       errorMessage = 'Registerierung fehlgeschlagen:\n${e.toString()}';
       isLoading = false;
@@ -65,15 +74,16 @@ class AuthenticatorModel extends ChangeNotifier {
       return;
     }
     try {
-      await _authenticator.remove();
+      await _service.delete(_authenticator!);
     } on Exception catch (e) {
-      errorMessage = 'Unregister fehlgeschlagen';
+      errorMessage = 'Entfernen fehlgeschlagen';
       isLoading = false;
       notifyListeners();
       return;
     }
     isLoading = false;
     status = AuthenticatorStatus.setup;
+    _authenticator = null;
     errorMessage = null;
     loginAttempt = null;
     notifyListeners();
@@ -87,7 +97,7 @@ class AuthenticatorModel extends ChangeNotifier {
     errorMessage = null;
     notifyListeners();
     try {
-      var challenge = await _authenticator.fetchChallenge();
+      var challenge = await _authenticator!.fetchChallenge();
       if (challenge != null) {
         loginAttempt = LoginAttemptDto(
           browser: challenge.browser,
@@ -130,7 +140,7 @@ class AuthenticatorModel extends ChangeNotifier {
     errorMessage = null;
     notifyListeners();
     try {
-      await _authenticator.reply(
+      await _authenticator!.reply(
         challenge: loginAttempt!.challenge,
         granted: granted,
       );

@@ -5,11 +5,9 @@ import 'package:keycloak_authenticator/api.dart';
 import 'mock_authenticator.dart';
 
 class AuthenticatorFactory {
-  static Authenticator create() {
+  static AuthenticatorService create() {
     var config = GetIt.I<AppConfig>();
-    return KeycloakAuthenticator(
-      baseUrl: config.keycloakBaseUrl,
-      realm: config.keycloakRealm,
+    return AuthenticatorService(
       storage: FlutterSecureStorageAdapter(const FlutterSecureStorage(
         aOptions: AndroidOptions(
           encryptedSharedPreferences: true,

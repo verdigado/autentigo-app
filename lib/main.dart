@@ -13,7 +13,7 @@ void main() {
   );
   GetIt.I.registerSingleton<AppConfig>(appConfig);
 
-  GetIt.I.registerFactory<Authenticator>(AuthenticatorFactory.createMock);
+  GetIt.I.registerFactory<AuthenticatorService>(AuthenticatorFactory.create);
 
   runApp(MyApp());
 }

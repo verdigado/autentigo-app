@@ -11,4 +11,6 @@ abstract class Storage {
   Future<void> delete({
     required String key,
   });
+
+  Future<void> containsKey({required String key});
 }
