@@ -16,6 +16,7 @@ class MockAuthenticator implements Authenticator {
       userFirstName: 'Bob',
       userLastName: 'Doe',
       userName: 'Bob',
+      expiresIn: 60,
     );
   }
 

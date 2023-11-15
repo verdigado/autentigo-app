@@ -1,3 +1,7 @@
+import 'dart:math';
+
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+
 class Challenge {
   // User who is requesting authentication
   final String userName;
@@ -22,6 +26,8 @@ class Challenge {
   // OS version of the requesting device
   final String osVersion;
 
+  final int? expiresIn;
+
   Challenge({
     required this.userName,
     required this.userFirstName,
@@ -34,21 +40,45 @@ class Challenge {
     required this.browser,
     required this.os,
     required this.osVersion,
+    required this.expiresIn,
   });
+
+  static int? _getExpiresInFromUrl(String? targetUrl) {
+    if (targetUrl == null) {
+      return null;
+    }
+    var url = Uri.tryParse(targetUrl);
+    if (url == null) {
+      return null;
+    }
+    var key = url.queryParameters['key'];
+    if (key == null) {
+      return null;
+    }
+    var jwt = JWT.tryDecode(key);
+    if (jwt == null) {
+      return null;
+    }
+    int? expiresAt = jwt.payload?['exp'];
+    if (expiresAt == null) {
+      return null;
+    }
+    return max(0, expiresAt - DateTime.now().millisecondsSinceEpoch ~/ 1000);
+  }
 
   factory Challenge.fromJson(Map<String, dynamic> json) {
     return Challenge(
-      userName: json['userName'],
-      userFirstName: json['userFirstName'],
-      userLastName: json['userLastName'],
-      targetUrl: json['targetUrl'],
-      secret: json['secret'],
-      updatedTimestamp: json['updatedTimestamp'],
-      ipAddress: json['ipAddress'],
-      device: json['device'],
-      browser: json['browser'],
-      os: json['os'],
-      osVersion: json['osVersion'],
-    );
+        userName: json['userName'],
+        userFirstName: json['userFirstName'],
+        userLastName: json['userLastName'],
+        targetUrl: json['targetUrl'],
+        secret: json['secret'],
+        updatedTimestamp: json['updatedTimestamp'],
+        ipAddress: json['ipAddress'],
+        device: json['device'],
+        browser: json['browser'],
+        os: json['os'],
+        osVersion: json['osVersion'],
+        expiresIn: _getExpiresInFromUrl(json['targetUrl']));
   }
 }
