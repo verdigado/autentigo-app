@@ -195,4 +195,10 @@ class CryptoUtils {
 
     return rsaPrivateKey;
   }
+
+  static String generateId({bitLength = 128}) {
+    var secureRandom = _getSecureRandom();
+    BigInt randomId = secureRandom.nextBigInteger(bitLength);
+    return randomId.toRadixString(16);
+  }
 }

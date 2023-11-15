@@ -25,17 +25,10 @@ class AuthenticatorModel extends ChangeNotifier {
       return;
     }
     try {
-      var entries = await _service.getList();
-      var entry = entries.firstOrNull;
-      if (entry != null) {
-        _authenticator = await _service.get(entry.id);
-        if (_authenticator != null) {
-          status = AuthenticatorStatus.ready;
-        }
-        status = AuthenticatorStatus.setup;
-      } else {
-        status = AuthenticatorStatus.setup;
-      }
+      _authenticator = await _service.getFirst();
+      status = _authenticator != null
+          ? AuthenticatorStatus.ready
+          : AuthenticatorStatus.setup;
     } on Exception catch (e) {
       errorMessage = e.toString();
       loginAttempt = null;

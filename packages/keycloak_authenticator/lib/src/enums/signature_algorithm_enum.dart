@@ -3,5 +3,5 @@
 enum SignatureAlgorithm {
   SHA256withRSA,
   SHA512withRSA,
-  // SHA512withECDSA,
+  SHA512withECDSA,
 }

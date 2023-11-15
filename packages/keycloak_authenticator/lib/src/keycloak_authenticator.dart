@@ -63,9 +63,10 @@ class KeycloakAuthenticator implements Authenticator {
   }
 
   @override
-  Future<Challenge> fetchChallenge() async {
-    var challanges = await _client.getChallenges(DeviceUtils.getDeviceId());
-    return challanges[0];
+  Future<Challenge?> fetchChallenge() async {
+    var deviceId = await DeviceUtils.getDeviceId();
+    var challanges = await _client.getChallenges(deviceId);
+    return challanges.firstOrNull;
   }
 
   @override
@@ -74,9 +75,10 @@ class KeycloakAuthenticator implements Authenticator {
     required bool granted,
   }) async {
     final uri = Uri.parse(challenge.targetUrl);
+    var deviceId = await DeviceUtils.getDeviceId();
 
     await _client.completeChallenge(
-      deviceId: DeviceUtils.getDeviceId(),
+      deviceId: deviceId,
       clientId: uri.queryParameters['client_id']!,
       tabId: uri.queryParameters['tab_id']!,
       key: uri.queryParameters['key']!,
