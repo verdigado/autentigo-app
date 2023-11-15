@@ -5,21 +5,24 @@ import 'package:keycloak_authenticator/src/keycloak_client.dart';
 import 'package:keycloak_authenticator/src/dtos/challenge.dart';
 import 'package:keycloak_authenticator/src/enums/enums.dart';
 import 'package:keycloak_authenticator/src/utils/crypto_utils.dart';
-import 'package:keycloak_authenticator/src/utils/device_utils.dart';
 import 'package:pointycastle/export.dart';
 
 class KeycloakAuthenticator implements Authenticator {
   final _Data _data;
+  final String _deviceId;
   final KeycloakClient _client;
 
   KeycloakAuthenticator._({
     required _Data data,
     required KeycloakClient client,
+    required String deviceId,
   })  : _data = data,
+        _deviceId = deviceId,
         _client = client;
 
   factory KeycloakAuthenticator.fromParams({
     required String id,
+    required String deviceId,
     required String baseUrl,
     required String realm,
     required SignatureAlgorithm signatureAlgorithm,
@@ -36,6 +39,7 @@ class KeycloakAuthenticator implements Authenticator {
         keyAlgorithm: keyAlgorithm,
         privateKey: privateKey,
       ),
+      deviceId: deviceId,
       client: KeycloakClient(
         baseUrl: baseUrl,
         privateKey: privateKey,
@@ -45,10 +49,12 @@ class KeycloakAuthenticator implements Authenticator {
     );
   }
 
-  factory KeycloakAuthenticator.fromJson(Map<String, dynamic> json) {
+  factory KeycloakAuthenticator.fromJson(Map<String, dynamic> json,
+      {required String deviceId}) {
     var data = _Data.fromJson(json);
     return KeycloakAuthenticator._(
       data: data,
+      deviceId: deviceId,
       client: KeycloakClient(
         baseUrl: data.baseUrl,
         privateKey: data.privateKey,
@@ -64,8 +70,7 @@ class KeycloakAuthenticator implements Authenticator {
 
   @override
   Future<Challenge?> fetchChallenge() async {
-    var deviceId = await DeviceUtils.getDeviceId();
-    var challanges = await _client.getChallenges(deviceId);
+    var challanges = await _client.getChallenges(_deviceId);
     return challanges.firstOrNull;
   }
 
@@ -75,10 +80,9 @@ class KeycloakAuthenticator implements Authenticator {
     required bool granted,
   }) async {
     final uri = Uri.parse(challenge.targetUrl);
-    var deviceId = await DeviceUtils.getDeviceId();
 
     await _client.completeChallenge(
-      deviceId: deviceId,
+      deviceId: _deviceId,
       clientId: uri.queryParameters['client_id']!,
       tabId: uri.queryParameters['tab_id']!,
       key: uri.queryParameters['key']!,

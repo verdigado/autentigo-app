@@ -13,11 +13,7 @@ class DeviceUtils {
     throw Exception("${Platform.operatingSystem} is not supported");
   }
 
-  static Future<String> getDeviceId() async {
-    return 'unknown';
-  }
-
-  static String? getDevicePushId() {
+  static Future<String?> getDevicePushId() async {
     return null;
   }
 }

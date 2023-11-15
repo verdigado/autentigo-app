@@ -10,11 +10,26 @@ import 'package:keycloak_authenticator/src/storage/storage.dart';
 import 'package:keycloak_authenticator/src/utils/crypto_utils.dart';
 import 'package:keycloak_authenticator/src/utils/device_utils.dart';
 import 'package:pointycastle/export.dart';
+import 'package:uuid/uuid.dart';
 
 class AuthenticatorService {
   final Storage _storage;
+  String? _deviceId;
+  final uuid = const Uuid();
 
   AuthenticatorService({required Storage storage}) : _storage = storage;
+
+  Future<String> _getDeviceId() async {
+    if (_deviceId == null) {
+      _deviceId = await _storage.read(key: 'device_id');
+      if (_deviceId == null) {
+        _deviceId = uuid.v4();
+        await _storage.write(key: 'device_id', value: _deviceId);
+      }
+    }
+
+    return _deviceId!;
+  }
 
   Future<Authenticator> create(
     String aktivationTokenUrl, {
@@ -39,8 +54,8 @@ class AuthenticatorService {
         throw Exception('ECDSA not supported');
     }
 
-    var deviceId = await DeviceUtils.getDeviceId();
-    var devicePushId = DeviceUtils.getDevicePushId();
+    var deviceId = await _getDeviceId();
+    var devicePushId = await DeviceUtils.getDevicePushId();
     DeviceOs deviceOs = DeviceUtils.getDeviceOs();
 
     var client = KeycloakClient(
@@ -61,9 +76,10 @@ class AuthenticatorService {
       signatureAlgorithm: signatureAlgorithm,
       devicePushId: devicePushId,
     );
-    var authenticatorId = CryptoUtils.generateId();
+    var authenticatorId = uuid.v4();
     var authenticator = KeycloakAuthenticator.fromParams(
       id: authenticatorId,
+      deviceId: deviceId,
       baseUrl: token.baseUrl,
       realm: token.realm,
       signatureAlgorithm: signatureAlgorithm,
@@ -86,7 +102,9 @@ class AuthenticatorService {
     if (serialized == null) {
       return null;
     }
-    return KeycloakAuthenticator.fromJson(jsonDecode(serialized));
+    var deviceId = await _getDeviceId();
+    return KeycloakAuthenticator.fromJson(jsonDecode(serialized),
+        deviceId: deviceId);
   }
 
   Future<Authenticator?> getFirst() async {
