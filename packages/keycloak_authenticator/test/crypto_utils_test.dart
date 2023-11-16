@@ -209,7 +209,8 @@ void main() {
   test('EC private key can be decoded from PKCS#8', () {
     var decoded =
         'MHcCAQEEICfsBfElusNLHJ5K/i3ItFRQb4aJw/ZUdze+egEDa7JOoAoGCCqGSM49AwEHoUQDQgAEjI8qbJl+d+4IytlrBt+J2oHo4IC4VR2kFLImpcJPusfk1Ucs/HBqeNYSr8sAP51LBuEQFa3Saj22KtyUZlharA==';
-    var privateKey = CryptoUtils.decodeEcPrivateKey(base64Decode(decoded));
+    var privateKey =
+        CryptoUtils.decodeEcPrivateKey(base64Decode(decoded), pkcs8: true);
     expect(
       privateKey.d,
       BigInt.parse(

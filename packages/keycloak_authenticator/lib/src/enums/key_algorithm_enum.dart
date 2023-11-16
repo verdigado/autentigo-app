@@ -2,5 +2,5 @@
 
 enum KeyAlgorithm {
   RSA,
-  ECDSA,
+  EC,
 }

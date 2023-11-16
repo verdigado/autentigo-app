@@ -15,7 +15,7 @@ class CryptoUtils {
   CryptoUtils._();
 
   static AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey> generateRsaKeyPair({
-    int bitLength = 2048,
+    int bitLength = 4096,
   }) {
     var keyGenerator = RSAKeyGenerator()
       ..init(
@@ -39,7 +39,7 @@ class CryptoUtils {
 
   static Future<AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey>>
       generateRsaKeyPairAsync({
-    int bitLength = 2048,
+    int bitLength = 4096,
   }) {
     return compute((_) => generateRsaKeyPair(bitLength: bitLength), null);
   }
@@ -97,7 +97,7 @@ class CryptoUtils {
     RSAPublicKey publicKey,
     Uint8List signedData,
     Uint8List signature, {
-    String algorithm = 'SHA-256/RSA',
+    String algorithm = 'SHA-512/RSA',
   }) {
     final sig = RSASignature(signature);
 

@@ -125,8 +125,11 @@ class _Data {
       case KeyAlgorithm.RSA:
         return CryptoUtils.decodeRsaPrivateKeyFromPkcs8(
             base64Decode(encodedKey));
-      case KeyAlgorithm.ECDSA:
-        throw Exception('Unsupported KeyAlgorithm');
+      case KeyAlgorithm.EC:
+        return CryptoUtils.decodeEcPrivateKey(
+          base64Decode(encodedKey),
+          pkcs8: true,
+        );
     }
   }
 
@@ -138,8 +141,9 @@ class _Data {
       case KeyAlgorithm.RSA:
         return base64Encode(CryptoUtils.encodeRsaPrivateKeyToPkcs8(
             privateKey as RSAPrivateKey));
-      case KeyAlgorithm.ECDSA:
-        throw Exception('Unsupported Key Algorithm');
+      case KeyAlgorithm.EC:
+        return base64Encode(
+            CryptoUtils.encodeEcPrivateKeyToPkcs8(privateKey as ECPrivateKey));
     }
   }
 

@@ -33,7 +33,7 @@ class AuthenticatorService {
 
   Future<Authenticator> create(
     String aktivationTokenUrl, {
-    SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.SHA512withRSA,
+    SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.SHA512withECDSA,
   }) async {
     var token = ActivationTokenDto.fromUrl(aktivationTokenUrl);
 
@@ -50,8 +50,11 @@ class AuthenticatorService {
         encodedPublicKey = base64Encode(CryptoUtils.encodeRsaPublicKeyToPkcs8(
             keyPair.publicKey as RSAPublicKey));
         break;
-      case KeyAlgorithm.ECDSA:
-        throw Exception('ECDSA not supported');
+      case KeyAlgorithm.EC:
+        keyPair = await CryptoUtils.generateEcKeyPairAsync();
+        encodedPublicKey = base64Encode(CryptoUtils.encodeEcPublicKeyToPkcs8(
+            keyPair.publicKey as ECPublicKey));
+        break;
     }
 
     var deviceId = await _getDeviceId();
@@ -164,7 +167,7 @@ class AuthenticatorService {
       case SignatureAlgorithm.SHA512withRSA:
         return KeyAlgorithm.RSA;
       case SignatureAlgorithm.SHA512withECDSA:
-        return KeyAlgorithm.ECDSA;
+        return KeyAlgorithm.EC;
     }
   }
 }

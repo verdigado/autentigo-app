@@ -30,6 +30,7 @@ class KeycloakClient {
     var algorithmMap = {
       SignatureAlgorithm.SHA256withRSA: 'SHA-256/RSA',
       SignatureAlgorithm.SHA512withRSA: 'SHA-512/RSA',
+      SignatureAlgorithm.SHA512withECDSA: 'SHA-512/ECDSA',
     };
 
     var algorithmName = algorithmMap[_signatureAlgorithm];
@@ -46,8 +47,12 @@ class KeycloakClient {
             algorithmName: algorithmName,
           ),
         );
-      case KeyAlgorithm.ECDSA:
-        throw Exception('Unsupported KeyAlgorithm');
+      case KeyAlgorithm.EC:
+        return CryptoUtils.ecSign(
+          _privateKey as ECPrivateKey,
+          Uint8List.fromList(value.codeUnits),
+          algorithmName: algorithmName,
+        );
     }
   }
 
@@ -107,7 +112,7 @@ class KeycloakClient {
     var signatureHeader = buildSignatureHeader(
       deviceId,
       {
-        'created': DateTime.now().millisecondsSinceEpoch.toString(),
+        'created': (DateTime.now().millisecondsSinceEpoch - 1000).toString(),
         // 'request-target': 'get_/realms/$realm/challenge-resource/$deviceId',
       },
     );
