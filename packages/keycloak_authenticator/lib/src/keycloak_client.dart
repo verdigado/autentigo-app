@@ -123,7 +123,9 @@ class KeycloakClient {
           },
         ),
       );
-      return [Challenge.fromJson(res.data)];
+      return (res.data as List<dynamic>)
+          .map((e) => Challenge.fromJson(e))
+          .toList();
     } on DioException catch (err) {
       if (err.response?.statusCode == 404) {
         return [];
