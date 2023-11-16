@@ -157,4 +157,78 @@ void main() {
       BigInt.from(0x10001),
     );
   });
+
+  test('EC key can be generated', () {
+    var keyPair = CryptoUtils.generateEcKeyPair();
+    expect(keyPair.publicKey.Q, isNotNull);
+    expect(keyPair.privateKey.d, isNotNull);
+  });
+
+  test('EC key can be generated async', () async {
+    var keyPair = await CryptoUtils.generateEcKeyPairAsync();
+    expect(keyPair.publicKey.Q, isNotNull);
+    expect(keyPair.privateKey.d, isNotNull);
+  });
+
+  test('can sign with EC', () {
+    var privateKey = ECPrivateKey(
+      BigInt.parse(
+        '27ec05f125bac34b1c9e4afe2dc8b454506f8689c3f6547737be7a01036bb24e',
+        radix: 16,
+      ),
+      ECDomainParameters('prime256v1'),
+    );
+
+    var signature = CryptoUtils.ecSign(
+      privateKey,
+      Uint8List.fromList('value'.codeUnits),
+    );
+
+    expect(
+      signature,
+      isNotEmpty,
+    );
+  });
+
+  test('EC private key can be encoded to PKCS#8', () {
+    var privateKey = ECPrivateKey(
+      BigInt.parse(
+        '27ec05f125bac34b1c9e4afe2dc8b454506f8689c3f6547737be7a01036bb24e',
+        radix: 16,
+      ),
+      ECDomainParameters('prime256v1'),
+    );
+
+    var encoded = CryptoUtils.encodeEcPrivateKeyToPkcs8(privateKey);
+    expect(
+      base64Encode(encoded),
+      'MHcCAQEEICfsBfElusNLHJ5K/i3ItFRQb4aJw/ZUdze+egEDa7JOoAoGCCqGSM49AwEHoUQDQgAEjI8qbJl+d+4IytlrBt+J2oHo4IC4VR2kFLImpcJPusfk1Ucs/HBqeNYSr8sAP51LBuEQFa3Saj22KtyUZlharA==',
+    );
+  });
+
+  test('EC private key can be decoded from PKCS#8', () {
+    var decoded =
+        'MHcCAQEEICfsBfElusNLHJ5K/i3ItFRQb4aJw/ZUdze+egEDa7JOoAoGCCqGSM49AwEHoUQDQgAEjI8qbJl+d+4IytlrBt+J2oHo4IC4VR2kFLImpcJPusfk1Ucs/HBqeNYSr8sAP51LBuEQFa3Saj22KtyUZlharA==';
+    var privateKey = CryptoUtils.decodeEcPrivateKey(base64Decode(decoded));
+    expect(
+      privateKey.d,
+      BigInt.parse(
+        '27ec05f125bac34b1c9e4afe2dc8b454506f8689c3f6547737be7a01036bb24e',
+        radix: 16,
+      ),
+    );
+  });
+
+  test('EC public key can be encoded to PKCS#8', () {
+    var publicKey = CryptoUtils.ecPublicKey(
+      '048c8f2a6c997e77ee08cad96b06df89da81e8e080b8551da414b226a5c24fbac7e4d5472cfc706a78d612afcb003f9d4b06e11015add26a3db62adc9466585aac',
+      'prime256v1',
+    );
+
+    var encoded = CryptoUtils.encodeEcPublicKeyToPkcs8(publicKey);
+    expect(
+      base64Encode(encoded),
+      'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEjI8qbJl+d+4IytlrBt+J2oHo4IC4VR2kFLImpcJPusfk1Ucs/HBqeNYSr8sAP51LBuEQFa3Saj22KtyUZlharA==',
+    );
+  });
 }

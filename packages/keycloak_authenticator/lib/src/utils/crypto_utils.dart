@@ -1,8 +1,16 @@
+import 'dart:convert';
+
 import 'package:pointycastle/export.dart';
 import "package:pointycastle/pointycastle.dart";
+import 'package:pointycastle/ecc/ecc_fp.dart' as ecc_fp;
+import 'package:pointycastle/src/utils.dart';
+import 'package:pointycastle/asn1/object_identifiers.dart';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 
+/// Wrapper class around the pointycastle library based on the
+/// dart_basic_utils package
+/// https://github.com/Ephenodrom/Dart-Basic-Utils/blob/master/lib/src/CryptoUtils.dart
 class CryptoUtils {
   CryptoUtils._();
 
@@ -194,5 +202,328 @@ class CryptoUtils {
     );
 
     return rsaPrivateKey;
+  }
+
+  ///
+  /// Generates a elliptic curve [AsymmetricKeyPair].
+  ///
+  /// The default curve is **prime256v1**
+  ///
+  /// The following curves are supported:
+  ///
+  /// * brainpoolp160r1
+  /// * brainpoolp160t1
+  /// * brainpoolp192r1
+  /// * brainpoolp192t1
+  /// * brainpoolp224r1
+  /// * brainpoolp224t1
+  /// * brainpoolp256r1
+  /// * brainpoolp256t1
+  /// * brainpoolp320r1
+  /// * brainpoolp320t1
+  /// * brainpoolp384r1
+  /// * brainpoolp384t1
+  /// * brainpoolp512r1
+  /// * brainpoolp512t1
+  /// * GostR3410-2001-CryptoPro-A
+  /// * GostR3410-2001-CryptoPro-B
+  /// * GostR3410-2001-CryptoPro-C
+  /// * GostR3410-2001-CryptoPro-XchA
+  /// * GostR3410-2001-CryptoPro-XchB
+  /// * prime192v1
+  /// * prime192v2
+  /// * prime192v3
+  /// * prime239v1
+  /// * prime239v2
+  /// * prime239v3
+  /// * prime256v1
+  /// * secp112r1
+  /// * secp112r2
+  /// * secp128r1
+  /// * secp128r2
+  /// * secp160k1
+  /// * secp160r1
+  /// * secp160r2
+  /// * secp192k1
+  /// * secp192r1
+  /// * secp224k1
+  /// * secp224r1
+  /// * secp256k1
+  /// * secp256r1
+  /// * secp384r1
+  /// * secp521r1
+  ///
+  static AsymmetricKeyPair<ECPublicKey, ECPrivateKey> generateEcKeyPair(
+      {String curve = 'prime256v1'}) {
+    var ecDomainParameters = ECDomainParameters(curve);
+    var keyParams = ECKeyGeneratorParameters(ecDomainParameters);
+
+    var secureRandom = _getSecureRandom();
+
+    var generator = ECKeyGenerator()
+      ..init(ParametersWithRandom(keyParams, secureRandom));
+
+    var keyPair = generator.generateKeyPair();
+
+    // Cast the keyPair key pair into the RSA key types
+    final myPublic = keyPair.publicKey as ECPublicKey;
+    final myPrivate = keyPair.privateKey as ECPrivateKey;
+
+    return AsymmetricKeyPair<ECPublicKey, ECPrivateKey>(myPublic, myPrivate);
+  }
+
+  static Future<AsymmetricKeyPair<ECPublicKey, ECPrivateKey>>
+      generateEcKeyPairAsync({String curve = 'prime256v1'}) {
+    return compute((_) => generateEcKeyPair(curve: curve), null);
+  }
+
+  ///
+  /// Signing the given [dataToSign] with the given [privateKey].
+  ///
+  /// The default [algorithm] used is **SHA-1/ECDSA**. All supported algorihms are :
+  ///
+  /// * SHA-1/ECDSA
+  /// * SHA-224/ECDSA
+  /// * SHA-256/ECDSA
+  /// * SHA-384/ECDSA
+  /// * SHA-512/ECDSA
+  /// * SHA-1/DET-ECDSA
+  /// * SHA-224/DET-ECDSA
+  /// * SHA-256/DET-ECDSA
+  /// * SHA-384/DET-ECDSA
+  /// * SHA-512/DET-ECDSA
+  ///
+  static String ecSign(ECPrivateKey privateKey, Uint8List dataToSign,
+      {String algorithmName = 'SHA-1/ECDSA'}) {
+    var signer = Signer(algorithmName) as ECDSASigner;
+
+    var params = ParametersWithRandom(
+        PrivateKeyParameter<ECPrivateKey>(privateKey), _getSecureRandom());
+    signer.init(true, params);
+
+    var sig = signer.generateSignature(dataToSign) as ECSignature;
+    return _ecSignatureToBase64(sig);
+  }
+
+  ///
+  /// Convert ECSignature [signature] to DER encoded base64 string.
+  /// ```
+  /// ECDSA-Sig-Value ::= SEQUENCE {
+  ///  r INTEGER,
+  ///  s INTEGER
+  /// }
+  ///```
+  /// This is mainly used for passing signature as string via request/response use cases
+  ///
+  static String _ecSignatureToBase64(ECSignature signature) {
+    var outer = ASN1Sequence();
+    outer.add(ASN1Integer(signature.r));
+    outer.add(ASN1Integer(signature.s));
+
+    return base64Encode(outer.encode());
+  }
+
+  static ECPublicKey ecPublicKey(String pub, String curveName,
+      {compressed = false}) {
+    var pubBytes = CryptoUtils.hexToUint8List(pub);
+    var x = pubBytes.sublist(1, (pubBytes.length / 2).round());
+    var y = pubBytes.sublist(1 + x.length, pubBytes.length);
+    var params = ECDomainParameters(curveName);
+    var bigX = decodeBigIntWithSign(1, x);
+    var bigY = decodeBigIntWithSign(1, y);
+    return ECPublicKey(
+        ecc_fp.ECPoint(
+            params.curve as ecc_fp.ECCurve,
+            params.curve.fromBigInteger(bigX) as ecc_fp.ECFieldElement?,
+            params.curve.fromBigInteger(bigY) as ecc_fp.ECFieldElement?,
+            compressed),
+        params);
+  }
+
+  static Uint8List hexToUint8List(String hex) {
+    if (hex.length % 2 != 0) {
+      throw 'Odd number of hex digits';
+    }
+    var length = hex.length ~/ 2;
+    var result = Uint8List(length);
+    for (var i = 0; i < length; ++i) {
+      var x = int.parse(hex.substring(2 * i, 2 * (i + 1)), radix: 16);
+      result[i] = x;
+    }
+    return result;
+  }
+
+  ///
+  /// Enode the given elliptic curve [publicKey] to PEM format.
+  ///
+  /// This is descripted in <https://tools.ietf.org/html/rfc5915>
+  ///
+  /// ```ASN1
+  /// ECPrivateKey ::= SEQUENCE {
+  ///   version        INTEGER { ecPrivkeyVer1(1) } (ecPrivkeyVer1),
+  ///   privateKey     OCTET STRING
+  ///   parameters [0] ECParameters {{ NamedCurve }} OPTIONAL
+  ///   publicKey  [1] BIT STRING OPTIONAL
+  /// }
+  ///
+  /// ```
+  ///
+  /// As descripted in the mentioned RFC, all optional values will always be set.
+  ///
+  static Uint8List encodeEcPrivateKeyToPkcs8(ECPrivateKey ecPrivateKey) {
+    var outer = ASN1Sequence();
+
+    var version = ASN1Integer(BigInt.from(1));
+    var privateKeyAsBytes = i2osp(ecPrivateKey.d!);
+    var privateKey = ASN1OctetString(octets: privateKeyAsBytes);
+    var choice = ASN1Sequence(tag: 0xA0);
+
+    choice.add(
+        ASN1ObjectIdentifier.fromName(ecPrivateKey.parameters!.domainName));
+
+    var publicKey = ASN1Sequence(tag: 0xA1);
+    var q = ecPrivateKey.parameters!.G * ecPrivateKey.d!;
+    var encodedBytes = q!.getEncoded(false);
+    var subjectPublicKey = ASN1BitString(stringValues: encodedBytes);
+    publicKey.add(subjectPublicKey);
+
+    outer.add(version);
+    outer.add(privateKey);
+    outer.add(choice);
+    outer.add(publicKey);
+    return outer.encode();
+  }
+
+  ///
+  /// Decode the given [bytes] into an [ECPrivateKey].
+  ///
+  /// [pkcs8] defines the ASN1 format of the given [bytes]. The default is false, so SEC1 is assumed.
+  ///
+  /// Supports SEC1 (<https://tools.ietf.org/html/rfc5915>) and PKCS8 (<https://datatracker.ietf.org/doc/html/rfc5208>)
+  ///
+  static ECPrivateKey decodeEcPrivateKey(
+    Uint8List bytes, {
+    bool pkcs8 = false,
+    ECDomainParameters? parameters,
+  }) {
+    var asn1Parser = ASN1Parser(bytes);
+    var topLevelSeq = asn1Parser.nextObject() as ASN1Sequence;
+    String curveName;
+    Uint8List x;
+    if (pkcs8) {
+      // Parse the PKCS8 format
+      var innerSeq = topLevelSeq.elements!.elementAt(1) as ASN1Sequence;
+      var b2 = innerSeq.elements!.elementAt(1) as ASN1ObjectIdentifier;
+      var b2Data = b2.objectIdentifierAsString;
+      var b2CurveData = ObjectIdentifiers.getIdentifierByIdentifier(b2Data);
+      if (b2CurveData == null) {
+        throw const FormatException(
+            'could not extract b2CurveData from encoded EC private key');
+      }
+      curveName = b2CurveData['readableName'];
+
+      var octetString = topLevelSeq.elements!.elementAt(2) as ASN1OctetString;
+      asn1Parser = ASN1Parser(octetString.valueBytes);
+      var octetStringSeq = asn1Parser.nextObject() as ASN1Sequence;
+      var octetStringKeyData =
+          octetStringSeq.elements!.elementAt(1) as ASN1OctetString;
+
+      x = octetStringKeyData.valueBytes!;
+    } else {
+      // Parse the SEC1 format
+      var privateKeyAsOctetString =
+          topLevelSeq.elements!.elementAt(1) as ASN1OctetString;
+      var choice = topLevelSeq.elements!.elementAt(2);
+      var s = ASN1Sequence();
+      var parser = ASN1Parser(choice.valueBytes);
+      while (parser.hasNext()) {
+        s.add(parser.nextObject());
+      }
+      var curveNameOi = s.elements!.elementAt(0) as ASN1ObjectIdentifier;
+      var data = ObjectIdentifiers.getIdentifierByIdentifier(
+          curveNameOi.objectIdentifierAsString);
+      if (data == null) {
+        throw const FormatException(
+            'could not extract b2CurveData from encoded EC private key');
+      }
+      curveName = data['readableName'];
+
+      x = privateKeyAsOctetString.valueBytes!;
+    }
+
+    return ECPrivateKey(
+      osp2i(x),
+      parameters ?? ECDomainParameters(curveName),
+    );
+  }
+
+  ///
+  /// Conversion of integer to bytes according to RFC 3447 at <https://datatracker.ietf.org/doc/html/rfc3447#page-8>
+  ///
+  static Uint8List i2osp(BigInt number,
+      {int? outLen, Endian endian = Endian.big}) {
+    var size = (number.bitLength + 7) >> 3;
+    if (outLen == null) {
+      outLen = size;
+    } else if (outLen < size) {
+      throw Exception('Number too large');
+    }
+    final result = Uint8List(outLen);
+    var byteMask = BigInt.from(0xff);
+    var pos = endian == Endian.big ? outLen - 1 : 0;
+    for (var i = 0; i < size; i++) {
+      result[pos] = (number & byteMask).toInt();
+      if (endian == Endian.big) {
+        pos -= 1;
+      } else {
+        pos += 1;
+      }
+      number = number >> 8;
+    }
+    return result;
+  }
+
+  ///
+  /// Conversion of bytes to integer according to RFC 3447 at <https://datatracker.ietf.org/doc/html/rfc3447#page-8>
+  ///
+  static BigInt osp2i(Iterable<int> bytes, {Endian endian = Endian.big}) {
+    var result = BigInt.from(0);
+    if (endian == Endian.little) {
+      bytes = bytes.toList().reversed;
+    }
+
+    for (var byte in bytes) {
+      result = result << 8;
+      result |= BigInt.from(byte);
+    }
+
+    return result;
+  }
+
+  ///
+  /// Enode the given elliptic curve [publicKey] to PEM format.
+  ///
+  /// This is descripted in <https://tools.ietf.org/html/rfc5480>
+  ///
+  /// ```ASN1
+  /// SubjectPublicKeyInfo  ::=  SEQUENCE  {
+  ///     algorithm         AlgorithmIdentifier,
+  ///     subjectPublicKey  BIT STRING
+  /// }
+  /// ```
+  ///
+  static Uint8List encodeEcPublicKeyToPkcs8(ECPublicKey publicKey) {
+    var algorithm = ASN1Sequence();
+    algorithm.add(ASN1ObjectIdentifier.fromName('ecPublicKey'));
+    algorithm
+        .add(ASN1ObjectIdentifier.fromName(publicKey.parameters!.domainName));
+    var encodedBytes = publicKey.Q!.getEncoded(false);
+
+    var subjectPublicKey = ASN1BitString(stringValues: encodedBytes);
+    var outer = ASN1Sequence()
+      ..add(algorithm)
+      ..add(subjectPublicKey);
+
+    return outer.encode();
   }
 }
