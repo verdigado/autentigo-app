@@ -3,29 +3,40 @@ import 'dart:math';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
 class Challenge {
-  // User who is requesting authentication
+  /// User who is requesting authentication
   final String userName;
-  // User frist name
+
+  /// User frist name
   final String userFirstName;
-  // User last name
+
+  /// User last name
   final String userLastName;
-  // URL containing JWT to send challenge to
+
+  /// URL containing JWT to send challenge to
   final String targetUrl;
-  // random string to be signed
+
+  /// random string to be signed
   final String secret;
-  // Unix timestamp in milliseconds the user requested authentication (login)
+
+  /// Unix timestamp in milliseconds the user requested authentication (login)
   final int updatedTimestamp;
-  // IP address of the requesting device
+
+  /// IP address of the requesting device
   final String ipAddress;
-  // The requesting device, e.g. iPhone
+
+  /// The requesting device, e.g. iPhone
   final String device;
-  // Browser of the requesting device
+
+  /// Browser of the requesting device
   final String browser;
-  // OS of the requesting device
+
+  /// OS of the requesting device
   final String os;
-  // OS version of the requesting device
+
+  /// OS version of the requesting device
   final String osVersion;
 
+  /// Expiration of the action token by Keycloak in seconds
   final int? expiresIn;
 
   Challenge({

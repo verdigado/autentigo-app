@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:gruene_auth_app/app/utils/snackbar_utils.dart';
 import 'package:gruene_auth_app/features/authenticator/models/authenticator_model.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
@@ -22,27 +23,18 @@ class _ActivationTokenScanScreenState extends State<ActivationTokenScanScreen> {
     if (model.isLoading) {
       return;
     }
-    await model.setup(value);
+    var message = await model.setup(value);
 
     if (!context.mounted) return;
 
-    if (model.status == AuthenticatorStatus.ready) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: const Text('Einrichtung erfolgreich'),
-          backgroundColor: Colors.greenAccent.shade700,
-          showCloseIcon: false));
-      Navigator.of(context).pop();
-      return;
+    if (message != null) {
+      ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
+        message,
+        context,
+      ));
     }
-    if (model.errorMessage != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(model.errorMessage!),
-          backgroundColor: Theme.of(context).colorScheme.errorContainer,
-          showCloseIcon: true,
-          duration: const Duration(milliseconds: 4000),
-        ),
-      );
+    if (model.status == AuthenticatorStatus.ready) {
+      Navigator.of(context).pop();
     }
   }
 

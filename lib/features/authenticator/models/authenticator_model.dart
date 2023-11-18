@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gruene_auth_app/app/models/ui_message.dart';
 import 'package:keycloak_authenticator/api.dart';
 import '../dtos/login_attempt_dto.dart';
 import 'package:get_it/get_it.dart';
@@ -14,80 +15,77 @@ class AuthenticatorModel extends ChangeNotifier {
   AuthenticatorModel();
 
   AuthenticatorStatus status = AuthenticatorStatus.init;
-  String? errorMessage;
+  Exception? error;
   bool isLoading = false;
   LoginAttemptDto? loginAttempt;
   final AuthenticatorService _service = GetIt.I<AuthenticatorService>();
   Authenticator? _authenticator;
 
-  Future<void> init() async {
+  Future<UIMessage?> init() async {
     if (status != AuthenticatorStatus.init) {
-      return;
+      return null;
     }
     try {
       _authenticator = await _service.getFirst();
       status = _authenticator != null
           ? AuthenticatorStatus.ready
           : AuthenticatorStatus.setup;
-    } on Exception catch (e) {
-      errorMessage = e.toString();
+    } on Exception catch (err) {
+      error = err;
       loginAttempt = null;
       notifyListeners();
-      return;
+      return UIMessage.error(err.toString());
     }
-    errorMessage = null;
+    error = null;
     loginAttempt = null;
     notifyListeners();
+    return null;
   }
 
-  Future<void> setup(String activationToken) async {
+  Future<UIMessage?> setup(String activationToken) async {
     if (status != AuthenticatorStatus.setup || isLoading) {
-      return;
+      return null;
     }
     isLoading = true;
-    errorMessage = null;
+    error = null;
     notifyListeners();
     try {
       _authenticator = await _service.create(activationToken);
-    } on Exception catch (e) {
-      errorMessage = 'Registerierung fehlgeschlagen:\n${e.toString()}';
+    } on Exception catch (err) {
+      error = err;
       isLoading = false;
       notifyListeners();
-      return;
+      return UIMessage.error(err.toString());
     }
     isLoading = false;
     status = AuthenticatorStatus.ready;
-
     loginAttempt = null;
     notifyListeners();
+    return UIMessage.success("Authenticator eingerichtet");
   }
 
-  Future<void> unregister() async {
-    if (status != AuthenticatorStatus.ready) {
-      return;
+  Future<UIMessage?> delete() async {
+    if (status != AuthenticatorStatus.ready || _authenticator == null) {
+      return null;
     }
     try {
       await _service.delete(_authenticator!);
-    } on Exception catch (e) {
-      errorMessage = 'Entfernen fehlgeschlagen';
-      isLoading = false;
-      notifyListeners();
-      return;
+    } on Exception catch (err) {
+      return UIMessage.error(err.toString());
     }
-    isLoading = false;
     status = AuthenticatorStatus.setup;
     _authenticator = null;
-    errorMessage = null;
     loginAttempt = null;
     notifyListeners();
+    return null;
   }
 
-  void refresh() async {
+  Future<UIMessage?> refresh() async {
     if (status != AuthenticatorStatus.ready || isLoading) {
-      return;
+      return null;
     }
+    error = null;
     isLoading = true;
-    errorMessage = null;
     notifyListeners();
     try {
       var challenge = await _authenticator!.fetchChallenge();
@@ -103,59 +101,57 @@ class AuthenticatorModel extends ChangeNotifier {
         );
         status = AuthenticatorStatus.verify;
       }
-    } on Exception catch (e) {
-      errorMessage = 'Anfrage fehlgeschlagen';
-      isLoading = false;
+    } on Exception catch (err) {
+      error = err;
       loginAttempt = null;
+      isLoading = false;
       notifyListeners();
-      return;
+      return UIMessage.error(err.toString());
     }
 
     isLoading = false;
     notifyListeners();
+    return null;
   }
 
-  confirm() {
-    _sendChallengeResponse(true);
-  }
-
-  deny() {
-    _sendChallengeResponse(false);
-  }
-
-  _sendChallengeResponse(bool granted) async {
+  Future<UIMessage?> sendReply({required bool granted}) async {
     if (status != AuthenticatorStatus.verify ||
         loginAttempt == null ||
         isLoading) {
-      return;
+      return null;
     }
+    error = null;
     isLoading = true;
-    errorMessage = null;
     notifyListeners();
     try {
       await _authenticator!.reply(
         challenge: loginAttempt!.challenge,
         granted: granted,
       );
-    } on Exception catch (e) {
-      errorMessage = 'Aktion fehlgeschlagen';
+    } on Exception catch (err) {
+      error = err;
       isLoading = false;
       notifyListeners();
+      return UIMessage.error(err.toString());
     }
     status = AuthenticatorStatus.ready;
     loginAttempt = null;
     isLoading = false;
     notifyListeners();
+    return granted
+        ? UIMessage.success('Login bestätigt')
+        : UIMessage.warning('Login abgelehnt');
   }
 
-  cancel() {
+  UIMessage? idleTimeout() {
     if (status != AuthenticatorStatus.verify ||
         loginAttempt == null ||
         isLoading) {
-      return;
+      return null;
     }
     status = AuthenticatorStatus.ready;
     loginAttempt = null;
     notifyListeners();
+    return UIMessage.warning('Login abgelehnt');
   }
 }

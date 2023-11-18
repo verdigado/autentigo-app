@@ -28,6 +28,11 @@ class MockAuthenticator implements Authenticator {
 
   @override
   String getId() {
-    return 'mock_authenticator';
+    return 'id';
+  }
+
+  @override
+  String? getLabel() {
+    return 'Mock';
   }
 }

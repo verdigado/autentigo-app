@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gruene_auth_app/app/widgets/alert_box.dart';
+import 'package:gruene_auth_app/app/utils/snackbar_utils.dart';
 import 'package:gruene_auth_app/features/authenticator/models/authenticator_model.dart';
 import 'package:provider/provider.dart';
 
@@ -42,11 +42,20 @@ class _ActivationTokenInputScreenState
       setState(() {
         setupHandler = () async {
           var model = Provider.of<AuthenticatorModel>(context, listen: false);
-          model.setup(tokenInput.text).then((val) {
-            if (model.status == AuthenticatorStatus.ready) {
-              Navigator.of(context).pop();
-            }
-          });
+          var message = await model.setup(tokenInput.text);
+
+          if (!context.mounted) return;
+
+          if (message != null) {
+            ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
+              message,
+              context,
+            ));
+          }
+
+          if (model.status == AuthenticatorStatus.ready) {
+            Navigator.of(context).pop();
+          }
         };
         invalidToken = false;
       });
@@ -114,12 +123,6 @@ class _ActivationTokenInputScreenState
                     label: const Text('Abschließen'),
                   ),
                 ),
-                const SizedBox(height: 12),
-                if (model.errorMessage != null)
-                  SizedBox(
-                    width: 260,
-                    child: AlertBox(text: model.errorMessage ?? ''),
-                  ),
               ],
             ),
           ],

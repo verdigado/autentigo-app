@@ -23,7 +23,7 @@ class FlutterSecureStorageAdapter implements Storage {
   }
 
   @override
-  Future<void> containsKey({required String key}) {
+  Future<bool> containsKey({required String key}) {
     return _storage.containsKey(
       key: key,
     );

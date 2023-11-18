@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:keycloak_authenticator/src/authenticator.dart';
+import 'package:keycloak_authenticator/src/authenticator_repository.dart';
 import 'package:keycloak_authenticator/src/dtos/activation_token_dto.dart';
 import 'package:keycloak_authenticator/src/dtos/authenticator_entry.dart';
 import 'package:keycloak_authenticator/src/enums/enums.dart';
@@ -13,27 +14,15 @@ import 'package:pointycastle/export.dart';
 import 'package:uuid/uuid.dart';
 
 class AuthenticatorService {
-  final Storage _storage;
-  String? _deviceId;
+  final AuthenticatorRepository _repository;
   final uuid = const Uuid();
-
-  AuthenticatorService({required Storage storage}) : _storage = storage;
-
-  Future<String> _getDeviceId() async {
-    if (_deviceId == null) {
-      _deviceId = await _storage.read(key: 'device_id');
-      if (_deviceId == null) {
-        _deviceId = uuid.v4();
-        await _storage.write(key: 'device_id', value: _deviceId);
-      }
-    }
-
-    return _deviceId!;
-  }
+  AuthenticatorService({required Storage storage})
+      : _repository = AuthenticatorRepository(storage: storage);
 
   Future<Authenticator> create(
     String aktivationTokenUrl, {
     SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.SHA512withECDSA,
+    String? label,
   }) async {
     var token = ActivationTokenDto.fromUrl(aktivationTokenUrl);
 
@@ -57,9 +46,9 @@ class AuthenticatorService {
         break;
     }
 
-    var deviceId = await _getDeviceId();
     var devicePushId = await DeviceUtils.getDevicePushId();
     DeviceOs deviceOs = DeviceUtils.getDeviceOs();
+    var authenticatorId = uuid.v4();
 
     var client = KeycloakClient(
       baseUrl: token.baseUrl,
@@ -68,10 +57,10 @@ class AuthenticatorService {
       privateKey: keyPair.privateKey,
     );
 
-    await client.register(
+    await client.setup(
       clientId: token.clientId,
       tabId: token.tabId,
-      deviceId: deviceId,
+      deviceId: authenticatorId,
       deviceOs: deviceOs,
       key: token.key,
       publicKey: encodedPublicKey,
@@ -79,10 +68,10 @@ class AuthenticatorService {
       signatureAlgorithm: signatureAlgorithm,
       devicePushId: devicePushId,
     );
-    var authenticatorId = uuid.v4();
+
     var authenticator = KeycloakAuthenticator.fromParams(
       id: authenticatorId,
-      deviceId: deviceId,
+      label: label,
       baseUrl: token.baseUrl,
       realm: token.realm,
       signatureAlgorithm: signatureAlgorithm,
@@ -90,74 +79,27 @@ class AuthenticatorService {
       privateKey: keyPair.privateKey,
     );
 
-    await _storage.write(
-        key: _getAuthenticatorStorageKey(authenticatorId),
-        value: jsonEncode(authenticator.toJson()));
-
-    await _addToList(authenticator);
+    await _repository.add(authenticator);
 
     return authenticator;
   }
 
-  Future<Authenticator?> getById(String authenticatorId) async {
-    var serialized =
-        await _storage.read(key: _getAuthenticatorStorageKey(authenticatorId));
-    if (serialized == null) {
-      return null;
-    }
-    var deviceId = await _getDeviceId();
-    return KeycloakAuthenticator.fromJson(jsonDecode(serialized),
-        deviceId: deviceId);
+  Future<Authenticator?> getById(String authenticatorId) {
+    return _repository.getById(authenticatorId);
   }
 
   Future<Authenticator?> getFirst() async {
-    var list = await getList();
-    var firstEntry = list.firstOrNull;
-    return firstEntry != null ? await getById(firstEntry.id) : null;
+    var entries = await _repository.getEntries();
+    var firstEntry = entries.firstOrNull;
+    return firstEntry != null ? await _repository.getById(firstEntry.id) : null;
   }
 
-  Future<List<AuthenticatorEntry>> getList() async {
-    List<AuthenticatorEntry> list = [];
-    var serialized = await _storage.read(key: 'entries');
-    if (serialized != null) {
-      List<dynamic> jsonList = jsonDecode(serialized);
-      list = jsonList.map((json) => AuthenticatorEntry.fromJson(json)).toList();
-    }
-    return list;
+  Future<List<AuthenticatorEntry>> getEntries() {
+    return _repository.getEntries();
   }
 
-  Future<void> _saveList(List<AuthenticatorEntry> list) async {
-    await _storage.write(
-        key: 'entries',
-        value: jsonEncode(list.map((e) => e.toJson()).toList()));
-  }
-
-  Future<List<AuthenticatorEntry>> _addToList(
-      Authenticator authenticator) async {
-    var list = await getList();
-    list.add(AuthenticatorEntry(id: authenticator.getId()));
-    await _saveList(list);
-    return list;
-  }
-
-  Future<List<AuthenticatorEntry>> _deleteFromList(
-      Authenticator authenticator) async {
-    var list = await getList();
-    list.removeWhere((element) => element.id == authenticator.getId());
-    await _saveList(list);
-    return list;
-  }
-
-  Future<void> delete(Authenticator authenticator) async {
-    // TODO: implement authenticator delete on keycloak side
-
-    _storage.delete(key: _getAuthenticatorStorageKey(authenticator.getId()));
-
-    await _deleteFromList(authenticator);
-  }
-
-  _getAuthenticatorStorageKey(String authenticatorId) {
-    return 'auth:$authenticatorId';
+  Future<void> delete(Authenticator authenticator) {
+    return _repository.delete(authenticator);
   }
 
   KeyAlgorithm _getKeyAlgorithmForSignatureAlgorithm(

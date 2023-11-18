@@ -9,20 +9,17 @@ import 'package:pointycastle/export.dart';
 
 class KeycloakAuthenticator implements Authenticator {
   final _Data _data;
-  final String _deviceId;
   final KeycloakClient _client;
 
   KeycloakAuthenticator._({
     required _Data data,
     required KeycloakClient client,
-    required String deviceId,
   })  : _data = data,
-        _deviceId = deviceId,
         _client = client;
 
   factory KeycloakAuthenticator.fromParams({
     required String id,
-    required String deviceId,
+    String? label,
     required String baseUrl,
     required String realm,
     required SignatureAlgorithm signatureAlgorithm,
@@ -32,6 +29,7 @@ class KeycloakAuthenticator implements Authenticator {
     return KeycloakAuthenticator._(
       data: _Data(
         id: id,
+        label: label,
         baseUrl: baseUrl,
         realm: realm,
         registeredAt: DateTime.now(),
@@ -39,7 +37,6 @@ class KeycloakAuthenticator implements Authenticator {
         keyAlgorithm: keyAlgorithm,
         privateKey: privateKey,
       ),
-      deviceId: deviceId,
       client: KeycloakClient(
         baseUrl: baseUrl,
         privateKey: privateKey,
@@ -49,12 +46,10 @@ class KeycloakAuthenticator implements Authenticator {
     );
   }
 
-  factory KeycloakAuthenticator.fromJson(Map<String, dynamic> json,
-      {required String deviceId}) {
+  factory KeycloakAuthenticator.fromJson(Map<String, dynamic> json) {
     var data = _Data.fromJson(json);
     return KeycloakAuthenticator._(
       data: data,
-      deviceId: deviceId,
       client: KeycloakClient(
         baseUrl: data.baseUrl,
         privateKey: data.privateKey,
@@ -69,8 +64,18 @@ class KeycloakAuthenticator implements Authenticator {
   }
 
   @override
+  String getId() {
+    return _data.id;
+  }
+
+  @override
+  String? getLabel() {
+    return _data.label;
+  }
+
+  @override
   Future<Challenge?> fetchChallenge() async {
-    var challanges = await _client.getChallenges(_deviceId);
+    var challanges = await _client.getChallenges(_data.id);
     return challanges.firstOrNull;
   }
 
@@ -81,8 +86,8 @@ class KeycloakAuthenticator implements Authenticator {
   }) async {
     final uri = Uri.parse(challenge.targetUrl);
 
-    await _client.completeChallenge(
-      deviceId: _deviceId,
+    await _client.replyChallenge(
+      deviceId: _data.id,
       clientId: uri.queryParameters['client_id']!,
       tabId: uri.queryParameters['tab_id']!,
       key: uri.queryParameters['key']!,
@@ -91,15 +96,11 @@ class KeycloakAuthenticator implements Authenticator {
       timestamp: challenge.updatedTimestamp,
     );
   }
-
-  @override
-  String getId() {
-    return _data.id;
-  }
 }
 
 class _Data {
   final String id;
+  final String? label;
   final String baseUrl;
   final String realm;
   final SignatureAlgorithm signatureAlgorithm;
@@ -109,6 +110,7 @@ class _Data {
 
   _Data({
     required this.id,
+    required this.label,
     required this.baseUrl,
     required this.realm,
     required this.signatureAlgorithm,
@@ -128,7 +130,7 @@ class _Data {
       case KeyAlgorithm.EC:
         return CryptoUtils.decodeEcPrivateKey(
           base64Decode(encodedKey),
-          pkcs8: true,
+          pkcs8: false,
         );
     }
   }
@@ -151,6 +153,7 @@ class _Data {
     var keyAlgorithm = KeyAlgorithm.values.byName(json['keyAlgorithm']);
     return _Data(
       id: json['id'],
+      label: json['label'],
       baseUrl: json['baseUrl'],
       realm: json['realm'],
       signatureAlgorithm:
@@ -167,6 +170,7 @@ class _Data {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'label': label,
       'baseUrl': baseUrl,
       'realm': realm,
       'signatureAlgorithm': signatureAlgorithm.name,

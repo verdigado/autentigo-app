@@ -12,5 +12,5 @@ abstract class Storage {
     required String key,
   });
 
-  Future<void> containsKey({required String key});
+  Future<bool> containsKey({required String key});
 }

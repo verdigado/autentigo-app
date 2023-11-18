@@ -293,7 +293,7 @@ class CryptoUtils {
   /// * SHA-384/DET-ECDSA
   /// * SHA-512/DET-ECDSA
   ///
-  static String ecSign(ECPrivateKey privateKey, Uint8List dataToSign,
+  static Uint8List ecSign(ECPrivateKey privateKey, Uint8List dataToSign,
       {String algorithmName = 'SHA-1/ECDSA'}) {
     var signer = Signer(algorithmName) as ECDSASigner;
 
@@ -315,12 +315,12 @@ class CryptoUtils {
   ///```
   /// This is mainly used for passing signature as string via request/response use cases
   ///
-  static String _ecSignatureToBase64(ECSignature signature) {
-    var outer = ASN1Sequence();
-    outer.add(ASN1Integer(signature.r));
-    outer.add(ASN1Integer(signature.s));
+  static Uint8List _ecSignatureToBase64(ECSignature signature) {
+    var topLevel = ASN1Sequence()
+      ..add(ASN1Integer(signature.r))
+      ..add(ASN1Integer(signature.s));
 
-    return base64Encode(outer.encode());
+    return topLevel.encode();
   }
 
   static ECPublicKey ecPublicKey(String pub, String curveName,

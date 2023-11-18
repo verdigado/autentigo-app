@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gruene_auth_app/app/constants/image_paths.dart';
 import 'package:gruene_auth_app/app/theme/custom_colors.dart';
+import 'package:gruene_auth_app/app/utils/snackbar_utils.dart';
 import 'package:gruene_auth_app/app/widgets/nav_drawer.dart';
 import 'package:gruene_auth_app/features/authenticator/models/authenticator_model.dart';
 import 'package:gruene_auth_app/features/authenticator/models/tip_of_the_day_model.dart';
@@ -50,25 +51,21 @@ class AuthenticatorScreen extends StatelessWidget {
                   ),
                   menuChildren: [
                     MenuItemButton(
-                      onPressed: () => {model.unregister()},
+                      onPressed: () => {model.delete()},
                       child: const Text('Entfernen'),
                     ),
                   ],
                 ),
             ],
           ),
-          body: Builder(builder: (context) {
-            switch (model.status) {
-              case AuthenticatorStatus.setup:
-                return const _SetupView();
-              case AuthenticatorStatus.ready:
-                return const _ReadyView();
-              case AuthenticatorStatus.verify:
-                return const _VerifyView();
-              default:
-                return const _InitView();
-            }
-          }),
+          body: Builder(
+            builder: (context) => switch (model.status) {
+              AuthenticatorStatus.setup => const _SetupView(),
+              AuthenticatorStatus.ready => const _ReadyView(),
+              AuthenticatorStatus.verify => const _VerifyView(),
+              AuthenticatorStatus.init => const _InitView(),
+            },
+          ),
         ),
       ),
     );
@@ -87,7 +84,14 @@ class _InitViewState extends State<_InitView> {
   void initState() {
     super.initState();
     var model = Provider.of<AuthenticatorModel>(context, listen: false);
-    model.init();
+    model.init().then((message) {
+      if (message != null) {
+        ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
+          message,
+          context,
+        ));
+      }
+    });
   }
 
   @override
@@ -183,6 +187,18 @@ class _SetupView extends StatelessWidget {
 class _ReadyView extends StatelessWidget {
   const _ReadyView({super.key});
 
+  onRefresh(BuildContext context, model) async {
+    var message = await model.refresh();
+    if (!context.mounted) return;
+
+    if (message != null) {
+      ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
+        message,
+        context,
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthenticatorModel>(
@@ -210,7 +226,7 @@ class _ReadyView extends StatelessWidget {
                         )
                       : const Icon(Icons.refresh),
                   label: const Text('Aktualisieren'),
-                  onPressed: () => model.refresh(),
+                  onPressed: () => onRefresh(context, model),
                 ),
               ),
             ],
@@ -223,6 +239,30 @@ class _ReadyView extends StatelessWidget {
 
 class _VerifyView extends StatelessWidget {
   const _VerifyView({super.key});
+
+  onReply(BuildContext context, AuthenticatorModel model, bool granted) async {
+    var message = await model.sendReply(granted: granted);
+
+    if (!context.mounted) return;
+
+    if (message != null) {
+      ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
+        message,
+        context,
+      ));
+    }
+  }
+
+  onTimeout(BuildContext context, AuthenticatorModel model) {
+    var message = model.idleTimeout();
+
+    if (message != null) {
+      ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
+        message,
+        context,
+      ));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -280,7 +320,7 @@ class _VerifyView extends StatelessWidget {
                     : null,
                 icon: const Icon(Icons.check),
                 label: const Text('Freigeben'),
-                onPressed: () => model.confirm(),
+                onPressed: () => onReply(context, model, true),
               ),
               FilledButton.icon(
                 style: model.isLoading
@@ -294,7 +334,7 @@ class _VerifyView extends StatelessWidget {
                       ),
                 icon: const Icon(Icons.close),
                 label: const Text('Ablehnen'),
-                onPressed: () => model.deny(),
+                onPressed: () => onReply(context, model, false),
               ),
               Opacity(
                 opacity: model.isLoading ? 1 : 0,
@@ -330,7 +370,7 @@ class _VerifyView extends StatelessWidget {
             duration: Duration(
               seconds: model.loginAttempt!.expiresIn,
             ),
-            onEnd: () => model.deny(),
+            onEnd: () => onTimeout(context, model),
             builder: (context, value, _) => CircularProgressIndicator(
               value: value,
               strokeWidth: 5,

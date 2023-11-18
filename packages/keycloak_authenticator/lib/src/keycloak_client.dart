@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:keycloak_authenticator/src/exceptions/keycloak_client_exception.dart';
 import 'package:keycloak_authenticator/src/utils/crypto_utils.dart';
 import 'package:pointycastle/export.dart';
 
@@ -26,34 +27,29 @@ class KeycloakClient {
     _dio.interceptors.add(LogInterceptor(responseBody: true, error: true));
   }
 
-  String _sign(String value) {
-    var algorithmMap = {
-      SignatureAlgorithm.SHA256withRSA: 'SHA-256/RSA',
-      SignatureAlgorithm.SHA512withRSA: 'SHA-512/RSA',
-      SignatureAlgorithm.SHA512withECDSA: 'SHA-512/ECDSA',
+  String _getSignatureAlgorithm() {
+    return switch (_signatureAlgorithm) {
+      SignatureAlgorithm.SHA256withRSA => 'SHA-256/RSA',
+      SignatureAlgorithm.SHA512withRSA => 'SHA-512/RSA',
+      SignatureAlgorithm.SHA512withECDSA => 'SHA-512/ECDSA',
     };
+  }
 
-    var algorithmName = algorithmMap[_signatureAlgorithm];
-    if (algorithmName == null) {
-      throw Exception('Algorithm not supported');
-    }
-
-    switch (_keyAlgorithm) {
-      case KeyAlgorithm.RSA:
-        return base64Encode(
-          CryptoUtils.rsaSign(
-            _privateKey as RSAPrivateKey,
-            Uint8List.fromList(value.codeUnits),
-            algorithmName: algorithmName,
-          ),
-        );
-      case KeyAlgorithm.EC:
-        return CryptoUtils.ecSign(
+  String _sign(String value) {
+    var algorithmName = _getSignatureAlgorithm();
+    Uint8List signature = switch (_keyAlgorithm) {
+      KeyAlgorithm.RSA => CryptoUtils.rsaSign(
+          _privateKey as RSAPrivateKey,
+          Uint8List.fromList(value.codeUnits),
+          algorithmName: algorithmName,
+        ),
+      KeyAlgorithm.EC => CryptoUtils.ecSign(
           _privateKey as ECPrivateKey,
           Uint8List.fromList(value.codeUnits),
           algorithmName: algorithmName,
-        );
-    }
+        ),
+    };
+    return base64Encode(signature);
   }
 
   String buildSignatureHeader(
@@ -74,7 +70,7 @@ class KeycloakClient {
     return 'keyId:$keyId,$payload,signature:$signature';
   }
 
-  Future<void> register({
+  Future<void> setup({
     required String clientId,
     required String tabId,
     required String deviceId,
@@ -85,30 +81,64 @@ class KeycloakClient {
     required KeyAlgorithm keyAlgorithm,
     required SignatureAlgorithm signatureAlgorithm,
   }) async {
-    var queryParameters = {
-      'client_id': clientId,
-      'tab_id': tabId,
-      'device_id': deviceId,
-      'device_os': deviceOs.name.toString(),
-      'device_push_id': devicePushId,
-      'key_algorithm': keyAlgorithm.name.toString(),
-      'signature_algorithm': signatureAlgorithm.name.toString(),
-      'public_key': publicKey,
-      'key': key,
-    };
     try {
-      await _dio.get(
-        '/login-actions/action-token',
-        queryParameters: queryParameters,
-      );
+      await _setupRequest(clientId, tabId, deviceId, deviceOs, devicePushId,
+          keyAlgorithm, signatureAlgorithm, publicKey, key);
     } on DioException catch (err) {
-      rethrow;
+      KeycloakExceptionType type;
+      if (err.type == DioExceptionType.badResponse) {
+        throw KeycloakClientException('', dioException: err);
+      }
+      throw KeycloakClientException('', dioException: err);
     }
+  }
+
+  Future<void> _setupRequest(
+    String clientId,
+    String tabId,
+    String deviceId,
+    DeviceOs deviceOs,
+    String? devicePushId,
+    KeyAlgorithm keyAlgorithm,
+    SignatureAlgorithm signatureAlgorithm,
+    String publicKey,
+    String key,
+  ) async {
+    await _dio.get(
+      '/login-actions/action-token',
+      queryParameters: {
+        'client_id': clientId,
+        'tab_id': tabId,
+        'device_id': deviceId,
+        'device_os': deviceOs.name.toString(),
+        'device_push_id': devicePushId,
+        'key_algorithm': keyAlgorithm.name.toString(),
+        'signature_algorithm': signatureAlgorithm.name.toString(),
+        'public_key': publicKey,
+        'key': key,
+      },
+    );
   }
 
   Future<List<Challenge>> getChallenges(
     String deviceId,
   ) async {
+    try {
+      return await _getChallengesRequest(deviceId);
+    } on DioException catch (err) {
+      if (err.type == DioExceptionType.badResponse) {
+        var type = switch (err.response?.statusCode) {
+          400 => KeycloakExceptionType.badRequest,
+          int() => KeycloakExceptionType.badRequest,
+          null => KeycloakExceptionType.badRequest,
+        };
+        throw KeycloakClientException('message', dioException: err, type: type);
+      }
+      rethrow;
+    }
+  }
+
+  Future<List<Challenge>> _getChallengesRequest(String deviceId) async {
     var signatureHeader = buildSignatureHeader(
       deviceId,
       {
@@ -116,30 +146,23 @@ class KeycloakClient {
         // 'request-target': 'get_/realms/$realm/challenge-resource/$deviceId',
       },
     );
-    try {
-      var res = await _dio.get(
-        '/challenges',
-        queryParameters: {
-          'device_id': deviceId,
+    var res = await _dio.get(
+      '/challenges',
+      queryParameters: {
+        'device_id': deviceId,
+      },
+      options: Options(
+        headers: {
+          'signature': signatureHeader,
         },
-        options: Options(
-          headers: {
-            'signature': signatureHeader,
-          },
-        ),
-      );
-      return (res.data as List<dynamic>)
-          .map((e) => Challenge.fromJson(e))
-          .toList();
-    } on DioException catch (err) {
-      if (err.response?.statusCode == 404) {
-        return [];
-      }
-      rethrow;
-    }
+      ),
+    );
+    return (res.data as List<dynamic>)
+        .map((e) => Challenge.fromJson(e))
+        .toList();
   }
 
-  completeChallenge({
+  replyChallenge({
     required String deviceId,
     required String clientId,
     required String tabId,
@@ -148,6 +171,22 @@ class KeycloakClient {
     required bool granted,
     required int timestamp,
   }) async {
+    try {
+      await _challengeReplyRequest(
+          deviceId, timestamp, value, granted, clientId, tabId, key);
+    } on DioException catch (e) {
+      throw KeycloakClientException('request failed', dioException: e);
+    }
+  }
+
+  Future<void> _challengeReplyRequest(
+      String deviceId,
+      int timestamp,
+      String value,
+      bool granted,
+      String clientId,
+      String tabId,
+      String key) async {
     var signatureHeader = buildSignatureHeader(
       deviceId,
       {
@@ -157,7 +196,7 @@ class KeycloakClient {
         'granted': granted ? 'true' : 'false',
       },
     );
-    var res = await _dio.get(
+    await _dio.get(
       '/login-actions/action-token',
       queryParameters: {
         'client_id': clientId,
