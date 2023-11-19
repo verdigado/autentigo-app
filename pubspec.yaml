@@ -47,6 +47,7 @@ dependencies:
 
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.13.1
   flutter_test:
     sdk: flutter
 
@@ -119,3 +120,8 @@ flutter:
         - asset: assets/fonts/PTSans/PTS76F.ttf
           weight: 700
           style: italic
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/icon.png"
