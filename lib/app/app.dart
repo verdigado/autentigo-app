@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Gruene Authenticator App',
+      title: 'Grünes Netz Authenticator',
       theme: createLightTheme(),
       darkTheme: createDarkTheme(),
       themeMode: ThemeMode.system,
