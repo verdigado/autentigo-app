@@ -4,7 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gruene_auth_app/app/constants/image_paths.dart';
 import 'package:gruene_auth_app/app/theme/custom_colors.dart';
 import 'package:gruene_auth_app/app/utils/snackbar_utils.dart';
-import 'package:gruene_auth_app/app/widgets/nav_drawer.dart';
 import 'package:gruene_auth_app/features/authenticator/models/authenticator_model.dart';
 import 'package:gruene_auth_app/features/authenticator/models/tip_of_the_day_model.dart';
 import 'package:gruene_auth_app/features/authenticator/screens/activation_token_input_screen.dart';
@@ -28,7 +27,6 @@ class AuthenticatorScreen extends StatelessWidget {
       ],
       child: Consumer<AuthenticatorModel>(
         builder: (context, model, child) => Scaffold(
-          drawer: const NavDrawer(),
           appBar: AppBar(
             title: const Text(
               'Grünes Netz Authenticator',

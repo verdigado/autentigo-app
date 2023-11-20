@@ -101,6 +101,25 @@ class AuthenticatorModel extends ChangeNotifier {
         );
         status = AuthenticatorStatus.verify;
       }
+    } on KeycloakClientException catch (err) {
+      UIMessage message;
+      if (err.type == KeycloakExceptionType.notRegistered) {
+        message = UIMessage.error('Authenticator nicht mehr bekannt');
+        try {
+          await _service.delete(_authenticator!);
+          _authenticator = null;
+          status = AuthenticatorStatus.setup;
+        } catch (err) {
+          //
+        }
+      } else {
+        message = UIMessage.error(err.toString());
+      }
+      error = err;
+      loginAttempt = null;
+      isLoading = false;
+      notifyListeners();
+      return message;
     } on Exception catch (err) {
       error = err;
       loginAttempt = null;

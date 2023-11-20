@@ -14,6 +14,7 @@ class KeycloakClientException implements Exception {
 enum KeycloakExceptionType {
   networkError,
   unknown,
+  notRegistered,
   serverError,
   badRequest,
 }

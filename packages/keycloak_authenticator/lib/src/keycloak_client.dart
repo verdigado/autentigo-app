@@ -73,10 +73,10 @@ class KeycloakClient {
   Future<void> setup({
     required String clientId,
     required String tabId,
+    required String key,
     required String deviceId,
     required DeviceOs deviceOs,
     String? devicePushId,
-    required String key,
     required String publicKey,
     required KeyAlgorithm keyAlgorithm,
     required SignatureAlgorithm signatureAlgorithm,
@@ -129,6 +129,7 @@ class KeycloakClient {
       if (err.type == DioExceptionType.badResponse) {
         var type = switch (err.response?.statusCode) {
           400 => KeycloakExceptionType.badRequest,
+          409 => KeycloakExceptionType.notRegistered,
           int() => KeycloakExceptionType.badRequest,
           null => KeycloakExceptionType.badRequest,
         };
