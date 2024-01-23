@@ -11,3 +11,7 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
+
+# CircleCI Android orb
+# See https://circleci.com/docs/deploy-android-applications/
+keystore.properties
