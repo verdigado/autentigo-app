@@ -1,6 +1,6 @@
 import 'package:go_router/go_router.dart';
-import 'package:gruene_auth_app/features/authenticator/screens/authenticator_screen.dart';
-import 'package:gruene_auth_app/app/screens/home_screen.dart';
+import 'package:kc_auth_app/features/authenticator/screens/authenticator_screen.dart';
+import 'package:kc_auth_app/app/screens/home_screen.dart';
 
 GoRouter createAppRouter() {
   return GoRouter(
