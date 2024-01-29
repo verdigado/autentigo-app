@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gruene_auth_app/app/widgets/nav_drawer.dart';
+import 'package:kc_auth_app/app/widgets/nav_drawer.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

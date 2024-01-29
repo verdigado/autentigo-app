@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gruene_auth_app/app/utils/snackbar_utils.dart';
-import 'package:gruene_auth_app/features/authenticator/models/authenticator_model.dart';
+import 'package:kc_auth_app/app/utils/snackbar_utils.dart';
+import 'package:kc_auth_app/features/authenticator/models/authenticator_model.dart';
 import 'package:provider/provider.dart';
 
 class ActivationTokenInputScreen extends StatefulWidget {
