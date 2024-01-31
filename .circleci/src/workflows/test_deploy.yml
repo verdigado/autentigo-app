@@ -1,0 +1,8 @@
+jobs:
+  - build_android:
+      filters:
+        branches:
+          only: feature/android-deployment
+  - test_deploy_android:
+      requires:
+        - build_android

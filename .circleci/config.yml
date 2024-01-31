@@ -1,0 +1,52 @@
+jobs:
+    build_android:
+        executor:
+            name: android/android-docker
+            tag: 2024.01.1
+        steps:
+            - checkout
+            - flutter/install_sdk_and_pub:
+                version: 3.16.9
+            - flutter/install_android_gem
+            - android/decode-keystore:
+                keystore-location: android/app/upload-keystore.jks
+            - android/create-keystore-properties:
+                release-keystore: ./upload-keystore.jks
+                working-directory: android
+            - run:
+                command: flutter build appbundle
+                name: Build appbundle
+            - run:
+                command: |
+                    mkdir -p /tmp/android-builds
+                    mv build/app/outputs/* /tmp/android-builds
+                name: Move android builds into workspace
+            - persist_to_workspace:
+                paths:
+                    - bundle
+                root: /tmp/android-builds
+    test_deploy_android:
+        executor:
+            name: android/android-docker
+            tag: 2024.01.1
+        steps:
+            - checkout
+            - attach_workspace:
+                at: /tmp/android-builds
+            - run: echo "Upload to test track"
+            - run: ls -R /tmp/android-builds
+orbs:
+    android: circleci/android@2.4.0
+    flutter: circleci/flutter@2.0.2
+version: 2.1
+workflows:
+    test_deploy:
+        jobs:
+            - build_android:
+                filters:
+                    branches:
+                        only: feature/android-deployment
+            - test_deploy_android:
+                requires:
+                    - build_android
+
