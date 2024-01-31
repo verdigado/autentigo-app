@@ -1,0 +1,25 @@
+executor:
+  name: android/android-docker
+  tag: 2024.01.1
+steps:
+  - checkout
+  - flutter/install_sdk_and_pub:
+      version: 3.16.9
+  - flutter/install_android_gem
+  - android/decode-keystore:
+      keystore-location: android/app/upload-keystore.jks
+  - android/create-keystore-properties:
+      working-directory: android
+      release-keystore: ./upload-keystore.jks
+  - run:
+      name: Build appbundle
+      command: flutter build appbundle
+  - run:
+      name: Move android builds into workspace
+      command: |
+        mkdir -p /tmp/android-builds
+        mv build/app/outputs/* /tmp/android-builds
+  - persist_to_workspace:
+      root: /tmp/android-builds
+      paths:
+        - bundle
