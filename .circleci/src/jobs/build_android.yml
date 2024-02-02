@@ -1,6 +1,5 @@
-executor:
-  name: android/android-docker
-  tag: 2024.01.1
+docker:
+  - image: melegiul/kc-auth-app-android:2024.01.1
 steps:
   - checkout
   - flutter/install_sdk_and_pub:
