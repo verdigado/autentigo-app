@@ -24,6 +24,22 @@ jobs:
                 paths:
                     - bundle
                 root: /tmp/android-builds
+    bump_version:
+        docker:
+            - image: cimg/base:2024.01
+        steps:
+            - checkout
+            - run:
+                command: ./bump_version.sh
+                name: Update pubspec.yaml version
+            - run:
+                command: |
+                    git config user.email "technik@verdigado.com"
+                    git config user.name "CircleCI"
+                    git add pubspec.yaml
+                    git commit -m "Bump version ${NEW_PUBSPEC_VERSION}" -m "[skip ci]"
+                    git push origin "${CIRCLE_BRANCH}"
+                name: Commit and push version bump
     test_deploy_android:
         executor:
             name: android/android-docker
@@ -41,10 +57,13 @@ version: 2.1
 workflows:
     test_deploy:
         jobs:
-            - build_android:
+            - bump_version:
                 filters:
                     branches:
                         only: feature/android-deployment
+            - build_android:
+                requires:
+                    - bump_version
             - test_deploy_android:
                 requires:
                     - build_android
