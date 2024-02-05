@@ -1,8 +1,11 @@
 jobs:
-  - build_android:
+  - bump_version:
       filters:
         branches:
           only: feature/android-deployment
+  - build_android:
+      requires:
+        - bump_version
   - test_deploy_android:
       requires:
         - build_android
