@@ -57,14 +57,15 @@ version: 2.1
 workflows:
     test_deploy:
         jobs:
-            - bump_version:
-                filters:
-                    branches:
-                        only: feature/android-deployment
+            - bump_version
             - build_android:
                 requires:
                     - bump_version
             - test_deploy_android:
                 requires:
                     - build_android
+        when:
+            equal:
+                - develop
+                - << pipeline.git.branch >>
 
