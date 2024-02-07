@@ -1,3 +1,10 @@
+parameters:
+  build_target:
+    type: string
+  build_path:
+    type: string
+  build_name:
+    type: string
 docker:
   - image: melegiul/kc-auth-app-android:2024.01.1
 steps:
@@ -12,13 +19,13 @@ steps:
       release-keystore: ./upload-keystore.jks
   - run:
       name: Build appbundle
-      command: flutter build appbundle
+      command: flutter build << parameters.build_target >>
   - run:
       name: Move android builds into workspace
       command: |
         mkdir -p /tmp/android-builds
-        mv build/app/outputs/* /tmp/android-builds
+        mv << parameters.build_path >> /tmp/android-builds/<< parameters.build_name >>
   - persist_to_workspace:
       root: /tmp/android-builds
       paths:
-        - bundle
+        - << parameters.build_name >>
