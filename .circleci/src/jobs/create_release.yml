@@ -1,0 +1,20 @@
+parameters:
+  additional_args:
+    type: string
+    default: ''
+  version_suffix:
+    type: string
+    default: ''
+docker:
+  - image: cimg/base:2024.01
+steps:
+  - checkout
+  - github-cli/setup
+  - attach_workspace:
+      at: /tmp/android-builds
+  - run:
+      name: Create github release
+      command: |
+        PUBSPEC_VERSION_NAME=$(sed -nr 's/^version: (.*)\+[[:digit:]]+$/\1/p' pubspec.yaml)
+        TAG="v${PUBSPEC_VERSION_NAME}<< parameters.version_suffix >>"
+        gh release create "${TAG}" /tmp/android-builds/*.apk --target ${CIRCLE_BRANCH} --generate-notes << parameters.additional_args >>

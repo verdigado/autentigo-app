@@ -2,6 +2,13 @@ jobs:
     build_android:
         docker:
             - image: melegiul/kc-auth-app-android:2024.01.1
+        parameters:
+            build_name:
+                type: string
+            build_path:
+                type: string
+            build_target:
+                type: string
         steps:
             - checkout
             - flutter/install_sdk_and_pub:
@@ -13,16 +20,16 @@ jobs:
                 release-keystore: ./upload-keystore.jks
                 working-directory: android
             - run:
-                command: flutter build appbundle
+                command: flutter build << parameters.build_target >>
                 name: Build appbundle
             - run:
                 command: |
                     mkdir -p /tmp/android-builds
-                    mv build/app/outputs/* /tmp/android-builds
+                    mv << parameters.build_path >> /tmp/android-builds/<< parameters.build_name >>
                 name: Move android builds into workspace
             - persist_to_workspace:
                 paths:
-                    - bundle
+                    - << parameters.build_name >>
                 root: /tmp/android-builds
     bump_version:
         docker:
@@ -40,6 +47,27 @@ jobs:
                     git commit -m "Bump version ${NEW_PUBSPEC_VERSION}" -m "[skip ci]"
                     git push origin "${CIRCLE_BRANCH}"
                 name: Commit and push version bump
+    create_release:
+        docker:
+            - image: cimg/base:2024.01
+        parameters:
+            additional_args:
+                default: ""
+                type: string
+            version_suffix:
+                default: ""
+                type: string
+        steps:
+            - checkout
+            - github-cli/setup
+            - attach_workspace:
+                at: /tmp/android-builds
+            - run:
+                command: |
+                    PUBSPEC_VERSION_NAME=$(sed -nr 's/^version: (.*)\+[[:digit:]]+$/\1/p' pubspec.yaml)
+                    TAG="v${PUBSPEC_VERSION_NAME}<< parameters.version_suffix >>"
+                    gh release create "${TAG}" /tmp/android-builds/*.apk --target ${CIRCLE_BRANCH} --generate-notes << parameters.additional_args >>
+                name: Create github release
     test_deploy_android:
         executor:
             name: android/android-docker
@@ -53,17 +81,34 @@ jobs:
 orbs:
     android: circleci/android@2.4.0
     flutter: circleci/flutter@2.0.2
+    github-cli: circleci/github-cli@2.3.0
 version: 2.1
 workflows:
     test_deploy:
         jobs:
             - bump_version
             - build_android:
+                build_name: kc-auth-app.aab
+                build_path: build/app/outputs/bundle/release/app-release.aab
+                build_target: appbundle
+                name: build_appbundle
+                requires:
+                    - bump_version
+            - build_android:
+                build_name: kc-auth-app.apk
+                build_path: build/app/outputs/apk/release/app-release.apk
+                build_target: apk
+                name: build_apk
                 requires:
                     - bump_version
             - test_deploy_android:
                 requires:
-                    - build_android
+                    - build_appbundle
+            - create_release:
+                additional_args: --prerelease
+                requires:
+                    - build_apk
+                version_suffix: -beta
         when:
             equal:
                 - develop
