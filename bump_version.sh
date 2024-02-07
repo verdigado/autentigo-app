@@ -12,18 +12,20 @@ set -o pipefail
 PUBSPEC_VERSION=$(sed -nr 's/^version: (.*)/\1/p' pubspec.yaml)
 echo "Current pubspec.yml version: ${PUBSPEC_VERSION}"
 
-VERSION_NAME=$(echo ${PUBSPEC_VERSION} | cut -d+ -f1)
-VERSION_CODE=$(echo ${PUBSPEC_VERSION} | cut -d+ -f2)
-DATE=$(echo ${VERSION_NAME} | cut -d. -f1-2)
-BUILD_NUMBER=$(echo ${VERSION_NAME} | cut -d. -f3)
+BUILD_NAME=$(echo ${PUBSPEC_VERSION} | cut -d+ -f1)
+BUILD_NUMBER=$(echo ${PUBSPEC_VERSION} | cut -d+ -f2)
+DATE=$(echo ${BUILD_NAME} | cut -d. -f1-2)
+COUNTER=$(echo ${BUILD_NAME} | cut -d. -f3)
 
 NEW_DATE=$(date '+%Y.%m')
-NEW_BUILD_NUMBER=0
+NEW_COUNTER=0
 if [ ${DATE} == ${NEW_DATE} ]; then
-  NEW_BUILD_NUMBER=$(( BUILD_NUMBER + 1 ))
+  NEW_COUNTER=$(( COUNTER + 1 ))
 fi
-NEW_VERSION_CODE=$(( VERSION_CODE + 1 ))
-NEW_PUBSPEC_VERSION="${NEW_DATE}.${NEW_BUILD_NUMBER}+${NEW_VERSION_CODE}"
+
+NEW_BUILD_NAME="${NEW_DATE}.${NEW_COUNTER}"
+NEW_BUILD_NUMBER=$(( BUILD_NUMBER + 1 ))
+NEW_PUBSPEC_VERSION="${NEW_BUILD_NAME}+${NEW_BUILD_NUMBER}"
 
 echo "Update pubspec.yml version to: ${NEW_PUBSPEC_VERSION}"
 sed -i "s/^version: .*/version: ${NEW_PUBSPEC_VERSION}/" pubspec.yaml
