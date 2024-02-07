@@ -3,8 +3,24 @@ when:
 jobs:
   - bump_version
   - build_android:
+      name: build_appbundle
+      build_target: appbundle
+      build_path: build/app/outputs/bundle/release/app-release.aab
+      build_name: kc-auth-app.aab
+      requires:
+        - bump_version
+  - build_android:
+      name: build_apk
+      build_target: apk
+      build_path: build/app/outputs/apk/release/app-release.apk
+      build_name: kc-auth-app.apk
       requires:
         - bump_version
   - test_deploy_android:
       requires:
-        - build_android
+        - build_appbundle
+  - create_release:
+      additional_args: --prerelease
+      version_suffix: -beta
+      requires:
+        - build_apk
