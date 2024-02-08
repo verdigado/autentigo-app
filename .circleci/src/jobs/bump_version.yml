@@ -4,7 +4,13 @@ steps:
   - checkout
   - run:
       name: Update pubspec.yaml version
-      command: ./bump_version.sh
+      command: |
+        ./bump_version.sh
+        cp $BASH_ENV bash.env
+  - persist_to_workspace:
+      root: .
+      paths:
+        - bash.env
   - run:
       name: Commit and push version bump
       command: |

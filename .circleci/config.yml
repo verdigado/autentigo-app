@@ -1,3 +1,9 @@
+commands:
+    restore_bash_env:
+        steps:
+            - attach_workspace:
+                at: .
+            - run: cat bash.env >> $BASH_ENV
 jobs:
     build_android:
         docker:
@@ -19,8 +25,9 @@ jobs:
             - android/create-keystore-properties:
                 release-keystore: ./upload-keystore.jks
                 working-directory: android
+            - restore_bash_env
             - run:
-                command: flutter build << parameters.build_target >>
+                command: flutter build << parameters.build_target >> --build-number ${BUILD_NUMBER} --build-name ${BUILD_NAME}
                 name: Build appbundle
             - run:
                 command: |
@@ -37,8 +44,14 @@ jobs:
         steps:
             - checkout
             - run:
-                command: ./bump_version.sh
+                command: |
+                    ./bump_version.sh
+                    cp $BASH_ENV bash.env
                 name: Update pubspec.yaml version
+            - persist_to_workspace:
+                paths:
+                    - bash.env
+                root: .
             - run:
                 command: |
                     git config user.email "technik@verdigado.com"
@@ -62,10 +75,10 @@ jobs:
             - github-cli/setup
             - attach_workspace:
                 at: /tmp/android-builds
+            - restore_bash_env
             - run:
                 command: |
-                    PUBSPEC_VERSION_NAME=$(sed -nr 's/^version: (.*)\+[[:digit:]]+$/\1/p' pubspec.yaml)
-                    TAG="v${PUBSPEC_VERSION_NAME}<< parameters.version_suffix >>"
+                    TAG="v${BUILD_NAME}<< parameters.version_suffix >>"
                     gh release create "${TAG}" /tmp/android-builds/*.apk --target ${CIRCLE_BRANCH} --generate-notes << parameters.additional_args >>
                 name: Create github release
     test_deploy_android:
