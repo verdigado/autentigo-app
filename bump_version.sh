@@ -32,4 +32,6 @@ sed -i "s/^version: .*/version: ${NEW_PUBSPEC_VERSION}/" pubspec.yaml
 
 if [ ! -z ${CIRCLECI+x} ]; then
   echo "export NEW_PUBSPEC_VERSION=${NEW_PUBSPEC_VERSION}" >> "${BASH_ENV}"
+  echo "export BUILD_NAME=${NEW_BUILD_NAME}" >> "${BASH_ENV}"
+  echo "export BUILD_NUMBER=${NEW_BUILD_NUMBER}" >> "${BASH_ENV}"
 fi

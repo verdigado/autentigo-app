@@ -17,9 +17,10 @@ steps:
   - android/create-keystore-properties:
       working-directory: android
       release-keystore: ./upload-keystore.jks
+  - restore_bash_env
   - run:
       name: Build appbundle
-      command: flutter build << parameters.build_target >>
+      command: flutter build << parameters.build_target >> --build-number ${BUILD_NUMBER} --build-name ${BUILD_NAME}
   - run:
       name: Move android builds into workspace
       command: |

@@ -12,9 +12,9 @@ steps:
   - github-cli/setup
   - attach_workspace:
       at: /tmp/android-builds
+  - restore_bash_env
   - run:
       name: Create github release
       command: |
-        PUBSPEC_VERSION_NAME=$(sed -nr 's/^version: (.*)\+[[:digit:]]+$/\1/p' pubspec.yaml)
-        TAG="v${PUBSPEC_VERSION_NAME}<< parameters.version_suffix >>"
+        TAG="v${BUILD_NAME}<< parameters.version_suffix >>"
         gh release create "${TAG}" /tmp/android-builds/*.apk --target ${CIRCLE_BRANCH} --generate-notes << parameters.additional_args >>
