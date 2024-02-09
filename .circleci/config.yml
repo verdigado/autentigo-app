@@ -9,8 +9,6 @@ jobs:
         docker:
             - image: melegiul/kc-auth-app-android:2024.01.1
         parameters:
-            build_name:
-                type: string
             build_path:
                 type: string
             build_target:
@@ -29,15 +27,10 @@ jobs:
             - run:
                 command: flutter build << parameters.build_target >> --build-number ${BUILD_NUMBER} --build-name ${BUILD_NAME}
                 name: Build appbundle
-            - run:
-                command: |
-                    mkdir -p /tmp/android-builds
-                    mv << parameters.build_path >> /tmp/android-builds/<< parameters.build_name >>
-                name: Move android builds into workspace
             - persist_to_workspace:
                 paths:
-                    - << parameters.build_name >>
-                root: /tmp/android-builds
+                    - << parameters.build_path >>
+                root: build/app/outputs
     bump_version:
         docker:
             - image: cimg/base:2024.01
@@ -67,6 +60,9 @@ jobs:
             additional_args:
                 default: ""
                 type: string
+            apk_file_name:
+                default: app-release.apk
+                type: string
             version_suffix:
                 default: ""
                 type: string
@@ -74,12 +70,15 @@ jobs:
             - checkout
             - github-cli/setup
             - attach_workspace:
-                at: /tmp/android-builds
+                at: build/app/outputs
+            - run:
+                command: mv build/app/outputs/apk/release/app-release.apk ./<< parameters.apk_file_name >>
+                name: Rename apk file
             - restore_bash_env
             - run:
                 command: |
                     TAG="v${BUILD_NAME}<< parameters.version_suffix >>"
-                    gh release create "${TAG}" /tmp/android-builds/*.apk --target ${CIRCLE_BRANCH} --generate-notes << parameters.additional_args >>
+                    gh release create "${TAG}" << parameters.apk_file_name >> --target ${CIRCLE_BRANCH} --generate-notes << parameters.additional_args >>
                 name: Create github release
     test_deploy_android:
         executor:
@@ -101,15 +100,13 @@ workflows:
         jobs:
             - bump_version
             - build_android:
-                build_name: kc-auth-app.aab
-                build_path: build/app/outputs/bundle/release/app-release.aab
+                build_path: bundle/release/app-release.aab
                 build_target: appbundle
                 name: build_appbundle
                 requires:
                     - bump_version
             - build_android:
-                build_name: kc-auth-app.apk
-                build_path: build/app/outputs/apk/release/app-release.apk
+                build_path: apk/release/app-release.apk
                 build_target: apk
                 name: build_apk
                 requires:

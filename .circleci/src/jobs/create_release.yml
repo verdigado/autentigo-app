@@ -5,16 +5,22 @@ parameters:
   version_suffix:
     type: string
     default: ''
+  apk_file_name:
+    type: string
+    default: app-release.apk
 docker:
   - image: cimg/base:2024.01
 steps:
   - checkout
   - github-cli/setup
   - attach_workspace:
-      at: /tmp/android-builds
+      at: build/app/outputs
+  - run:
+      name: Rename apk file
+      command: mv build/app/outputs/apk/release/app-release.apk ./<< parameters.apk_file_name >>
   - restore_bash_env
   - run:
       name: Create github release
       command: |
         TAG="v${BUILD_NAME}<< parameters.version_suffix >>"
-        gh release create "${TAG}" /tmp/android-builds/*.apk --target ${CIRCLE_BRANCH} --generate-notes << parameters.additional_args >>
+        gh release create "${TAG}" << parameters.apk_file_name >> --target ${CIRCLE_BRANCH} --generate-notes << parameters.additional_args >>
