@@ -5,6 +5,22 @@ commands:
                 at: .
             - run: cat bash.env >> $BASH_ENV
 jobs:
+    beta_deploy_android:
+        docker:
+            - image: cimg/ruby:3.3.0
+        steps:
+            - checkout
+            - attach_workspace:
+                at: build/app/outputs
+            - android/create-google-play-key:
+                working-directory: android
+            - flutter/install_android_gem
+            - run:
+                command: |
+                    cd android
+                    BUNDLE_PATH=$(realpath ${CIRCLE_WORKING_DIRECTORY}/build/app/outputs/bundle/release/app-release.aab)
+                    bundle exec fastlane play_store_beta aab_path:${BUNDLE_PATH}
+                name: Upload to play store
     build_android:
         docker:
             - image: melegiul/kc-auth-app-android:2024.01.1
@@ -80,23 +96,13 @@ jobs:
                     TAG="v${BUILD_NAME}<< parameters.version_suffix >>"
                     gh release create "${TAG}" << parameters.apk_file_name >> --target ${CIRCLE_BRANCH} --generate-notes << parameters.additional_args >>
                 name: Create github release
-    test_deploy_android:
-        executor:
-            name: android/android-docker
-            tag: 2024.01.1
-        steps:
-            - checkout
-            - attach_workspace:
-                at: /tmp/android-builds
-            - run: echo "Upload to test track"
-            - run: ls -R /tmp/android-builds
 orbs:
     android: circleci/android@2.4.0
     flutter: circleci/flutter@2.0.2
     github-cli: circleci/github-cli@2.3.0
 version: 2.1
 workflows:
-    test_deploy:
+    beta_deploy:
         jobs:
             - bump_version
             - build_android:
@@ -111,7 +117,7 @@ workflows:
                 name: build_apk
                 requires:
                     - bump_version
-            - test_deploy_android:
+            - beta_deploy_android:
                 requires:
                     - build_appbundle
             - create_release:

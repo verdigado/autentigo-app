@@ -1,9 +1,0 @@
-executor:
-  name: android/android-docker
-  tag: 2024.01.1
-steps:
-  - checkout
-  - attach_workspace:
-      at: /tmp/android-builds
-  - run: echo "Upload to test track"
-  - run: ls -R /tmp/android-builds
