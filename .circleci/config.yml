@@ -11,14 +11,16 @@ jobs:
         steps:
             - checkout
             - attach_workspace:
-                at: build/app/outputs
+                at: .
             - android/create-google-play-key:
                 working-directory: android
             - flutter/install_android_gem
             - run:
                 command: |
+                    pwd
+                    ls -la ~
+                    BUNDLE_PATH=$(find ${CIRCLE_WORKING_DIRECTORY} -name app-release.aab)
                     cd android
-                    BUNDLE_PATH=$(realpath ${CIRCLE_WORKING_DIRECTORY}/build/app/outputs/bundle/release/app-release.aab)
                     bundle exec fastlane play_store_beta aab_path:${BUNDLE_PATH}
                 name: Upload to play store
     build_android:
@@ -45,8 +47,8 @@ jobs:
                 name: Build appbundle
             - persist_to_workspace:
                 paths:
-                    - << parameters.build_path >>
-                root: build/app/outputs
+                    - build/app/outputs/<< parameters.build_path >>
+                root: .
     bump_version:
         docker:
             - image: cimg/base:2024.01
@@ -85,12 +87,10 @@ jobs:
         steps:
             - checkout
             - github-cli/setup
-            - attach_workspace:
-                at: build/app/outputs
+            - restore_bash_env
             - run:
                 command: mv build/app/outputs/apk/release/app-release.apk ./<< parameters.apk_file_name >>
                 name: Rename apk file
-            - restore_bash_env
             - run:
                 command: |
                     TAG="v${BUILD_NAME}<< parameters.version_suffix >>"
