@@ -20,6 +20,6 @@ steps:
       name: Build appbundle
       command: flutter build << parameters.build_target >> --build-number ${BUILD_NUMBER} --build-name ${BUILD_NAME}
   - persist_to_workspace:
-      root: build/app/outputs
+      root: .
       paths:
-        - << parameters.build_path >>
+        - build/app/outputs/<< parameters.build_path >>
