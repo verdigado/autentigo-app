@@ -17,11 +17,8 @@ jobs:
             - flutter/install_android_gem
             - run:
                 command: |
-                    pwd
-                    ls -la ~
-                    BUNDLE_PATH=$(find ${CIRCLE_WORKING_DIRECTORY} -name app-release.aab)
                     cd android
-                    bundle exec fastlane play_store_beta aab_path:${BUNDLE_PATH}
+                    bundle exec fastlane play_store_beta
                 name: Upload to play store
     build_android:
         docker:
