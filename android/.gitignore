@@ -15,3 +15,6 @@ key.properties
 # CircleCI Android orb
 # See https://circleci.com/docs/deploy-android-applications/
 keystore.properties
+
+# See https://circleci.com/developer/orbs/orb/circleci/android#commands-create-google-play-key
+google-play-key.json
