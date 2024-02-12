@@ -10,8 +10,5 @@ steps:
   - run:
       name: Upload to play store
       command: |
-        pwd
-        ls -la ~
-        BUNDLE_PATH=$(find ${CIRCLE_WORKING_DIRECTORY} -name app-release.aab)
         cd android
-        bundle exec fastlane play_store_beta aab_path:${BUNDLE_PATH}
+        bundle exec fastlane play_store_beta
