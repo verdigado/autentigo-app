@@ -15,29 +15,13 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## Android
 
-### android build_bundle
+### android play_store_beta
 
 ```sh
-[bundle exec] fastlane android build_bundle
+[bundle exec] fastlane android play_store_beta
 ```
 
-Build app bundle
-
-### android build_apk
-
-```sh
-[bundle exec] fastlane android build_apk
-```
-
-Build app apk
-
-### android clean
-
-```sh
-[bundle exec] fastlane android clean
-```
-
-Delete the build directory
+Upload to play store
 
 ----
 

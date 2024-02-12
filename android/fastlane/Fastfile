@@ -16,18 +16,25 @@
 default_platform(:android)
 
 platform :android do
-  desc "Build app bundle"
-  lane :build_bundle do
-    gradle(task: "bundle", build_type: "Release")
-  end
-
-  desc "Build app apk"
-  lane :build_apk do
-    gradle(task: "assemble", build_type: "Release")
-  end
-
-  desc "Delete the build directory"
-  lane :clean do
-    gradle(task: "clean")
+  desc "Upload to play store"
+  lane :play_store_beta do |options|
+    if not options[:aab_path]
+     UI.important "Missing parameter aab_path. Using default value."
+     options[:aab_path] = File.absolute_path("../../build/app/outputs/bundle/release/app-release.aab")
+    end
+    if not File.exist?(options[:aab_path])
+      UI.user_error! "Could not find file #{options[:aab_path]}"
+    end
+    upload_to_play_store(
+      # TODO update to beta
+      track: "internal",
+      # TODO update to completed
+      release_status: "draft",
+      skip_upload_apk: true,
+      skip_upload_changelogs: true,
+      aab: options[:aab_path],
+      # TODO remove to actually upload
+      validate_only: true
+    )
   end
 end
