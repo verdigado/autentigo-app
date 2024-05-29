@@ -12,6 +12,9 @@ set -o pipefail
 PUBSPEC_VERSION=$(sed -nr 's/^version: (.*)/\1/p' pubspec.yaml)
 echo "Current pubspec.yml version: ${PUBSPEC_VERSION}"
 
+# Parses pubspec version of this form YYYY.MM.COUNTER+BUILD_NUMBER
+# Variable names are following the convention of flutter CLI.
+# see flutter help build apk
 BUILD_NAME=$(echo ${PUBSPEC_VERSION} | cut -d+ -f1)
 BUILD_NUMBER=$(echo ${PUBSPEC_VERSION} | cut -d+ -f2)
 DATE=$(echo ${BUILD_NAME} | cut -d. -f1-2)
