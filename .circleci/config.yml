@@ -1,4 +1,23 @@
 commands:
+    install_android_build_tools:
+        description: |
+            Installs and caches the Android SDK build-tools 30.0.3 so that subsequent builds do not need to install during flutter builds. This saves time to build and CircleCI credits. https://github.com/flutter/flutter/issues/83573 https://github.com/flutter/flutter/issues/41462
+        parameters:
+            cache-version:
+                default: v1
+                description: Change the default cache version if you need to clear the cache for any reason.
+                type: string
+        steps:
+            - restore_cache:
+                keys:
+                    - android-sdk-build-tools-<<parameters.cache-version>>-{{ arch }}
+            - run:
+                command: sdkmanager "build-tools;30.0.3"
+                name: Install Android SDK Build-Tools 30.0.3
+            - save_cache:
+                key: android-sdk-build-tools-<<parameters.cache-version>>-{{ arch }}
+                paths:
+                    - ~/android-sdk/build-tools/30.0.3
     restore_bash_env:
         steps:
             - attach_workspace:
@@ -21,8 +40,9 @@ jobs:
                     bundle exec fastlane play_store_beta
                 name: Upload to play store
     build_android:
-        docker:
-            - image: melegiul/kc-auth-app-android:2024.01.1
+        executor:
+            name: android/android-docker
+            tag: 2024.04.1
         parameters:
             build_path:
                 type: string
@@ -30,6 +50,7 @@ jobs:
                 type: string
         steps:
             - checkout
+            - install_android_build_tools
             - flutter/install_sdk_and_pub:
                 version: 3.16.9
             - flutter/install_android_gem
@@ -40,7 +61,8 @@ jobs:
                 working-directory: android
             - restore_bash_env
             - run:
-                command: flutter build << parameters.build_target >> --build-number ${BUILD_NUMBER} --build-name ${BUILD_NAME}
+                command: |
+                    flutter build << parameters.build_target >> --build-number ${BUILD_NUMBER} --build-name ${BUILD_NAME}
                 name: Build appbundle
             - persist_to_workspace:
                 paths:
@@ -91,7 +113,8 @@ jobs:
             - run:
                 command: |
                     TAG="v${BUILD_NAME}<< parameters.version_suffix >>"
-                    gh release create "${TAG}" << parameters.apk_file_name >> --target ${CIRCLE_BRANCH} --generate-notes << parameters.additional_args >>
+                    gh release create "${TAG}" << parameters.apk_file_name >> --target ${CIRCLE_BRANCH} \
+                    --generate-notes << parameters.additional_args >>
                 name: Create github release
 orbs:
     android: circleci/android@2.4.0
