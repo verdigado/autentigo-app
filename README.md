@@ -1,4 +1,4 @@
-# gruene_auth_app
+# KC Auth App
 
 A new Flutter project.
 
@@ -24,3 +24,10 @@ If you choose rbenv to install ruby, bundler will be available too.
 
 Every time you run fastlane, use `bundle exec fastlane [lane]`
 To update fastlane, just run `bundle update fastlane`
+
+## CircleCI config updates
+
+1. Install CircleCI command line interface https://circleci.com/docs/local-cli/#alternative-installation-method
+2. Place your CircleCI config under `.circleci/src` https://circleci.com/docs/how-to-use-the-circleci-local-cli/#packing-a-config
+3. Run `circleci config pack .circleci/src > .circleci/config.yml` to merge your changes into single YAML file
+4. Validate your config `circleci config validate`
