@@ -21,4 +21,5 @@ steps:
       name: Create github release
       command: |
         TAG="v${BUILD_NAME}<< parameters.version_suffix >>"
-        gh release create "${TAG}" << parameters.apk_file_name >> --target ${CIRCLE_BRANCH} --generate-notes << parameters.additional_args >>
+        gh release create "${TAG}" << parameters.apk_file_name >> --target ${CIRCLE_BRANCH} \
+        --generate-notes << parameters.additional_args >>

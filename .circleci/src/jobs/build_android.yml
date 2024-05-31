@@ -3,10 +3,12 @@ parameters:
     type: string
   build_path:
     type: string
-docker:
-  - image: melegiul/kc-auth-app-android:2024.01.1
+executor:
+  name: android/android-docker
+  tag: 2024.04.1
 steps:
   - checkout
+  - install_android_build_tools
   - flutter/install_sdk_and_pub:
       version: 3.16.9
   - flutter/install_android_gem
@@ -18,7 +20,9 @@ steps:
   - restore_bash_env
   - run:
       name: Build appbundle
-      command: flutter build << parameters.build_target >> --build-number ${BUILD_NUMBER} --build-name ${BUILD_NAME}
+      command: >
+        flutter build << parameters.build_target >> --build-number ${BUILD_NUMBER}
+        --build-name ${BUILD_NAME}
   - persist_to_workspace:
       root: .
       paths:
