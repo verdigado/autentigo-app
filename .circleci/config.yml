@@ -42,7 +42,7 @@ jobs:
     build_android:
         executor:
             name: android/android-docker
-            tag: 2024.04.1
+            tag: 2024.01.1
         parameters:
             build_path:
                 type: string
