@@ -122,14 +122,16 @@ class KeycloakClient {
 
   Future<List<Challenge>> getChallenges(
     String deviceId,
+    bool async,
   ) async {
     try {
-      return await _getChallengesRequest(deviceId);
+      return await _getChallengesRequest(deviceId, async);
     } on DioException catch (err) {
       if (err.type == DioExceptionType.badResponse) {
         var type = switch (err.response?.statusCode) {
           400 => KeycloakExceptionType.badRequest,
           409 => KeycloakExceptionType.notRegistered,
+          503 => KeycloakExceptionType.timeout,
           int() => KeycloakExceptionType.badRequest,
           null => KeycloakExceptionType.badRequest,
         };
@@ -139,7 +141,10 @@ class KeycloakClient {
     }
   }
 
-  Future<List<Challenge>> _getChallengesRequest(String deviceId) async {
+  Future<List<Challenge>> _getChallengesRequest(
+    String deviceId,
+    bool async
+  ) async {
     var signatureHeader = buildSignatureHeader(
       deviceId,
       {
@@ -148,7 +153,7 @@ class KeycloakClient {
       },
     );
     var res = await _dio.get(
-      '/challenges',
+      async ? '/challenges/async' : '/challenges',
       queryParameters: {
         'device_id': deviceId,
       },

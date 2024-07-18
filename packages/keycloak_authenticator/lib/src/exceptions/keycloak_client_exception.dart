@@ -17,4 +17,5 @@ enum KeycloakExceptionType {
   notRegistered,
   serverError,
   badRequest,
+  timeout,
 }

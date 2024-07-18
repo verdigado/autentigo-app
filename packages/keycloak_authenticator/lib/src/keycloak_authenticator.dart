@@ -74,9 +74,9 @@ class KeycloakAuthenticator implements Authenticator {
   }
 
   @override
-  Future<Challenge?> fetchChallenge() async {
-    var challanges = await _client.getChallenges(_data.id);
-    return challanges.firstOrNull;
+  Future<Challenge?> fetchChallenge({bool async = false}) async {
+    var challenges = await _client.getChallenges(_data.id, async);
+    return challenges.firstOrNull;
   }
 
   @override
