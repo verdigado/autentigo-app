@@ -35,8 +35,19 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+  provider: ^6.0.5
+  go_router: ^12.0.0
+  get_it: ^7.6.4
+  flutter_svg: ^2.0.7
+  keycloak_authenticator:
+    path: ./packages/keycloak_authenticator
+  mobile_scanner: ^3.5.2
+  date_format: ^2.0.7
+  flutter_secure_storage: ^9.0.0
+
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.13.1
   flutter_test:
     sdk: flutter
 
@@ -88,3 +99,29 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+  assets:
+    - assets/images/
+
+  fonts:
+    - family: GrueneType
+      fonts:
+        - asset: assets/fonts/GrueneType/GrueneType-BlackCondensedItalic.otf
+    - family: PTSans
+      fonts:
+        - asset: assets/fonts/PTSans/PTS55F.ttf
+          weight: 400
+          style: normal
+        - asset: assets/fonts/PTSans/PTS56F.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/PTSans/PTS75F.ttf
+          weight: 700
+          style: normal
+        - asset: assets/fonts/PTSans/PTS76F.ttf
+          weight: 700
+          style: italic
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/icon.png"
