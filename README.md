@@ -1,6 +1,6 @@
-# gruene_auth_app
+# KC Auth App
 
-A new Flutter project.
+This is a Dart app that implements an Keycloak App Authenticator from the [netzbegruenung/keycloak-mfa-plugins](https://github.com/netzbegruenung/keycloak-mfa-plugins/app-authenticator) app authenticator.
 
 ## Getting Started
 
