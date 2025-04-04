@@ -1,6 +1,6 @@
 # KC Auth App
 
-This is a Dart app that implements an Keycloak App Authenticator from the [netzbegruenung/keycloak-mfa-plugins](https://github.com/netzbegruenung/keycloak-mfa-plugins/app-authenticator) app authenticator.
+This is a Dart app that implements an Keycloak App Authenticator from the [netzbegruenung/keycloak-mfa-plugins](https://github.com/netzbegruenung/keycloak-mfa-plugins/tree/main/app-authenticator) app authenticator.
 
 ## Getting Started
 
