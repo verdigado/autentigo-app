@@ -1,0 +1,10 @@
+During the setup process, a cryptographic keypair is generated and stored by this app.
+This keypair enhances security by ensuring the authenticity of the users during the authentication process.
+
+The public key is then sent to custom keycloak authenticator SPI. This SPI must support the required API
+to store the public key. On subsequent authentication requests during the login flow, the user can use
+this app to send a request to keycloak either to approve or deny the authentication.
+
+The keycloak SPI validates requests by checking the apps private key signature supplied in the request.
+If the signature is valid and the authentication request was accepted by the user, then the login
+flow step is completed.

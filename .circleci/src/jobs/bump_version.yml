@@ -1,0 +1,21 @@
+docker:
+  - image: cimg/base:2024.01
+steps:
+  - checkout
+  - run:
+      name: Update pubspec.yaml version
+      command: |
+        ./bump_version.sh
+        cp $BASH_ENV bash.env
+  - persist_to_workspace:
+      root: .
+      paths:
+        - bash.env
+  - run:
+      name: Commit and push version bump
+      command: |
+        git config user.email "technik@verdigado.com"
+        git config user.name "CircleCI"
+        git add pubspec.yaml
+        git commit -m "Bump version ${NEW_PUBSPEC_VERSION}" -m "[skip ci]"
+        git push origin "${CIRCLE_BRANCH}"

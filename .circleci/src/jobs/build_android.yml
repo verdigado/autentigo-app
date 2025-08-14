@@ -1,0 +1,29 @@
+parameters:
+  build_target:
+    type: string
+  build_path:
+    type: string
+executor:
+  name: android/android-docker
+  tag: 2024.01.1
+steps:
+  - checkout
+  - install_android_build_tools
+  - flutter/install_sdk_and_pub:
+      version: 3.16.9
+  - flutter/install_android_gem
+  - android/decode-keystore:
+      keystore-location: android/app/upload-keystore.jks
+  - android/create-keystore-properties:
+      working-directory: android
+      release-keystore: ./upload-keystore.jks
+  - restore_bash_env
+  - run:
+      name: Build appbundle
+      command: >
+        flutter build << parameters.build_target >> --build-number ${BUILD_NUMBER}
+        --build-name ${BUILD_NAME}
+  - persist_to_workspace:
+      root: .
+      paths:
+        - build/app/outputs/<< parameters.build_path >>

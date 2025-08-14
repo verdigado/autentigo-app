@@ -1,0 +1,152 @@
+commands:
+    install_android_build_tools:
+        description: |
+            Installs and caches the Android SDK build-tools 30.0.3 so that subsequent builds do not need to install during flutter builds. This saves time to build and CircleCI credits. https://github.com/flutter/flutter/issues/83573 https://github.com/flutter/flutter/issues/41462
+        parameters:
+            cache-version:
+                default: v1
+                description: Change the default cache version if you need to clear the cache for any reason.
+                type: string
+        steps:
+            - restore_cache:
+                keys:
+                    - android-sdk-build-tools-<<parameters.cache-version>>-{{ arch }}
+            - run:
+                command: sdkmanager "build-tools;30.0.3"
+                name: Install Android SDK Build-Tools 30.0.3
+            - save_cache:
+                key: android-sdk-build-tools-<<parameters.cache-version>>-{{ arch }}
+                paths:
+                    - ~/android-sdk/build-tools/30.0.3
+    restore_bash_env:
+        steps:
+            - attach_workspace:
+                at: .
+            - run: cat bash.env >> $BASH_ENV
+jobs:
+    beta_deploy_android:
+        docker:
+            - image: cimg/ruby:3.3.0
+        steps:
+            - checkout
+            - attach_workspace:
+                at: .
+            - android/create-google-play-key:
+                working-directory: android
+            - flutter/install_android_gem
+            - run:
+                command: |
+                    cd android
+                    bundle exec fastlane play_store_beta
+                name: Upload to play store
+    build_android:
+        executor:
+            name: android/android-docker
+            tag: 2024.01.1
+        parameters:
+            build_path:
+                type: string
+            build_target:
+                type: string
+        steps:
+            - checkout
+            - install_android_build_tools
+            - flutter/install_sdk_and_pub:
+                version: 3.16.9
+            - flutter/install_android_gem
+            - android/decode-keystore:
+                keystore-location: android/app/upload-keystore.jks
+            - android/create-keystore-properties:
+                release-keystore: ./upload-keystore.jks
+                working-directory: android
+            - restore_bash_env
+            - run:
+                command: |
+                    flutter build << parameters.build_target >> --build-number ${BUILD_NUMBER} --build-name ${BUILD_NAME}
+                name: Build appbundle
+            - persist_to_workspace:
+                paths:
+                    - build/app/outputs/<< parameters.build_path >>
+                root: .
+    bump_version:
+        docker:
+            - image: cimg/base:2024.01
+        steps:
+            - checkout
+            - run:
+                command: |
+                    ./bump_version.sh
+                    cp $BASH_ENV bash.env
+                name: Update pubspec.yaml version
+            - persist_to_workspace:
+                paths:
+                    - bash.env
+                root: .
+            - run:
+                command: |
+                    git config user.email "technik@verdigado.com"
+                    git config user.name "CircleCI"
+                    git add pubspec.yaml
+                    git commit -m "Bump version ${NEW_PUBSPEC_VERSION}" -m "[skip ci]"
+                    git push origin "${CIRCLE_BRANCH}"
+                name: Commit and push version bump
+    create_release:
+        docker:
+            - image: cimg/base:2024.01
+        parameters:
+            additional_args:
+                default: ""
+                type: string
+            apk_file_name:
+                default: app-release.apk
+                type: string
+            version_suffix:
+                default: ""
+                type: string
+        steps:
+            - checkout
+            - github-cli/setup
+            - restore_bash_env
+            - run:
+                command: mv build/app/outputs/apk/release/app-release.apk ./<< parameters.apk_file_name >>
+                name: Rename apk file
+            - run:
+                command: |
+                    TAG="v${BUILD_NAME}<< parameters.version_suffix >>"
+                    gh release create "${TAG}" << parameters.apk_file_name >> --target ${CIRCLE_BRANCH} \
+                    --generate-notes << parameters.additional_args >>
+                name: Create github release
+orbs:
+    android: circleci/android@2.4.0
+    flutter: circleci/flutter@2.0.2
+    github-cli: circleci/github-cli@2.3.0
+version: 2.1
+workflows:
+    beta_deploy:
+        jobs:
+            - bump_version
+            - build_android:
+                build_path: bundle/release/app-release.aab
+                build_target: appbundle
+                name: build_appbundle
+                requires:
+                    - bump_version
+            - build_android:
+                build_path: apk/release/app-release.apk
+                build_target: apk
+                name: build_apk
+                requires:
+                    - bump_version
+            - beta_deploy_android:
+                requires:
+                    - build_appbundle
+            - create_release:
+                additional_args: --prerelease
+                requires:
+                    - build_apk
+                version_suffix: -beta
+        when:
+            equal:
+                - develop
+                - << pipeline.git.branch >>
+

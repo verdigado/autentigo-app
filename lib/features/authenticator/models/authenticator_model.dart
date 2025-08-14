@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gruene_auth_app/app/models/ui_message.dart';
+import 'package:kc_auth_app/app/models/ui_message.dart';
 import 'package:keycloak_authenticator/api.dart';
 import '../dtos/login_attempt_dto.dart';
 import 'package:get_it/get_it.dart';
@@ -131,6 +131,41 @@ class AuthenticatorModel extends ChangeNotifier {
     isLoading = false;
     notifyListeners();
     return null;
+  }
+
+  Future<bool> poll() async {
+    if (status != AuthenticatorStatus.ready) {
+      return true;
+    }
+    try {
+      var challenge = await _authenticator!.fetchChallenge(async: true);
+      if (challenge != null) {
+        loginAttempt = LoginAttemptDto(
+          browser: challenge.browser,
+          ipAddress: challenge.ipAddress,
+          loggedInAt:
+          DateTime.fromMillisecondsSinceEpoch(challenge.updatedTimestamp),
+          os: challenge.os,
+          challenge: challenge,
+          expiresIn: challenge.expiresIn ?? 60,
+        );
+        status = AuthenticatorStatus.verify;
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } on KeycloakClientException catch (e) {
+      if (e.type == KeycloakExceptionType.notRegistered) {
+        try {
+          await _service.delete(_authenticator!);
+          _authenticator = null;
+          status = AuthenticatorStatus.setup;
+        } catch (err) {
+          //
+        }
+      }
+      rethrow;
+    }
   }
 
   Future<UIMessage?> sendReply({required bool granted}) async {

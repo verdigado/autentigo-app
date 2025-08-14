@@ -6,7 +6,7 @@ import 'package:keycloak_authenticator/src/dtos/authenticator_info.dart';
 abstract class Authenticator {
   String getId();
   String? getLabel();
-  Future<Challenge?> fetchChallenge();
+  Future<Challenge?> fetchChallenge({bool async = false});
   Future<void> reply({required Challenge challenge, required bool granted});
   // AuthenticatorInfo getInfo();
 }

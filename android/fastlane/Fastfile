@@ -1,0 +1,40 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:android)
+
+platform :android do
+  desc "Upload to play store"
+  lane :play_store_beta do |options|
+    if not options[:aab_path]
+     UI.important "Missing parameter aab_path. Using default value."
+     options[:aab_path] = File.absolute_path("../../build/app/outputs/bundle/release/app-release.aab")
+    end
+    if not File.exist?(options[:aab_path])
+      UI.user_error! "Could not find file #{options[:aab_path]}"
+    end
+    upload_to_play_store(
+      # TODO update to beta
+      track: "internal",
+      # TODO update to completed
+      release_status: "draft",
+      skip_upload_apk: true,
+      skip_upload_changelogs: true,
+      aab: options[:aab_path],
+      # TODO remove to actually upload
+      validate_only: true
+    )
+  end
+end

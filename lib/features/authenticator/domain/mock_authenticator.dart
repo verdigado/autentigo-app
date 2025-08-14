@@ -2,7 +2,7 @@ import 'package:keycloak_authenticator/api.dart';
 
 class MockAuthenticator implements Authenticator {
   @override
-  Future<Challenge> fetchChallenge() async {
+  Future<Challenge> fetchChallenge({bool async = false}) async {
     await Future.delayed(const Duration(seconds: 1));
     return Challenge(
       browser: 'Firefox',

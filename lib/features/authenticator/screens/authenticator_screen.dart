@@ -1,14 +1,15 @@
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gruene_auth_app/app/constants/image_paths.dart';
-import 'package:gruene_auth_app/app/theme/custom_colors.dart';
-import 'package:gruene_auth_app/app/utils/snackbar_utils.dart';
-import 'package:gruene_auth_app/features/authenticator/models/authenticator_model.dart';
-import 'package:gruene_auth_app/features/authenticator/models/tip_of_the_day_model.dart';
-import 'package:gruene_auth_app/features/authenticator/screens/activation_token_input_screen.dart';
-import 'package:gruene_auth_app/features/authenticator/screens/activation_token_scan_screen.dart';
-import 'package:gruene_auth_app/features/authenticator/widgets/tip_of_the_day.dart';
+import 'package:kc_auth_app/app/constants/image_paths.dart';
+import 'package:kc_auth_app/app/theme/custom_colors.dart';
+import 'package:kc_auth_app/app/utils/snackbar_utils.dart';
+import 'package:kc_auth_app/features/authenticator/models/authenticator_model.dart';
+import 'package:kc_auth_app/features/authenticator/models/tip_of_the_day_model.dart';
+import 'package:kc_auth_app/features/authenticator/screens/activation_token_input_screen.dart';
+import 'package:kc_auth_app/features/authenticator/screens/activation_token_scan_screen.dart';
+import 'package:kc_auth_app/features/authenticator/widgets/tip_of_the_day.dart';
+import 'package:keycloak_authenticator/api.dart';
 import 'package:provider/provider.dart';
 
 class AuthenticatorScreen extends StatelessWidget {
@@ -41,12 +42,12 @@ class AuthenticatorScreen extends StatelessWidget {
                   builder: (BuildContext context, MenuController controller,
                           Widget? child) =>
                       IconButton(
-                    onPressed: () => controller.isOpen
-                        ? controller.close()
-                        : controller.open(),
-                    icon: const Icon(Icons.settings_outlined),
-                    tooltip: 'Menü anzeigen',
-                  ),
+                        onPressed: () => controller.isOpen
+                            ? controller.close()
+                            : controller.open(),
+                        icon: const Icon(Icons.settings_outlined),
+                        tooltip: 'Menü anzeigen',
+                      ),
                   menuChildren: [
                     MenuItemButton(
                       onPressed: () => {model.delete()},
@@ -182,8 +183,41 @@ class _SetupView extends StatelessWidget {
   }
 }
 
-class _ReadyView extends StatelessWidget {
+class _ReadyView extends StatefulWidget {
   const _ReadyView({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _ReadyViewState();
+}
+
+class _ReadyViewState extends State<_ReadyView> {
+  bool _isPolling = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _startLongPolling();
+  }
+
+  void _startLongPolling() async {
+    var model = Provider.of<AuthenticatorModel>(context, listen: false);
+    while (_isPolling) {
+      try {
+        bool success = await model.poll();
+        if (success == true) {
+          _isPolling = false;
+        }
+      } on KeycloakClientException catch (e) {
+        if (e.type == KeycloakExceptionType.timeout) {
+          continue;
+        } else {
+          _isPolling = false;
+        }
+      } on Exception {
+        _isPolling = false;
+      }
+    }
+  }
 
   onRefresh(BuildContext context, model) async {
     var message = await model.refresh();

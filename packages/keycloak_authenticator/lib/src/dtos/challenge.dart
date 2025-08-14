@@ -83,7 +83,7 @@ class Challenge {
         userFirstName: json['userFirstName'],
         userLastName: json['userLastName'],
         targetUrl: json['targetUrl'],
-        secret: json['secret'],
+        secret: json['codeChallenge'],
         updatedTimestamp: json['updatedTimestamp'],
         ipAddress: json['ipAddress'],
         device: json['device'],

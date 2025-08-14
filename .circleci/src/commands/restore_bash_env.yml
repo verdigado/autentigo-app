@@ -1,0 +1,4 @@
+steps:
+  - attach_workspace:
+      at: .
+  - run: cat bash.env >> $BASH_ENV

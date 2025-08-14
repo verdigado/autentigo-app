@@ -1,4 +1,4 @@
-package com.example.gruene_auth_app
+package com.verdigado.kc_auth_app
 
 import io.flutter.embedding.android.FlutterActivity
 
