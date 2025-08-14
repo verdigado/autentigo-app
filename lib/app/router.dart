@@ -1,6 +1,6 @@
-import 'package:go_router/go_router.dart';
-import 'package:authenticator_app/features/authenticator/screens/authenticator_screen.dart';
 import 'package:authenticator_app/app/screens/home_screen.dart';
+import 'package:authenticator_app/features/authenticator/screens/authenticator_screen.dart';
+import 'package:go_router/go_router.dart';
 
 GoRouter createAppRouter() {
   return GoRouter(

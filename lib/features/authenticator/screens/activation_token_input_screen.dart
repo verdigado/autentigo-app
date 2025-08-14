@@ -1,18 +1,16 @@
-import 'package:flutter/material.dart';
 import 'package:authenticator_app/app/utils/snackbar_utils.dart';
 import 'package:authenticator_app/features/authenticator/models/authenticator_model.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ActivationTokenInputScreen extends StatefulWidget {
   const ActivationTokenInputScreen({super.key});
 
   @override
-  State<ActivationTokenInputScreen> createState() =>
-      _ActivationTokenInputScreenState();
+  State<ActivationTokenInputScreen> createState() => _ActivationTokenInputScreenState();
 }
 
-class _ActivationTokenInputScreenState
-    extends State<ActivationTokenInputScreen> {
+class _ActivationTokenInputScreenState extends State<ActivationTokenInputScreen> {
   var tokenInput = TextEditingController(text: '');
   var invalidToken = false;
   void Function()? setupHandler;
@@ -44,13 +42,13 @@ class _ActivationTokenInputScreenState
           var model = Provider.of<AuthenticatorModel>(context, listen: false);
           var message = await model.setup(tokenInput.text);
 
-          if (!context.mounted) return;
+          if (!mounted) return;
 
-          if (message != null) {
+          if (message != null && context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
               message,
               context,
-            ));
+            ),);
           }
 
           if (model.status == AuthenticatorStatus.ready) {
@@ -85,8 +83,7 @@ class _ActivationTokenInputScreenState
                 style: TextStyle(fontSize: 24),
               ),
             ),
-            const Text(
-                'Füge hier die Activation Token URL aus der Grünes Netz Account Konsole ein.'),
+            const Text('Füge hier die Activation Token URL aus der Grünes Netz Account Konsole ein.'),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: TextField(

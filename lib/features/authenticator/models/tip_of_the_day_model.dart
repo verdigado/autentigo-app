@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:authenticator_app/app/constants/image_paths.dart';
-import '../dtos/tip_of_the_day_dto.dart';
+import 'package:authenticator_app/features/authenticator/dtos/tip_of_the_day_dto.dart';
+import 'package:flutter/material.dart';
 
 class TipOfTheDayModel extends ChangeNotifier {
   List<TipOfTheDayDto> _tips = [];
@@ -48,8 +48,7 @@ class TipOfTheDayModel extends ChangeNotifier {
       ),
       TipOfTheDayDto(
         title: 'Video-Konferzen',
-        text:
-            'Auf der neuen Seite meet.gruene.de könnt ihr ab sofort Video-Konferenzen starten.',
+        text: 'Auf der neuen Seite meet.gruene.de könnt ihr ab sofort Video-Konferenzen starten.',
         iconPath: imageUndrawReminder,
         url: 'https://meet.gruene.de',
       ),
@@ -62,15 +61,13 @@ class TipOfTheDayModel extends ChangeNotifier {
       ),
       TipOfTheDayDto(
         title: 'Wordpress Sunflower',
-        text:
-            'Auf sunflower-theme.de könnt ihr kostenlos die grüne Optik für WordPress-Webseiten herunterladen.',
+        text: 'Auf sunflower-theme.de könnt ihr kostenlos die grüne Optik für WordPress-Webseiten herunterladen.',
         iconPath: imageUndrawOnlineStats,
         url: 'https://sunflower-theme.de',
       ),
       TipOfTheDayDto(
         title: 'Grünlink',
-        text:
-            'Auf grünlink.de kannst du lange Links auf eine angenehmere Länge verkürzen.',
+        text: 'Auf grünlink.de kannst du lange Links auf eine angenehmere Länge verkürzen.',
         iconPath: imageUndrawReminder,
         url: 'https://grünlink.de',
       ),

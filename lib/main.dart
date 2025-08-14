@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:authenticator_app/app/app.dart';
 import 'package:authenticator_app/app/config/config.dart';
 import 'package:authenticator_app/features/authenticator/domain/authenticator_factory.dart';
-import 'package:keycloak_authenticator/api.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:keycloak_authenticator/api.dart';
 
 void main() {
   var appConfig = AppConfig(

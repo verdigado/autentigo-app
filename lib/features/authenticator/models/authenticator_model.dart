@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:authenticator_app/app/models/ui_message.dart';
-import 'package:keycloak_authenticator/api.dart';
-import '../dtos/login_attempt_dto.dart';
+import 'package:authenticator_app/features/authenticator/dtos/login_attempt_dto.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:keycloak_authenticator/api.dart';
 
 enum AuthenticatorStatus {
   init,
@@ -27,9 +27,7 @@ class AuthenticatorModel extends ChangeNotifier {
     }
     try {
       _authenticator = await _service.getFirst();
-      status = _authenticator != null
-          ? AuthenticatorStatus.ready
-          : AuthenticatorStatus.setup;
+      status = _authenticator != null ? AuthenticatorStatus.ready : AuthenticatorStatus.setup;
     } on Exception catch (err) {
       error = err;
       loginAttempt = null;
@@ -61,7 +59,7 @@ class AuthenticatorModel extends ChangeNotifier {
     status = AuthenticatorStatus.ready;
     loginAttempt = null;
     notifyListeners();
-    return UIMessage.success("Authenticator eingerichtet");
+    return UIMessage.success('Authenticator eingerichtet');
   }
 
   Future<UIMessage?> delete() async {
@@ -93,8 +91,7 @@ class AuthenticatorModel extends ChangeNotifier {
         loginAttempt = LoginAttemptDto(
           browser: challenge.browser,
           ipAddress: challenge.ipAddress,
-          loggedInAt:
-              DateTime.fromMillisecondsSinceEpoch(challenge.updatedTimestamp),
+          loggedInAt: DateTime.fromMillisecondsSinceEpoch(challenge.updatedTimestamp),
           os: challenge.os,
           challenge: challenge,
           expiresIn: challenge.expiresIn ?? 60,
@@ -143,8 +140,7 @@ class AuthenticatorModel extends ChangeNotifier {
         loginAttempt = LoginAttemptDto(
           browser: challenge.browser,
           ipAddress: challenge.ipAddress,
-          loggedInAt:
-          DateTime.fromMillisecondsSinceEpoch(challenge.updatedTimestamp),
+          loggedInAt: DateTime.fromMillisecondsSinceEpoch(challenge.updatedTimestamp),
           os: challenge.os,
           challenge: challenge,
           expiresIn: challenge.expiresIn ?? 60,
@@ -169,9 +165,7 @@ class AuthenticatorModel extends ChangeNotifier {
   }
 
   Future<UIMessage?> sendReply({required bool granted}) async {
-    if (status != AuthenticatorStatus.verify ||
-        loginAttempt == null ||
-        isLoading) {
+    if (status != AuthenticatorStatus.verify || loginAttempt == null || isLoading) {
       return null;
     }
     error = null;
@@ -192,15 +186,11 @@ class AuthenticatorModel extends ChangeNotifier {
     loginAttempt = null;
     isLoading = false;
     notifyListeners();
-    return granted
-        ? UIMessage.success('Login bestätigt')
-        : UIMessage.warning('Login abgelehnt');
+    return granted ? UIMessage.success('Login bestätigt') : UIMessage.warning('Login abgelehnt');
   }
 
   UIMessage? idleTimeout() {
-    if (status != AuthenticatorStatus.verify ||
-        loginAttempt == null ||
-        isLoading) {
+    if (status != AuthenticatorStatus.verify || loginAttempt == null || isLoading) {
       return null;
     }
     status = AuthenticatorStatus.ready;

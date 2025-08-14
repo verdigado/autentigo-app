@@ -1,6 +1,3 @@
-import 'package:date_format/date_format.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:authenticator_app/app/constants/image_paths.dart';
 import 'package:authenticator_app/app/theme/custom_colors.dart';
 import 'package:authenticator_app/app/utils/snackbar_utils.dart';
@@ -9,6 +6,9 @@ import 'package:authenticator_app/features/authenticator/models/tip_of_the_day_m
 import 'package:authenticator_app/features/authenticator/screens/activation_token_input_screen.dart';
 import 'package:authenticator_app/features/authenticator/screens/activation_token_scan_screen.dart';
 import 'package:authenticator_app/features/authenticator/widgets/tip_of_the_day.dart';
+import 'package:date_format/date_format.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:keycloak_authenticator/api.dart';
 import 'package:provider/provider.dart';
 
@@ -39,15 +39,11 @@ class AuthenticatorScreen extends StatelessWidget {
             actions: [
               if (model.status == AuthenticatorStatus.ready)
                 MenuAnchor(
-                  builder: (BuildContext context, MenuController controller,
-                          Widget? child) =>
-                      IconButton(
-                        onPressed: () => controller.isOpen
-                            ? controller.close()
-                            : controller.open(),
-                        icon: const Icon(Icons.settings_outlined),
-                        tooltip: 'Menü anzeigen',
-                      ),
+                  builder: (BuildContext context, MenuController controller, Widget? child) => IconButton(
+                    onPressed: () => controller.isOpen ? controller.close() : controller.open(),
+                    icon: const Icon(Icons.settings_outlined),
+                    tooltip: 'Menü anzeigen',
+                  ),
                   menuChildren: [
                     MenuItemButton(
                       onPressed: () => {model.delete()},
@@ -72,7 +68,7 @@ class AuthenticatorScreen extends StatelessWidget {
 }
 
 class _InitView extends StatefulWidget {
-  const _InitView({super.key});
+  const _InitView();
 
   @override
   State<_InitView> createState() => _InitViewState();
@@ -84,11 +80,11 @@ class _InitViewState extends State<_InitView> {
     super.initState();
     var model = Provider.of<AuthenticatorModel>(context, listen: false);
     model.init().then((message) {
-      if (message != null) {
+      if (message != null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
           message,
           context,
-        ));
+        ),);
       }
     });
   }
@@ -105,7 +101,7 @@ class _InitViewState extends State<_InitView> {
 }
 
 class _SetupView extends StatelessWidget {
-  const _SetupView({super.key});
+  const _SetupView();
 
   @override
   Widget build(BuildContext context) {
@@ -123,13 +119,12 @@ class _SetupView extends StatelessWidget {
               Container(
                 width: 260,
                 decoration: BoxDecoration(
-                  color: CustomColors.himmel.shade500.withOpacity(0.5),
+                  color: CustomColors.himmel.shade500..withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(180),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
-                  child:
-                      SvgPicture.asset(imageUndrawMobileAnalytics, height: 220),
+                  child: SvgPicture.asset(imageUndrawMobileAnalytics, height: 220),
                 ),
               ),
               const SizedBox(height: 24),
@@ -142,10 +137,9 @@ class _SetupView extends StatelessWidget {
                 child: FilledButton.icon(
                   onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(
+                      MaterialPageRoute<void>(
                         maintainState: false,
-                        builder: (context) =>
-                            ListenableProvider<AuthenticatorModel>.value(
+                        builder: (context) => ListenableProvider<AuthenticatorModel>.value(
                           value: model,
                           child: const ActivationTokenScanScreen(),
                         ),
@@ -163,9 +157,8 @@ class _SetupView extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            ListenableProvider<AuthenticatorModel>.value(
+                      MaterialPageRoute<void>(
+                        builder: (context) => ListenableProvider<AuthenticatorModel>.value(
                           value: model,
                           child: const ActivationTokenInputScreen(),
                         ),
@@ -176,7 +169,7 @@ class _SetupView extends StatelessWidget {
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -184,7 +177,7 @@ class _SetupView extends StatelessWidget {
 }
 
 class _ReadyView extends StatefulWidget {
-  const _ReadyView({super.key});
+  const _ReadyView();
 
   @override
   State<StatefulWidget> createState() => _ReadyViewState();
@@ -219,7 +212,7 @@ class _ReadyViewState extends State<_ReadyView> {
     }
   }
 
-  onRefresh(BuildContext context, model) async {
+  Future<void> onRefresh(BuildContext context, AuthenticatorModel model) async {
     var message = await model.refresh();
     if (!context.mounted) return;
 
@@ -227,7 +220,7 @@ class _ReadyViewState extends State<_ReadyView> {
       ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
         message,
         context,
-      ));
+      ),);
     }
   }
 
@@ -262,7 +255,7 @@ class _ReadyViewState extends State<_ReadyView> {
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -270,9 +263,9 @@ class _ReadyViewState extends State<_ReadyView> {
 }
 
 class _VerifyView extends StatelessWidget {
-  const _VerifyView({super.key});
+  const _VerifyView();
 
-  onReply(BuildContext context, AuthenticatorModel model, bool granted) async {
+  Future<void> onReply(BuildContext context, AuthenticatorModel model, bool granted) async {
     var message = await model.sendReply(granted: granted);
 
     if (!context.mounted) return;
@@ -281,18 +274,18 @@ class _VerifyView extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
         message,
         context,
-      ));
+      ),);
     }
   }
 
-  onTimeout(BuildContext context, AuthenticatorModel model) {
+  void onTimeout(BuildContext context, AuthenticatorModel model) {
     var message = model.idleTimeout();
 
     if (message != null) {
       ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
         message,
         context,
-      ));
+      ),);
     }
   }
 
@@ -343,11 +336,7 @@ class _VerifyView extends StatelessWidget {
               FilledButton.icon(
                 style: model.isLoading
                     ? ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll<Color>(
-                            Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withAlpha(80)),
+                        backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.primary.withAlpha(80)),
                       )
                     : null,
                 icon: const Icon(Icons.check),
@@ -357,12 +346,10 @@ class _VerifyView extends StatelessWidget {
               FilledButton.icon(
                 style: model.isLoading
                     ? ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll<Color>(
-                            Theme.of(context).colorScheme.error.withAlpha(80)),
+                        backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.error.withAlpha(80)),
                       )
                     : ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll<Color>(
-                            Theme.of(context).colorScheme.error.withAlpha(200)),
+                        backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.error.withAlpha(200)),
                       ),
                 icon: const Icon(Icons.close),
                 label: const Text('Ablehnen'),
@@ -392,7 +379,7 @@ class _VerifyView extends StatelessWidget {
         Icon(
           Icons.shield_outlined,
           size: 40,
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+          color: Theme.of(context).colorScheme.primary..withValues(alpha: 0.5),
         ),
         SizedBox(
           height: 140,
@@ -453,8 +440,7 @@ class _VerifyView extends StatelessWidget {
           ),
         ),
         Text(
-          formatDate(model.loginAttempt!.loggedInAt,
-              [dd, '.', M, '.', yyyy, ', ', HH, ':', nn]),
+          formatDate(model.loginAttempt!.loggedInAt, [dd, '.', M, '.', yyyy, ', ', HH, ':', nn]),
         ),
       ],
     );

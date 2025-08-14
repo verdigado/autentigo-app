@@ -1,5 +1,6 @@
+import 'package:authenticator_app/app/theme/custom_colors.dart';
 import 'package:flutter/material.dart';
-import './custom_colors.dart';
+
 export './custom_colors.dart';
 
 ThemeData createLightTheme() {
@@ -28,7 +29,7 @@ ThemeData createLightTheme() {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: ButtonStyle(
-        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+        shape: WidgetStatePropertyAll(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         ),
       ),

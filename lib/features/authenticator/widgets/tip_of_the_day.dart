@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:authenticator_app/app/theme/custom_colors.dart';
 import 'package:authenticator_app/features/authenticator/models/tip_of_the_day_model.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class TipOfTheDay extends StatelessWidget {
@@ -10,9 +10,7 @@ class TipOfTheDay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<TipOfTheDayModel>(
-      builder: (context, model, child) => model.current != null
-          ? _renderTip(model)
-          : const SizedBox(height: 240),
+      builder: (context, model, child) => model.current != null ? _renderTip(model) : const SizedBox(height: 240),
     );
   }
 
@@ -97,7 +95,7 @@ class TipOfTheDay extends StatelessWidget {
             top: 8,
             right: 8,
             child: Text(
-              "Grüner IT-Tip",
+              'Grüner IT-Tip',
               style: TextStyle(
                 fontStyle: FontStyle.italic,
                 fontSize: 11,

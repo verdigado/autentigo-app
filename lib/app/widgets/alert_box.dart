@@ -8,7 +8,7 @@ class AlertBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.deepOrange.withOpacity(0.5),
+        color: Colors.deepOrange..withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Padding(
