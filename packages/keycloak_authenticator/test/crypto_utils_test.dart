@@ -122,8 +122,7 @@ void main() {
     var encoded =
         'MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCBsE7cX2JEQN8yC8KDGOLREEE77pxy5hua3UM3j7FH3N5w/1fyjcfZ48427orV2/AQRmCMxuA1V+gQLllHd59nGZPl1MHktt3E2SCj+PZsGdr1HGUikscB/U1M3gfovm0JZ6K59vlPpH9of07UHKm4aMvaY6vychCc1X98yR9dJ0A1d6CkaJSEYK+/bf2nfOeUzy7yJjIGPDz8LUNPKymDtoPRBa1fZKJpHF3QDBbKOrjYt3h7T1pbUNxMt/ATVeLLC86pIYX+9ZZZoE6U7BpnVWiBE4eKfbXBpVQUARAYHq5eXvU6pi1xKympuzQk6GRSFw1j4T3NcduWVbw2eBQlAgMBAAECggEAVyAXGr2Jysi6KWj1GBWT61e8O4Ml35rvWK7lBWKnetvLJKamcvEFHkCIvSasZtgHAygEnQ7OeYfBA33fxL98e0sXrQOt7vVbL2+fGgmboywLiTe2Se/JenCticJwFdA4eGUDUWO2QecFITLFxoIrExR0PxdO4OX4eySDLVYAmBddM6MpT9mFQm9YwjNbISCnM9qeyRhGdnEFplK7OonwyZWGukXAn8mjcYoBib0QtZkQf2GDeGLvrb7J8mRzv5UYmrKq4SFThk72SjHQj3SzBFATq3qprRTp+282fsenPRYqEqCaaU4CUxpByRlVGM5dKBh+6Zj4R7GUrAqLGSL+gQKBgQDBGFEx0bLQjiRhLiqY6PvMblrowcDtdUG5H+dMBdqRgyaKXtJWxrkbDDXInQbOJOKMBJjLK9HHYQIdo8O7jKrxq/ob+MBe1q5csiUdDagSafD58l7MeVZCLl/ToqHdY0c8NZnkeCWSbn7v60sJ5rWvCWuN3dy/+GEW9+9jD5cUKQKBgQCr8A0HnDNCQK5AjqJq7Y5uUU7WOh9zOqvhJtv4dxRiBffRuQSkjEieBVl1hgNW0VaO4aTtrWpQ8c3Z410n35/YxYHQt1UZ/tdlyoHOU3CUOq6l5ACjTIQ7l2eKRPXCFlSl8zboL9XfCI26sIj37HMZEb+TU7wOMLzIEyLJ+lnfnQKBgAG2+5GbsSDVAlGynUI6X3ITUM9cWSBCuFCyjdVJAAXmykLUUL3giehJlXiwnEzcWv6vU8QKIZTJscEdoTFbMHFw+4mgDeVJtsav9lBpvKJdOnydwGXEdhWkX8l7WkCjDxDj0PgMcRj5zjrHNiViXR6u0LuzyrARvpr7nK6ehtLxAoGAQWLR4bICQFDOs5hKpfVfdA6Rt6B082I9mSso/i1y3/A7FVOSM21x9D4+jhX/0RVdIIspKIYJZ2z9hr4TYCWH6Wz6+D+wKmmiyoAfqzJKHuTOJCI4J+Hia7MhWhDtkPjjChUbLWN7pwzesT+PZxFRmBgKzeFLI+5e7ItycHM3mHUCgYAMOrVlqZvyWP2B3X7zDpr3YZbz+Cc7CijAqWfv7I4AGL+602qABc2ZCJ4x+rblfddQ4LzVojSbJfWIY09Emc8ZiWJUJf7aZNkHImj7DosRL19qnjXdXH1hSTOf7db23hkXyVzLYivglHQPtmwUvzFdSyNmXG9cN+EebYaHyX8w0Q==';
 
-    var privateKey =
-        CryptoUtils.decodeRsaPrivateKeyFromPkcs8(base64Decode(encoded));
+    var privateKey = CryptoUtils.decodeRsaPrivateKeyFromPkcs8(base64Decode(encoded));
     expect(
       privateKey.modulus,
       BigInt.parse(
@@ -209,8 +208,7 @@ void main() {
   test('EC private key can be decoded from PKCS#8', () {
     var decoded =
         'MHcCAQEEICfsBfElusNLHJ5K/i3ItFRQb4aJw/ZUdze+egEDa7JOoAoGCCqGSM49AwEHoUQDQgAEjI8qbJl+d+4IytlrBt+J2oHo4IC4VR2kFLImpcJPusfk1Ucs/HBqeNYSr8sAP51LBuEQFa3Saj22KtyUZlharA==';
-    var privateKey =
-        CryptoUtils.decodeEcPrivateKey(base64Decode(decoded), pkcs8: true);
+    var privateKey = CryptoUtils.decodeEcPrivateKey(base64Decode(decoded), pkcs8: true);
     expect(
       privateKey.d,
       BigInt.parse(

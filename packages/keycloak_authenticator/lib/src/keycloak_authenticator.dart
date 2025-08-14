@@ -125,8 +125,7 @@ class _Data {
   ) {
     switch (keyAlgorithm) {
       case KeyAlgorithm.RSA:
-        return CryptoUtils.decodeRsaPrivateKeyFromPkcs8(
-            base64Decode(encodedKey));
+        return CryptoUtils.decodeRsaPrivateKeyFromPkcs8(base64Decode(encodedKey));
       case KeyAlgorithm.EC:
         return CryptoUtils.decodeEcPrivateKey(
           base64Decode(encodedKey),
@@ -141,11 +140,9 @@ class _Data {
   ) {
     switch (keyAlgorithm) {
       case KeyAlgorithm.RSA:
-        return base64Encode(CryptoUtils.encodeRsaPrivateKeyToPkcs8(
-            privateKey as RSAPrivateKey));
+        return base64Encode(CryptoUtils.encodeRsaPrivateKeyToPkcs8(privateKey as RSAPrivateKey));
       case KeyAlgorithm.EC:
-        return base64Encode(
-            CryptoUtils.encodeEcPrivateKeyToPkcs8(privateKey as ECPrivateKey));
+        return base64Encode(CryptoUtils.encodeEcPrivateKeyToPkcs8(privateKey as ECPrivateKey));
     }
   }
 
@@ -156,8 +153,7 @@ class _Data {
       label: json['label'],
       baseUrl: json['baseUrl'],
       realm: json['realm'],
-      signatureAlgorithm:
-          SignatureAlgorithm.values.byName(json['signatureAlgorithm']),
+      signatureAlgorithm: SignatureAlgorithm.values.byName(json['signatureAlgorithm']),
       keyAlgorithm: keyAlgorithm,
       privateKey: _decodePrivateKey(keyAlgorithm, json['privateKey']),
       registeredAt: DateTime.fromMillisecondsSinceEpoch(

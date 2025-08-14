@@ -81,10 +81,12 @@ class _InitViewState extends State<_InitView> {
     var model = Provider.of<AuthenticatorModel>(context, listen: false);
     model.init().then((message) {
       if (message != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
-          message,
-          context,
-        ),);
+        ScaffoldMessenger.of(context).showSnackBar(
+          createSnackbarForMessage(
+            message,
+            context,
+          ),
+        );
       }
     });
   }
@@ -217,10 +219,12 @@ class _ReadyViewState extends State<_ReadyView> {
     if (!context.mounted) return;
 
     if (message != null) {
-      ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
-        message,
-        context,
-      ),);
+      ScaffoldMessenger.of(context).showSnackBar(
+        createSnackbarForMessage(
+          message,
+          context,
+        ),
+      );
     }
   }
 
@@ -271,10 +275,12 @@ class _VerifyView extends StatelessWidget {
     if (!context.mounted) return;
 
     if (message != null) {
-      ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
-        message,
-        context,
-      ),);
+      ScaffoldMessenger.of(context).showSnackBar(
+        createSnackbarForMessage(
+          message,
+          context,
+        ),
+      );
     }
   }
 
@@ -282,10 +288,12 @@ class _VerifyView extends StatelessWidget {
     var message = model.idleTimeout();
 
     if (message != null) {
-      ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
-        message,
-        context,
-      ),);
+      ScaffoldMessenger.of(context).showSnackBar(
+        createSnackbarForMessage(
+          message,
+          context,
+        ),
+      );
     }
   }
 

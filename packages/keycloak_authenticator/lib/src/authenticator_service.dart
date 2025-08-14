@@ -16,8 +16,7 @@ import 'package:uuid/uuid.dart';
 class AuthenticatorService {
   final AuthenticatorRepository _repository;
   final uuid = const Uuid();
-  AuthenticatorService({required Storage storage})
-      : _repository = AuthenticatorRepository(storage: storage);
+  AuthenticatorService({required Storage storage}) : _repository = AuthenticatorRepository(storage: storage);
 
   Future<Authenticator> create(
     String aktivationTokenUrl, {
@@ -28,21 +27,18 @@ class AuthenticatorService {
 
     // TODO: check if combination of keycloak instance an realm is already registered
 
-    var keyAlgorithm =
-        _getKeyAlgorithmForSignatureAlgorithm(signatureAlgorithm);
+    var keyAlgorithm = _getKeyAlgorithmForSignatureAlgorithm(signatureAlgorithm);
 
     AsymmetricKeyPair keyPair;
     String encodedPublicKey;
     switch (keyAlgorithm) {
       case KeyAlgorithm.RSA:
         keyPair = await CryptoUtils.generateRsaKeyPairAsync(bitLength: 4096);
-        encodedPublicKey = base64Encode(CryptoUtils.encodeRsaPublicKeyToPkcs8(
-            keyPair.publicKey as RSAPublicKey));
+        encodedPublicKey = base64Encode(CryptoUtils.encodeRsaPublicKeyToPkcs8(keyPair.publicKey as RSAPublicKey));
         break;
       case KeyAlgorithm.EC:
         keyPair = await CryptoUtils.generateEcKeyPairAsync();
-        encodedPublicKey = base64Encode(CryptoUtils.encodeEcPublicKeyToPkcs8(
-            keyPair.publicKey as ECPublicKey));
+        encodedPublicKey = base64Encode(CryptoUtils.encodeEcPublicKeyToPkcs8(keyPair.publicKey as ECPublicKey));
         break;
     }
 
@@ -102,8 +98,7 @@ class AuthenticatorService {
     return _repository.delete(authenticator);
   }
 
-  KeyAlgorithm _getKeyAlgorithmForSignatureAlgorithm(
-      SignatureAlgorithm signatureAlgorithm) {
+  KeyAlgorithm _getKeyAlgorithmForSignatureAlgorithm(SignatureAlgorithm signatureAlgorithm) {
     switch (signatureAlgorithm) {
       case SignatureAlgorithm.SHA256withRSA:
       case SignatureAlgorithm.SHA512withRSA:

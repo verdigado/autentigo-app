@@ -5,11 +5,13 @@ import 'package:keycloak_authenticator/api.dart';
 class AuthenticatorFactory {
   static AuthenticatorService create() {
     return AuthenticatorService(
-      storage: FlutterSecureStorageAdapter(const FlutterSecureStorage(
-        aOptions: AndroidOptions(
-          encryptedSharedPreferences: true,
+      storage: FlutterSecureStorageAdapter(
+        const FlutterSecureStorage(
+          aOptions: AndroidOptions(
+            encryptedSharedPreferences: true,
+          ),
         ),
-      ),),
+      ),
     );
   }
 

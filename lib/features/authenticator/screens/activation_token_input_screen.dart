@@ -45,10 +45,12 @@ class _ActivationTokenInputScreenState extends State<ActivationTokenInputScreen>
           if (!mounted) return;
 
           if (message != null && context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
-              message,
-              context,
-            ),);
+            ScaffoldMessenger.of(context).showSnackBar(
+              createSnackbarForMessage(
+                message,
+                context,
+              ),
+            );
           }
 
           if (model.status == AuthenticatorStatus.ready) {

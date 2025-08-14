@@ -12,8 +12,7 @@ class ActivationTokenScanScreen extends StatefulWidget {
   });
 
   @override
-  State<ActivationTokenScanScreen> createState() =>
-      _ActivationTokenScanScreenState();
+  State<ActivationTokenScanScreen> createState() => _ActivationTokenScanScreenState();
 }
 
 class _ActivationTokenScanScreenState extends State<ActivationTokenScanScreen> {
@@ -138,8 +137,7 @@ class _ScannerOverlay extends CustomPainter {
     double edgeLengthPercent = 0.15;
 
     final backgroundPath = Path()..addRect(Rect.largest);
-    var seekerWindow =
-        RRect.fromRectAndRadius(scanWindow, const Radius.circular(20));
+    var seekerWindow = RRect.fromRectAndRadius(scanWindow, const Radius.circular(20));
     final seekerPath = Path()..addRRect(seekerWindow);
     final seekerInnerPath = Path()..addRRect(seekerWindow.deflate(borderWith));
 
@@ -185,9 +183,15 @@ class _ScannerOverlay extends CustomPainter {
       seekerInnerPath,
     );
     borderPath = Path.combine(
-        PathOperation.difference, borderPath, borderCutoutVertical,);
+      PathOperation.difference,
+      borderPath,
+      borderCutoutVertical,
+    );
     borderPath = Path.combine(
-        PathOperation.difference, borderPath, borderCutoutHorizontal,);
+      PathOperation.difference,
+      borderPath,
+      borderCutoutHorizontal,
+    );
 
     final borderPaint = Paint()
       ..color = Colors.white.withValues(alpha: 0.9)
