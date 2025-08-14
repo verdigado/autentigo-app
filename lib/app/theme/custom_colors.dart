@@ -45,9 +45,7 @@ abstract final class CustomColors {
   });
 
   static const int _sonnePrimaryValue = 0xFFFFF17A;
-  static const MaterialColor sonne = MaterialColor(_sonnePrimaryValue, <int, Color>{
-    600: Color(_sonnePrimaryValue),
-  });
+  static const MaterialColor sonne = MaterialColor(_sonnePrimaryValue, <int, Color>{600: Color(_sonnePrimaryValue)});
 
   static const int _himmelPrimaryValue = 0xFF0BA1DD;
   static const MaterialColor himmel = MaterialColor(_himmelPrimaryValue, <int, Color>{

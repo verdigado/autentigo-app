@@ -4,12 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:keycloak_authenticator/api.dart';
 
-enum AuthenticatorStatus {
-  init,
-  setup,
-  ready,
-  verify,
-}
+enum AuthenticatorStatus { init, setup, ready, verify }
 
 class AuthenticatorModel extends ChangeNotifier {
   AuthenticatorModel();
@@ -172,10 +167,7 @@ class AuthenticatorModel extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
     try {
-      await _authenticator!.reply(
-        challenge: loginAttempt!.challenge,
-        granted: granted,
-      );
+      await _authenticator!.reply(challenge: loginAttempt!.challenge, granted: granted);
     } on Exception catch (err) {
       error = err;
       isLoading = false;

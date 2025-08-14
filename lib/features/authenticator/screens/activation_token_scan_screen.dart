@@ -7,9 +7,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 
 class ActivationTokenScanScreen extends StatefulWidget {
-  const ActivationTokenScanScreen({
-    super.key,
-  });
+  const ActivationTokenScanScreen({super.key});
 
   @override
   State<ActivationTokenScanScreen> createState() => _ActivationTokenScanScreenState();
@@ -27,12 +25,7 @@ class _ActivationTokenScanScreenState extends State<ActivationTokenScanScreen> {
     if (!context.mounted) return;
 
     if (message != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        createSnackbarForMessage(
-          message,
-          context,
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(message, context));
     }
     if (model.status == AuthenticatorStatus.ready) {
       Navigator.of(context).pop();
@@ -80,9 +73,7 @@ class _ActivationTokenScanScreenState extends State<ActivationTokenScanScreen> {
                 Stack(
                   fit: StackFit.expand,
                   children: [
-                    CustomPaint(
-                      painter: _ScannerOverlay(scanWindow),
-                    ),
+                    CustomPaint(painter: _ScannerOverlay(scanWindow)),
                     const Align(
                       alignment: Alignment.bottomCenter,
                       child: Padding(
@@ -107,19 +98,10 @@ class _ActivationTokenScanScreenState extends State<ActivationTokenScanScreen> {
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
       child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white..withValues(alpha: 0.0),
-        ),
+        decoration: BoxDecoration(color: Colors.white..withValues(alpha: 0.0)),
         child: const Align(
           alignment: Alignment.center,
-          child: SizedBox(
-            height: 80,
-            width: 80,
-            child: CircularProgressIndicator(
-              strokeWidth: 6,
-              color: Colors.white,
-            ),
-          ),
+          child: SizedBox(height: 80, width: 80, child: CircularProgressIndicator(strokeWidth: 6, color: Colors.white)),
         ),
       ),
     );
@@ -147,11 +129,7 @@ class _ScannerOverlay extends CustomPainter {
       ..style = PaintingStyle.fill
       ..blendMode = BlendMode.dstOut;
 
-    final backgroundWithCutout = Path.combine(
-      PathOperation.difference,
-      backgroundPath,
-      seekerInnerPath,
-    );
+    final backgroundWithCutout = Path.combine(PathOperation.difference, backgroundPath, seekerInnerPath);
     canvas.drawPath(backgroundWithCutout, backgroundPaint);
 
     // draw the seeker border
@@ -160,12 +138,7 @@ class _ScannerOverlay extends CustomPainter {
 
     final borderCutoutVertical = Path()
       ..addRect(
-        Rect.fromLTWH(
-          scanWindow.left + edgeWith,
-          scanWindow.top,
-          scanWindow.width - 2 * edgeWith,
-          scanWindow.height,
-        ),
+        Rect.fromLTWH(scanWindow.left + edgeWith, scanWindow.top, scanWindow.width - 2 * edgeWith, scanWindow.height),
       );
     final borderCutoutHorizontal = Path()
       ..addRect(
@@ -177,21 +150,9 @@ class _ScannerOverlay extends CustomPainter {
         ),
       );
 
-    var borderPath = Path.combine(
-      PathOperation.difference,
-      seekerPath,
-      seekerInnerPath,
-    );
-    borderPath = Path.combine(
-      PathOperation.difference,
-      borderPath,
-      borderCutoutVertical,
-    );
-    borderPath = Path.combine(
-      PathOperation.difference,
-      borderPath,
-      borderCutoutHorizontal,
-    );
+    var borderPath = Path.combine(PathOperation.difference, seekerPath, seekerInnerPath);
+    borderPath = Path.combine(PathOperation.difference, borderPath, borderCutoutVertical);
+    borderPath = Path.combine(PathOperation.difference, borderPath, borderCutoutHorizontal);
 
     final borderPaint = Paint()
       ..color = Colors.white.withValues(alpha: 0.9)

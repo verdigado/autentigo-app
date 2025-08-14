@@ -6,16 +6,8 @@ GoRouter createAppRouter() {
   return GoRouter(
     initialLocation: '/authenticator',
     routes: [
-      GoRoute(
-        path: '/',
-        name: 'home',
-        builder: (context, state) => const HomeScreen(),
-      ),
-      GoRoute(
-        path: '/authenticator',
-        name: 'authenticator',
-        builder: (context, state) => const AuthenticatorScreen(),
-      ),
+      GoRoute(path: '/', name: 'home', builder: (context, state) => const HomeScreen()),
+      GoRoute(path: '/authenticator', name: 'authenticator', builder: (context, state) => const AuthenticatorScreen()),
     ],
   );
 }

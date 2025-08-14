@@ -16,8 +16,4 @@ class UIMessage {
   }
 }
 
-enum UIMessageType {
-  success,
-  warning,
-  error,
-}
+enum UIMessageType { success, warning, error }

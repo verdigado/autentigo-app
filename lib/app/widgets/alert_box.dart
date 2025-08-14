@@ -11,10 +11,7 @@ class AlertBox extends StatelessWidget {
         color: Colors.deepOrange..withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Text(text),
-      ),
+      child: Padding(padding: const EdgeInsets.all(24.0), child: Text(text)),
     );
   }
 }

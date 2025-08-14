@@ -19,23 +19,13 @@ class AuthenticatorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (context) => AuthenticatorModel(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => TipOfTheDayModel(),
-        ),
+        ChangeNotifierProvider(create: (context) => AuthenticatorModel()),
+        ChangeNotifierProvider(create: (context) => TipOfTheDayModel()),
       ],
       child: Consumer<AuthenticatorModel>(
         builder: (context, model, child) => Scaffold(
           appBar: AppBar(
-            title: const Text(
-              'Grünes Netz Authenticator',
-              style: TextStyle(
-                fontSize: 16,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
+            title: const Text('Grünes Netz Authenticator', style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic)),
             actions: [
               if (model.status == AuthenticatorStatus.ready)
                 MenuAnchor(
@@ -45,10 +35,7 @@ class AuthenticatorScreen extends StatelessWidget {
                     tooltip: 'Menü anzeigen',
                   ),
                   menuChildren: [
-                    MenuItemButton(
-                      onPressed: () => {model.delete()},
-                      child: const Text('Entfernen'),
-                    ),
+                    MenuItemButton(onPressed: () => {model.delete()}, child: const Text('Entfernen')),
                   ],
                 ),
             ],
@@ -81,12 +68,7 @@ class _InitViewState extends State<_InitView> {
     var model = Provider.of<AuthenticatorModel>(context, listen: false);
     model.init().then((message) {
       if (message != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          createSnackbarForMessage(
-            message,
-            context,
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(message, context));
       }
     });
   }
@@ -219,12 +201,7 @@ class _ReadyViewState extends State<_ReadyView> {
     if (!context.mounted) return;
 
     if (message != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        createSnackbarForMessage(
-          message,
-          context,
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(message, context));
     }
   }
 
@@ -237,10 +214,7 @@ class _ReadyViewState extends State<_ReadyView> {
           Column(
             children: [
               const SizedBox(width: 260, child: TipOfTheDay()),
-              const Padding(
-                padding: EdgeInsets.only(top: 42, bottom: 24),
-                child: Text('Keine Login-Anfragen'),
-              ),
+              const Padding(padding: EdgeInsets.only(top: 42, bottom: 24), child: Text('Keine Login-Anfragen')),
               SizedBox(
                 width: 240,
                 child: TextButton.icon(
@@ -249,9 +223,7 @@ class _ReadyViewState extends State<_ReadyView> {
                           width: 24,
                           height: 24,
                           padding: const EdgeInsets.all(2.0),
-                          child: const CircularProgressIndicator(
-                            strokeWidth: 3,
-                          ),
+                          child: const CircularProgressIndicator(strokeWidth: 3),
                         )
                       : const Icon(Icons.refresh),
                   label: const Text('Aktualisieren'),
@@ -275,12 +247,7 @@ class _VerifyView extends StatelessWidget {
     if (!context.mounted) return;
 
     if (message != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        createSnackbarForMessage(
-          message,
-          context,
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(message, context));
     }
   }
 
@@ -288,12 +255,7 @@ class _VerifyView extends StatelessWidget {
     var message = model.idleTimeout();
 
     if (message != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        createSnackbarForMessage(
-          message,
-          context,
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(message, context));
     }
   }
 
@@ -302,43 +264,27 @@ class _VerifyView extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     return Consumer<AuthenticatorModel>(
       builder: (context, model, child) => ConstrainedBox(
-        constraints: BoxConstraints(
-          minWidth: size.width,
-          minHeight: size.height,
-        ),
+        constraints: BoxConstraints(minWidth: size.width, minHeight: size.height),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               SizedBox(height: 24, width: size.width),
-              Column(
-                children: [
-                  _timer(context, model),
-                ],
-              ),
+              Column(children: [_timer(context, model)]),
               const Padding(
                 padding: EdgeInsets.only(top: 24, bottom: 24),
                 child: Text(
                   'Login Verifizieren',
-                  style: TextStyle(
-                    fontSize: 22,
-                    letterSpacing: 1,
-                    fontFamily: 'GrueneType',
-                  ),
+                  style: TextStyle(fontSize: 22, letterSpacing: 1, fontFamily: 'GrueneType'),
                   textAlign: TextAlign.center,
                 ),
               ),
               const Padding(
                 padding: EdgeInsets.only(bottom: 24),
-                child: Text(
-                  'Prüfe die Angaben für die Login-Anfrage deines Kontos',
-                  textAlign: TextAlign.center,
-                ),
+                child: Text('Prüfe die Angaben für die Login-Anfrage deines Kontos', textAlign: TextAlign.center),
               ),
-              const SizedBox(
-                height: 8,
-              ),
+              const SizedBox(height: 8),
               _loginDetails(model),
               const Spacer(flex: 2),
               FilledButton.icon(
@@ -367,10 +313,7 @@ class _VerifyView extends StatelessWidget {
                 opacity: model.isLoading ? 1 : 0,
                 child: const Padding(
                   padding: EdgeInsets.fromLTRB(60, 4, 60, 4),
-                  child: LinearProgressIndicator(
-                    minHeight: 4,
-                    borderRadius: BorderRadius.all(Radius.circular(180)),
-                  ),
+                  child: LinearProgressIndicator(minHeight: 4, borderRadius: BorderRadius.all(Radius.circular(180))),
                 ),
               ),
             ],
@@ -384,24 +327,15 @@ class _VerifyView extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: [
-        Icon(
-          Icons.shield_outlined,
-          size: 40,
-          color: Theme.of(context).colorScheme.primary..withValues(alpha: 0.5),
-        ),
+        Icon(Icons.shield_outlined, size: 40, color: Theme.of(context).colorScheme.primary..withValues(alpha: 0.5)),
         SizedBox(
           height: 140,
           width: 140,
           child: TweenAnimationBuilder<double>(
             tween: Tween<double>(begin: 1, end: 0),
-            duration: Duration(
-              seconds: model.loginAttempt!.expiresIn,
-            ),
+            duration: Duration(seconds: model.loginAttempt!.expiresIn),
             onEnd: () => onTimeout(context, model),
-            builder: (context, value, _) => CircularProgressIndicator(
-              value: value,
-              strokeWidth: 5,
-            ),
+            builder: (context, value, _) => CircularProgressIndicator(value: value, strokeWidth: 5),
           ),
         ),
       ],
@@ -414,42 +348,22 @@ class _VerifyView extends StatelessWidget {
       children: [
         const Padding(
           padding: EdgeInsets.only(bottom: 4.0),
-          child: Text(
-            'Gerät',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          child: Text('Gerät', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         ),
         Text(model.loginAttempt!.browser),
         Text(model.loginAttempt!.os),
         const SizedBox(height: 8),
         const Padding(
           padding: EdgeInsets.only(bottom: 4),
-          child: Text(
-            'IP Adresse',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          child: Text('IP Adresse', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         ),
         Text(model.loginAttempt!.ipAddress),
         const SizedBox(height: 8),
         const Padding(
           padding: EdgeInsets.only(bottom: 4),
-          child: Text(
-            'Zeitpunkt',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          child: Text('Zeitpunkt', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         ),
-        Text(
-          formatDate(model.loginAttempt!.loggedInAt, [dd, '.', M, '.', yyyy, ', ', HH, ':', nn]),
-        ),
+        Text(formatDate(model.loginAttempt!.loggedInAt, [dd, '.', M, '.', yyyy, ', ', HH, ':', nn])),
       ],
     );
   }

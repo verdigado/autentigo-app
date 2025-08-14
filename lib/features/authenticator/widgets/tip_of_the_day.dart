@@ -22,28 +22,16 @@ class TipOfTheDay extends StatelessWidget {
       child: Stack(
         children: [
           Container(
-            decoration: BoxDecoration(
-              color: CustomColors.tanne.shade300,
-              borderRadius: BorderRadius.circular(18),
-            ),
+            decoration: BoxDecoration(color: CustomColors.tanne.shade300, borderRadius: BorderRadius.circular(18)),
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  Text(
-                    model.current!.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  Text(model.current!.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   if (model.current!.iconPath != null)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: SvgPicture.asset(
-                        model.current!.iconPath!,
-                        height: 120,
-                      ),
+                      child: SvgPicture.asset(model.current!.iconPath!, height: 120),
                     ),
                   Text(
                     model.current!.text,
@@ -96,11 +84,7 @@ class TipOfTheDay extends StatelessWidget {
             right: 8,
             child: Text(
               'Grüner IT-Tip',
-              style: TextStyle(
-                fontStyle: FontStyle.italic,
-                fontSize: 11,
-                letterSpacing: 0.4,
-              ),
+              style: TextStyle(fontStyle: FontStyle.italic, fontSize: 11, letterSpacing: 0.4),
             ),
           ),
         ],

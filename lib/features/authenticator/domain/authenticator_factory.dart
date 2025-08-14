@@ -6,11 +6,7 @@ class AuthenticatorFactory {
   static AuthenticatorService create() {
     return AuthenticatorService(
       storage: FlutterSecureStorageAdapter(
-        const FlutterSecureStorage(
-          aOptions: AndroidOptions(
-            encryptedSharedPreferences: true,
-          ),
-        ),
+        const FlutterSecureStorage(aOptions: AndroidOptions(encryptedSharedPreferences: true)),
       ),
     );
   }

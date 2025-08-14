@@ -5,11 +5,5 @@ class TipOfTheDayDto {
   String? buttonText;
   String? url;
 
-  TipOfTheDayDto({
-    required this.title,
-    required this.text,
-    this.iconPath,
-    this.buttonText,
-    this.url,
-  });
+  TipOfTheDayDto({required this.title, required this.text, this.iconPath, this.buttonText, this.url});
 }
