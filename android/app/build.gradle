@@ -4,74 +4,60 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
-def localProperties = new Properties()
-def localPropertiesFile = rootProject.file('local.properties')
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.withReader('UTF-8') { reader ->
-        localProperties.load(reader)
-    }
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 }
-
-def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
-}
-
-def flutterVersionName = localProperties.getProperty('flutter.versionName')
-if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
-}
-
-def keyStorePropertiesFile = rootProject.file("keystore.properties")
-def keyStoreProperties = new Properties()
-keyStoreProperties.load(new FileInputStream(keyStorePropertiesFile))
 
 android {
     namespace "com.verdigado.authenticator"
-    compileSdkVersion 33
+    compileSdk = flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+        coreLibraryDesugaringEnabled true
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
-    }
-
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
+        jvmTarget = JavaVersion.VERSION_1_8
     }
 
     defaultConfig {
         applicationId "com.verdigado.authenticator"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        // minSdkVersion flutter.minSdkVersion
-        minSdkVersion 21
-        targetSdkVersion 33
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
+
+        if (project.hasProperty("VERSION_CODE") && project.hasProperty("VERSION_NAME")) {
+            versionCode project.VERSION_CODE.toInteger()
+            versionName project.VERSION_NAME
+        } else {
+            versionCode 1
+            versionName "1.0"
+        }
     }
 
     signingConfigs {
-        release {
-            keyAlias keyStoreProperties['releaseKeyAlias']
-            keyPassword keyStoreProperties['releaseKeyPassword']
-            storeFile file(keyStoreProperties['releaseKeyStore'])
-            storePassword keyStoreProperties['releaseStorePassword']
+        if (project.hasProperty("KEYSTORE_PATH")) { // Signing with env variables (CI)
+            println "Signing using env variables"
+            release {
+                keyAlias keyStoreProperties['releaseKeyAlias']
+                keyPassword keyStoreProperties['releaseKeyPassword']
+                storeFile file(keyStoreProperties['releaseKeyStore'])
+                storePassword keyStoreProperties['releaseStorePassword']
+            }
+        } else {
+            println "Selecting debug keystore"
         }
     }
 
     buildTypes {
         release {
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.release
-            debuggable false
-        }
-        debug {
-            debuggable true
+            if (project.hasProperty("KEYSTORE_PATH")) {
+                signingConfig signingConfigs.release
+            } else {
+                signingConfig signingConfigs.debug
+            }
         }
     }
 }
@@ -79,5 +65,3 @@ android {
 flutter {
     source '../..'
 }
-
-dependencies {}
