@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kc_auth_app/app/models/ui_message.dart';
+import 'package:authenticator_app/app/models/ui_message.dart';
 import 'package:keycloak_authenticator/api.dart';
 import '../dtos/login_attempt_dto.dart';
 import 'package:get_it/get_it.dart';

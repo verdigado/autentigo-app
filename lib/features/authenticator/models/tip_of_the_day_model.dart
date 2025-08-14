@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kc_auth_app/app/constants/image_paths.dart';
+import 'package:authenticator_app/app/constants/image_paths.dart';
 import '../dtos/tip_of_the_day_dto.dart';
 
 class TipOfTheDayModel extends ChangeNotifier {

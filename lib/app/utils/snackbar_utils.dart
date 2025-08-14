@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kc_auth_app/app/models/ui_message.dart';
+import 'package:authenticator_app/app/models/ui_message.dart';
 
 SnackBar createSnackbarForMessage(
   UIMessage message,

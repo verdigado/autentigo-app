@@ -1,8 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:kc_auth_app/app/utils/snackbar_utils.dart';
-import 'package:kc_auth_app/features/authenticator/models/authenticator_model.dart';
+import 'package:authenticator_app/app/utils/snackbar_utils.dart';
+import 'package:authenticator_app/features/authenticator/models/authenticator_model.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 

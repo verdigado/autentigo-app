@@ -1,14 +1,14 @@
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:kc_auth_app/app/constants/image_paths.dart';
-import 'package:kc_auth_app/app/theme/custom_colors.dart';
-import 'package:kc_auth_app/app/utils/snackbar_utils.dart';
-import 'package:kc_auth_app/features/authenticator/models/authenticator_model.dart';
-import 'package:kc_auth_app/features/authenticator/models/tip_of_the_day_model.dart';
-import 'package:kc_auth_app/features/authenticator/screens/activation_token_input_screen.dart';
-import 'package:kc_auth_app/features/authenticator/screens/activation_token_scan_screen.dart';
-import 'package:kc_auth_app/features/authenticator/widgets/tip_of_the_day.dart';
+import 'package:authenticator_app/app/constants/image_paths.dart';
+import 'package:authenticator_app/app/theme/custom_colors.dart';
+import 'package:authenticator_app/app/utils/snackbar_utils.dart';
+import 'package:authenticator_app/features/authenticator/models/authenticator_model.dart';
+import 'package:authenticator_app/features/authenticator/models/tip_of_the_day_model.dart';
+import 'package:authenticator_app/features/authenticator/screens/activation_token_input_screen.dart';
+import 'package:authenticator_app/features/authenticator/screens/activation_token_scan_screen.dart';
+import 'package:authenticator_app/features/authenticator/widgets/tip_of_the_day.dart';
 import 'package:keycloak_authenticator/api.dart';
 import 'package:provider/provider.dart';
 
