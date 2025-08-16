@@ -82,8 +82,8 @@ class KeycloakClient {
     required SignatureAlgorithm signatureAlgorithm,
   }) async {
     try {
-      await _setupRequest(clientId, tabId, deviceId, deviceOs, devicePushId,
-          keyAlgorithm, signatureAlgorithm, publicKey, key);
+      await _setupRequest(
+          clientId, tabId, deviceId, deviceOs, devicePushId, keyAlgorithm, signatureAlgorithm, publicKey, key);
     } on DioException catch (err) {
       KeycloakExceptionType type;
       if (err.type == DioExceptionType.badResponse) {
@@ -141,10 +141,7 @@ class KeycloakClient {
     }
   }
 
-  Future<List<Challenge>> _getChallengesRequest(
-    String deviceId,
-    bool async
-  ) async {
+  Future<List<Challenge>> _getChallengesRequest(String deviceId, bool async) async {
     var signatureHeader = buildSignatureHeader(
       deviceId,
       {
@@ -163,9 +160,7 @@ class KeycloakClient {
         },
       ),
     );
-    return (res.data as List<dynamic>)
-        .map((e) => Challenge.fromJson(e))
-        .toList();
+    return (res.data as List<dynamic>).map((e) => Challenge.fromJson(e)).toList();
   }
 
   replyChallenge({
@@ -178,21 +173,14 @@ class KeycloakClient {
     required int timestamp,
   }) async {
     try {
-      await _challengeReplyRequest(
-          deviceId, timestamp, value, granted, clientId, tabId, key);
+      await _challengeReplyRequest(deviceId, timestamp, value, granted, clientId, tabId, key);
     } on DioException catch (e) {
       throw KeycloakClientException('request failed', dioException: e);
     }
   }
 
   Future<void> _challengeReplyRequest(
-      String deviceId,
-      int timestamp,
-      String value,
-      bool granted,
-      String clientId,
-      String tabId,
-      String key) async {
+      String deviceId, int timestamp, String value, bool granted, String clientId, String tabId, String key) async {
     var signatureHeader = buildSignatureHeader(
       deviceId,
       {

@@ -37,8 +37,7 @@ class CryptoUtils {
     return AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey>(myPublic, myPrivate);
   }
 
-  static Future<AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey>>
-      generateRsaKeyPairAsync({
+  static Future<AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey>> generateRsaKeyPairAsync({
     int bitLength = 4096,
   }) {
     return compute((_) => generateRsaKeyPair(bitLength: bitLength), null);
@@ -131,8 +130,7 @@ class CryptoUtils {
     var publicKeySeq = ASN1Sequence()
       ..add(ASN1Integer(publicKey.modulus))
       ..add(ASN1Integer(publicKey.exponent));
-    var publicKeySeqBitString =
-        ASN1BitString(stringValues: Uint8List.fromList(publicKeySeq.encode()));
+    var publicKeySeqBitString = ASN1BitString(stringValues: Uint8List.fromList(publicKeySeq.encode()));
 
     var topLevelSeq = ASN1Sequence()
       ..add(algorithmSeq)
@@ -164,8 +162,7 @@ class CryptoUtils {
       ..add(exp2)
       ..add(co);
 
-    var publicKeySeqOctetString =
-        ASN1OctetString(octets: Uint8List.fromList(privateKeySeq.encode()));
+    var publicKeySeqOctetString = ASN1OctetString(octets: Uint8List.fromList(privateKeySeq.encode()));
 
     var topLevelSeq = ASN1Sequence()
       ..add(version)
@@ -253,15 +250,13 @@ class CryptoUtils {
   /// * secp384r1
   /// * secp521r1
   ///
-  static AsymmetricKeyPair<ECPublicKey, ECPrivateKey> generateEcKeyPair(
-      {String curve = 'prime256v1'}) {
+  static AsymmetricKeyPair<ECPublicKey, ECPrivateKey> generateEcKeyPair({String curve = 'prime256v1'}) {
     var ecDomainParameters = ECDomainParameters(curve);
     var keyParams = ECKeyGeneratorParameters(ecDomainParameters);
 
     var secureRandom = _getSecureRandom();
 
-    var generator = ECKeyGenerator()
-      ..init(ParametersWithRandom(keyParams, secureRandom));
+    var generator = ECKeyGenerator()..init(ParametersWithRandom(keyParams, secureRandom));
 
     var keyPair = generator.generateKeyPair();
 
@@ -272,8 +267,7 @@ class CryptoUtils {
     return AsymmetricKeyPair<ECPublicKey, ECPrivateKey>(myPublic, myPrivate);
   }
 
-  static Future<AsymmetricKeyPair<ECPublicKey, ECPrivateKey>>
-      generateEcKeyPairAsync({String curve = 'prime256v1'}) {
+  static Future<AsymmetricKeyPair<ECPublicKey, ECPrivateKey>> generateEcKeyPairAsync({String curve = 'prime256v1'}) {
     return compute((_) => generateEcKeyPair(curve: curve), null);
   }
 
@@ -293,12 +287,10 @@ class CryptoUtils {
   /// * SHA-384/DET-ECDSA
   /// * SHA-512/DET-ECDSA
   ///
-  static Uint8List ecSign(ECPrivateKey privateKey, Uint8List dataToSign,
-      {String algorithmName = 'SHA-1/ECDSA'}) {
+  static Uint8List ecSign(ECPrivateKey privateKey, Uint8List dataToSign, {String algorithmName = 'SHA-1/ECDSA'}) {
     var signer = Signer(algorithmName) as ECDSASigner;
 
-    var params = ParametersWithRandom(
-        PrivateKeyParameter<ECPrivateKey>(privateKey), _getSecureRandom());
+    var params = ParametersWithRandom(PrivateKeyParameter<ECPrivateKey>(privateKey), _getSecureRandom());
     signer.init(true, params);
 
     var sig = signer.generateSignature(dataToSign) as ECSignature;
@@ -323,8 +315,7 @@ class CryptoUtils {
     return topLevel.encode();
   }
 
-  static ECPublicKey ecPublicKey(String pub, String curveName,
-      {compressed = false}) {
+  static ECPublicKey ecPublicKey(String pub, String curveName, {compressed = false}) {
     var pubBytes = CryptoUtils.hexToUint8List(pub);
     var x = pubBytes.sublist(1, (pubBytes.length / 2).round());
     var y = pubBytes.sublist(1 + x.length, pubBytes.length);
@@ -332,11 +323,8 @@ class CryptoUtils {
     var bigX = decodeBigIntWithSign(1, x);
     var bigY = decodeBigIntWithSign(1, y);
     return ECPublicKey(
-        ecc_fp.ECPoint(
-            params.curve as ecc_fp.ECCurve,
-            params.curve.fromBigInteger(bigX) as ecc_fp.ECFieldElement?,
-            params.curve.fromBigInteger(bigY) as ecc_fp.ECFieldElement?,
-            compressed),
+        ecc_fp.ECPoint(params.curve as ecc_fp.ECCurve, params.curve.fromBigInteger(bigX) as ecc_fp.ECFieldElement?,
+            params.curve.fromBigInteger(bigY) as ecc_fp.ECFieldElement?, compressed),
         params);
   }
 
@@ -378,8 +366,7 @@ class CryptoUtils {
     var privateKey = ASN1OctetString(octets: privateKeyAsBytes);
     var choice = ASN1Sequence(tag: 0xA0);
 
-    choice.add(
-        ASN1ObjectIdentifier.fromName(ecPrivateKey.parameters!.domainName));
+    choice.add(ASN1ObjectIdentifier.fromName(ecPrivateKey.parameters!.domainName));
 
     var publicKey = ASN1Sequence(tag: 0xA1);
     var q = ecPrivateKey.parameters!.G * ecPrivateKey.d!;
@@ -417,22 +404,19 @@ class CryptoUtils {
       var b2Data = b2.objectIdentifierAsString;
       var b2CurveData = ObjectIdentifiers.getIdentifierByIdentifier(b2Data);
       if (b2CurveData == null) {
-        throw const FormatException(
-            'could not extract b2CurveData from encoded EC private key');
+        throw const FormatException('could not extract b2CurveData from encoded EC private key');
       }
       curveName = b2CurveData['readableName'];
 
       var octetString = topLevelSeq.elements!.elementAt(2) as ASN1OctetString;
       asn1Parser = ASN1Parser(octetString.valueBytes);
       var octetStringSeq = asn1Parser.nextObject() as ASN1Sequence;
-      var octetStringKeyData =
-          octetStringSeq.elements!.elementAt(1) as ASN1OctetString;
+      var octetStringKeyData = octetStringSeq.elements!.elementAt(1) as ASN1OctetString;
 
       x = octetStringKeyData.valueBytes!;
     } else {
       // Parse the SEC1 format
-      var privateKeyAsOctetString =
-          topLevelSeq.elements!.elementAt(1) as ASN1OctetString;
+      var privateKeyAsOctetString = topLevelSeq.elements!.elementAt(1) as ASN1OctetString;
       var choice = topLevelSeq.elements!.elementAt(2);
       var s = ASN1Sequence();
       var parser = ASN1Parser(choice.valueBytes);
@@ -440,11 +424,9 @@ class CryptoUtils {
         s.add(parser.nextObject());
       }
       var curveNameOi = s.elements!.elementAt(0) as ASN1ObjectIdentifier;
-      var data = ObjectIdentifiers.getIdentifierByIdentifier(
-          curveNameOi.objectIdentifierAsString);
+      var data = ObjectIdentifiers.getIdentifierByIdentifier(curveNameOi.objectIdentifierAsString);
       if (data == null) {
-        throw const FormatException(
-            'could not extract b2CurveData from encoded EC private key');
+        throw const FormatException('could not extract b2CurveData from encoded EC private key');
       }
       curveName = data['readableName'];
 
@@ -460,8 +442,7 @@ class CryptoUtils {
   ///
   /// Conversion of integer to bytes according to RFC 3447 at <https://datatracker.ietf.org/doc/html/rfc3447#page-8>
   ///
-  static Uint8List i2osp(BigInt number,
-      {int? outLen, Endian endian = Endian.big}) {
+  static Uint8List i2osp(BigInt number, {int? outLen, Endian endian = Endian.big}) {
     var size = (number.bitLength + 7) >> 3;
     if (outLen == null) {
       outLen = size;
@@ -515,8 +496,7 @@ class CryptoUtils {
   static Uint8List encodeEcPublicKeyToPkcs8(ECPublicKey publicKey) {
     var algorithm = ASN1Sequence();
     algorithm.add(ASN1ObjectIdentifier.fromName('ecPublicKey'));
-    algorithm
-        .add(ASN1ObjectIdentifier.fromName(publicKey.parameters!.domainName));
+    algorithm.add(ASN1ObjectIdentifier.fromName(publicKey.parameters!.domainName));
     var encodedBytes = publicKey.Q!.getEncoded(false);
 
     var subjectPublicKey = ASN1BitString(stringValues: encodedBytes);

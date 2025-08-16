@@ -1,14 +1,14 @@
+import 'package:authenticator_app/app/constants/image_paths.dart';
+import 'package:authenticator_app/app/theme/custom_colors.dart';
+import 'package:authenticator_app/app/utils/snackbar_utils.dart';
+import 'package:authenticator_app/features/authenticator/models/authenticator_model.dart';
+import 'package:authenticator_app/features/authenticator/models/tip_of_the_day_model.dart';
+import 'package:authenticator_app/features/authenticator/screens/activation_token_input_screen.dart';
+import 'package:authenticator_app/features/authenticator/screens/activation_token_scan_screen.dart';
+import 'package:authenticator_app/features/authenticator/widgets/tip_of_the_day.dart';
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:kc_auth_app/app/constants/image_paths.dart';
-import 'package:kc_auth_app/app/theme/custom_colors.dart';
-import 'package:kc_auth_app/app/utils/snackbar_utils.dart';
-import 'package:kc_auth_app/features/authenticator/models/authenticator_model.dart';
-import 'package:kc_auth_app/features/authenticator/models/tip_of_the_day_model.dart';
-import 'package:kc_auth_app/features/authenticator/screens/activation_token_input_screen.dart';
-import 'package:kc_auth_app/features/authenticator/screens/activation_token_scan_screen.dart';
-import 'package:kc_auth_app/features/authenticator/widgets/tip_of_the_day.dart';
 import 'package:keycloak_authenticator/api.dart';
 import 'package:provider/provider.dart';
 
@@ -19,40 +19,23 @@ class AuthenticatorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (context) => AuthenticatorModel(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => TipOfTheDayModel(),
-        ),
+        ChangeNotifierProvider(create: (context) => AuthenticatorModel()),
+        ChangeNotifierProvider(create: (context) => TipOfTheDayModel()),
       ],
       child: Consumer<AuthenticatorModel>(
         builder: (context, model, child) => Scaffold(
           appBar: AppBar(
-            title: const Text(
-              'Grünes Netz Authenticator',
-              style: TextStyle(
-                fontSize: 16,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
+            title: const Text('Grünes Netz Authenticator', style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic)),
             actions: [
               if (model.status == AuthenticatorStatus.ready)
                 MenuAnchor(
-                  builder: (BuildContext context, MenuController controller,
-                          Widget? child) =>
-                      IconButton(
-                        onPressed: () => controller.isOpen
-                            ? controller.close()
-                            : controller.open(),
-                        icon: const Icon(Icons.settings_outlined),
-                        tooltip: 'Menü anzeigen',
-                      ),
+                  builder: (BuildContext context, MenuController controller, Widget? child) => IconButton(
+                    onPressed: () => controller.isOpen ? controller.close() : controller.open(),
+                    icon: const Icon(Icons.settings_outlined),
+                    tooltip: 'Menü anzeigen',
+                  ),
                   menuChildren: [
-                    MenuItemButton(
-                      onPressed: () => {model.delete()},
-                      child: const Text('Entfernen'),
-                    ),
+                    MenuItemButton(onPressed: () => {model.delete()}, child: const Text('Entfernen')),
                   ],
                 ),
             ],
@@ -72,7 +55,7 @@ class AuthenticatorScreen extends StatelessWidget {
 }
 
 class _InitView extends StatefulWidget {
-  const _InitView({super.key});
+  const _InitView();
 
   @override
   State<_InitView> createState() => _InitViewState();
@@ -84,11 +67,8 @@ class _InitViewState extends State<_InitView> {
     super.initState();
     var model = Provider.of<AuthenticatorModel>(context, listen: false);
     model.init().then((message) {
-      if (message != null) {
-        ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
-          message,
-          context,
-        ));
+      if (message != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(message, context));
       }
     });
   }
@@ -105,7 +85,7 @@ class _InitViewState extends State<_InitView> {
 }
 
 class _SetupView extends StatelessWidget {
-  const _SetupView({super.key});
+  const _SetupView();
 
   @override
   Widget build(BuildContext context) {
@@ -123,13 +103,12 @@ class _SetupView extends StatelessWidget {
               Container(
                 width: 260,
                 decoration: BoxDecoration(
-                  color: CustomColors.himmel.shade500.withOpacity(0.5),
+                  color: CustomColors.himmel.shade500..withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(180),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
-                  child:
-                      SvgPicture.asset(imageUndrawMobileAnalytics, height: 220),
+                  child: SvgPicture.asset(imageUndrawMobileAnalytics, height: 220),
                 ),
               ),
               const SizedBox(height: 24),
@@ -142,10 +121,9 @@ class _SetupView extends StatelessWidget {
                 child: FilledButton.icon(
                   onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(
+                      MaterialPageRoute<void>(
                         maintainState: false,
-                        builder: (context) =>
-                            ListenableProvider<AuthenticatorModel>.value(
+                        builder: (context) => ListenableProvider<AuthenticatorModel>.value(
                           value: model,
                           child: const ActivationTokenScanScreen(),
                         ),
@@ -163,9 +141,8 @@ class _SetupView extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            ListenableProvider<AuthenticatorModel>.value(
+                      MaterialPageRoute<void>(
+                        builder: (context) => ListenableProvider<AuthenticatorModel>.value(
                           value: model,
                           child: const ActivationTokenInputScreen(),
                         ),
@@ -176,7 +153,7 @@ class _SetupView extends StatelessWidget {
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -184,7 +161,7 @@ class _SetupView extends StatelessWidget {
 }
 
 class _ReadyView extends StatefulWidget {
-  const _ReadyView({super.key});
+  const _ReadyView();
 
   @override
   State<StatefulWidget> createState() => _ReadyViewState();
@@ -219,15 +196,12 @@ class _ReadyViewState extends State<_ReadyView> {
     }
   }
 
-  onRefresh(BuildContext context, model) async {
+  Future<void> onRefresh(BuildContext context, AuthenticatorModel model) async {
     var message = await model.refresh();
     if (!context.mounted) return;
 
     if (message != null) {
-      ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
-        message,
-        context,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(message, context));
     }
   }
 
@@ -240,10 +214,7 @@ class _ReadyViewState extends State<_ReadyView> {
           Column(
             children: [
               const SizedBox(width: 260, child: TipOfTheDay()),
-              const Padding(
-                padding: EdgeInsets.only(top: 42, bottom: 24),
-                child: Text('Keine Login-Anfragen'),
-              ),
+              const Padding(padding: EdgeInsets.only(top: 42, bottom: 24), child: Text('Keine Login-Anfragen')),
               SizedBox(
                 width: 240,
                 child: TextButton.icon(
@@ -252,9 +223,7 @@ class _ReadyViewState extends State<_ReadyView> {
                           width: 24,
                           height: 24,
                           padding: const EdgeInsets.all(2.0),
-                          child: const CircularProgressIndicator(
-                            strokeWidth: 3,
-                          ),
+                          child: const CircularProgressIndicator(strokeWidth: 3),
                         )
                       : const Icon(Icons.refresh),
                   label: const Text('Aktualisieren'),
@@ -262,7 +231,7 @@ class _ReadyViewState extends State<_ReadyView> {
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -270,29 +239,23 @@ class _ReadyViewState extends State<_ReadyView> {
 }
 
 class _VerifyView extends StatelessWidget {
-  const _VerifyView({super.key});
+  const _VerifyView();
 
-  onReply(BuildContext context, AuthenticatorModel model, bool granted) async {
+  Future<void> onReply(BuildContext context, AuthenticatorModel model, bool granted) async {
     var message = await model.sendReply(granted: granted);
 
     if (!context.mounted) return;
 
     if (message != null) {
-      ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
-        message,
-        context,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(message, context));
     }
   }
 
-  onTimeout(BuildContext context, AuthenticatorModel model) {
+  void onTimeout(BuildContext context, AuthenticatorModel model) {
     var message = model.idleTimeout();
 
     if (message != null) {
-      ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
-        message,
-        context,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(message, context));
     }
   }
 
@@ -301,53 +264,33 @@ class _VerifyView extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     return Consumer<AuthenticatorModel>(
       builder: (context, model, child) => ConstrainedBox(
-        constraints: BoxConstraints(
-          minWidth: size.width,
-          minHeight: size.height,
-        ),
+        constraints: BoxConstraints(minWidth: size.width, minHeight: size.height),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               SizedBox(height: 24, width: size.width),
-              Column(
-                children: [
-                  _timer(context, model),
-                ],
-              ),
+              Column(children: [_timer(context, model)]),
               const Padding(
                 padding: EdgeInsets.only(top: 24, bottom: 24),
                 child: Text(
                   'Login Verifizieren',
-                  style: TextStyle(
-                    fontSize: 22,
-                    letterSpacing: 1,
-                    fontFamily: 'GrueneType',
-                  ),
+                  style: TextStyle(fontSize: 22, letterSpacing: 1, fontFamily: 'GrueneType'),
                   textAlign: TextAlign.center,
                 ),
               ),
               const Padding(
                 padding: EdgeInsets.only(bottom: 24),
-                child: Text(
-                  'Prüfe die Angaben für die Login-Anfrage deines Kontos',
-                  textAlign: TextAlign.center,
-                ),
+                child: Text('Prüfe die Angaben für die Login-Anfrage deines Kontos', textAlign: TextAlign.center),
               ),
-              const SizedBox(
-                height: 8,
-              ),
+              const SizedBox(height: 8),
               _loginDetails(model),
               const Spacer(flex: 2),
               FilledButton.icon(
                 style: model.isLoading
                     ? ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll<Color>(
-                            Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withAlpha(80)),
+                        backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.primary.withAlpha(80)),
                       )
                     : null,
                 icon: const Icon(Icons.check),
@@ -357,12 +300,10 @@ class _VerifyView extends StatelessWidget {
               FilledButton.icon(
                 style: model.isLoading
                     ? ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll<Color>(
-                            Theme.of(context).colorScheme.error.withAlpha(80)),
+                        backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.error.withAlpha(80)),
                       )
                     : ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll<Color>(
-                            Theme.of(context).colorScheme.error.withAlpha(200)),
+                        backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.error.withAlpha(200)),
                       ),
                 icon: const Icon(Icons.close),
                 label: const Text('Ablehnen'),
@@ -372,10 +313,7 @@ class _VerifyView extends StatelessWidget {
                 opacity: model.isLoading ? 1 : 0,
                 child: const Padding(
                   padding: EdgeInsets.fromLTRB(60, 4, 60, 4),
-                  child: LinearProgressIndicator(
-                    minHeight: 4,
-                    borderRadius: BorderRadius.all(Radius.circular(180)),
-                  ),
+                  child: LinearProgressIndicator(minHeight: 4, borderRadius: BorderRadius.all(Radius.circular(180))),
                 ),
               ),
             ],
@@ -389,24 +327,15 @@ class _VerifyView extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: [
-        Icon(
-          Icons.shield_outlined,
-          size: 40,
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-        ),
+        Icon(Icons.shield_outlined, size: 40, color: Theme.of(context).colorScheme.primary..withValues(alpha: 0.5)),
         SizedBox(
           height: 140,
           width: 140,
           child: TweenAnimationBuilder<double>(
             tween: Tween<double>(begin: 1, end: 0),
-            duration: Duration(
-              seconds: model.loginAttempt!.expiresIn,
-            ),
+            duration: Duration(seconds: model.loginAttempt!.expiresIn),
             onEnd: () => onTimeout(context, model),
-            builder: (context, value, _) => CircularProgressIndicator(
-              value: value,
-              strokeWidth: 5,
-            ),
+            builder: (context, value, _) => CircularProgressIndicator(value: value, strokeWidth: 5),
           ),
         ),
       ],
@@ -419,43 +348,22 @@ class _VerifyView extends StatelessWidget {
       children: [
         const Padding(
           padding: EdgeInsets.only(bottom: 4.0),
-          child: Text(
-            'Gerät',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          child: Text('Gerät', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         ),
         Text(model.loginAttempt!.browser),
         Text(model.loginAttempt!.os),
         const SizedBox(height: 8),
         const Padding(
           padding: EdgeInsets.only(bottom: 4),
-          child: Text(
-            'IP Adresse',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          child: Text('IP Adresse', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         ),
         Text(model.loginAttempt!.ipAddress),
         const SizedBox(height: 8),
         const Padding(
           padding: EdgeInsets.only(bottom: 4),
-          child: Text(
-            'Zeitpunkt',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          child: Text('Zeitpunkt', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         ),
-        Text(
-          formatDate(model.loginAttempt!.loggedInAt,
-              [dd, '.', M, '.', yyyy, ', ', HH, ':', nn]),
-        ),
+        Text(formatDate(model.loginAttempt!.loggedInAt, [dd, '.', M, '.', yyyy, ', ', HH, ':', nn])),
       ],
     );
   }

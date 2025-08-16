@@ -4,8 +4,7 @@ import 'storage.dart';
 class FlutterSecureStorageAdapter implements Storage {
   final FlutterSecureStorage _storage;
 
-  FlutterSecureStorageAdapter(FlutterSecureStorage storage)
-      : _storage = storage;
+  FlutterSecureStorageAdapter(FlutterSecureStorage storage) : _storage = storage;
 
   @override
   Future<void> delete({required String key}) {

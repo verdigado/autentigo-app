@@ -1,18 +1,13 @@
+import 'package:authenticator_app/features/authenticator/domain/mock_authenticator.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:get_it/get_it.dart';
-import 'package:kc_auth_app/app/config/config.dart';
 import 'package:keycloak_authenticator/api.dart';
-import 'mock_authenticator.dart';
 
 class AuthenticatorFactory {
   static AuthenticatorService create() {
-    var config = GetIt.I<AppConfig>();
     return AuthenticatorService(
-      storage: FlutterSecureStorageAdapter(const FlutterSecureStorage(
-        aOptions: AndroidOptions(
-          encryptedSharedPreferences: true,
-        ),
-      )),
+      storage: FlutterSecureStorageAdapter(
+        const FlutterSecureStorage(aOptions: AndroidOptions(encryptedSharedPreferences: true)),
+      ),
     );
   }
 

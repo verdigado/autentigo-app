@@ -1,4 +1,4 @@
-package com.verdigado.kc_auth_app
+package com.verdigado.authenticator
 
 import io.flutter.embedding.android.FlutterActivity
 

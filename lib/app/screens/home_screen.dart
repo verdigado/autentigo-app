@@ -1,5 +1,5 @@
+import 'package:authenticator_app/app/widgets/nav_drawer.dart';
 import 'package:flutter/material.dart';
-import 'package:kc_auth_app/app/widgets/nav_drawer.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -8,18 +8,11 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: const NavDrawer(),
-      appBar: AppBar(
-        title: const Text('Home'),
-      ),
+      appBar: AppBar(title: const Text('Home')),
       body: const SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.only(top: 42),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Home Screen'),
-            ],
-          ),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text('Home Screen')]),
         ),
       ),
     );

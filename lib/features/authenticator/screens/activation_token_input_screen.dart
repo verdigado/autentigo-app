@@ -1,18 +1,16 @@
+import 'package:authenticator_app/app/utils/snackbar_utils.dart';
+import 'package:authenticator_app/features/authenticator/models/authenticator_model.dart';
 import 'package:flutter/material.dart';
-import 'package:kc_auth_app/app/utils/snackbar_utils.dart';
-import 'package:kc_auth_app/features/authenticator/models/authenticator_model.dart';
 import 'package:provider/provider.dart';
 
 class ActivationTokenInputScreen extends StatefulWidget {
   const ActivationTokenInputScreen({super.key});
 
   @override
-  State<ActivationTokenInputScreen> createState() =>
-      _ActivationTokenInputScreenState();
+  State<ActivationTokenInputScreen> createState() => _ActivationTokenInputScreenState();
 }
 
-class _ActivationTokenInputScreenState
-    extends State<ActivationTokenInputScreen> {
+class _ActivationTokenInputScreenState extends State<ActivationTokenInputScreen> {
   var tokenInput = TextEditingController(text: '');
   var invalidToken = false;
   void Function()? setupHandler;
@@ -44,13 +42,10 @@ class _ActivationTokenInputScreenState
           var model = Provider.of<AuthenticatorModel>(context, listen: false);
           var message = await model.setup(tokenInput.text);
 
-          if (!context.mounted) return;
+          if (!mounted) return;
 
-          if (message != null) {
-            ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(
-              message,
-              context,
-            ));
+          if (message != null && context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(createSnackbarForMessage(message, context));
           }
 
           if (model.status == AuthenticatorStatus.ready) {
@@ -71,36 +66,26 @@ class _ActivationTokenInputScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Authenticator Einrichtung'),
-      ),
+      appBar: AppBar(title: const Text('Authenticator Einrichtung')),
       body: Consumer<AuthenticatorModel>(
         builder: (context, model, child) => ListView(
           padding: const EdgeInsets.all(24),
           children: [
             const Padding(
               padding: EdgeInsets.only(bottom: 8),
-              child: Text(
-                'Manuelle Eingabe',
-                style: TextStyle(fontSize: 24),
-              ),
+              child: Text('Manuelle Eingabe', style: TextStyle(fontSize: 24)),
             ),
-            const Text(
-                'Füge hier die Activation Token URL aus der Grünes Netz Account Konsole ein.'),
+            const Text('Füge hier die Activation Token URL aus der Grünes Netz Account Konsole ein.'),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: TextField(
                 controller: tokenInput,
-                decoration: const InputDecoration(
-                  hintText: 'Aktivierungstoken',
-                ),
+                decoration: const InputDecoration(hintText: 'Aktivierungstoken'),
               ),
             ),
             Opacity(
               opacity: invalidToken ? 1 : 0,
-              child: const Text(
-                'Das eingegebene Aktivierungstoken ist nicht gültig.',
-              ),
+              child: const Text('Das eingegebene Aktivierungstoken ist nicht gültig.'),
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -114,10 +99,7 @@ class _ActivationTokenInputScreenState
                             width: 24,
                             height: 24,
                             padding: const EdgeInsets.all(2.0),
-                            child: const CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 3,
-                            ),
+                            child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
                           )
                         : const Icon(Icons.check),
                     label: const Text('Abschließen'),

@@ -18,23 +18,10 @@ class _NavDrawerState extends State<NavDrawer> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 24),
-            const Text(
-              'Menü',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
-              child: Divider(),
-            ),
-            OutlinedButton(
-              onPressed: () => context.goNamed('home'),
-              child: const Text('Home'),
-            ),
-            OutlinedButton(
-              onPressed: () => context.go('/authenticator'),
-              child: const Text('Authenticator'),
-            ),
+            const Text('Menü', textAlign: TextAlign.center, style: TextStyle(fontSize: 16)),
+            const Padding(padding: EdgeInsets.symmetric(vertical: 24), child: Divider()),
+            OutlinedButton(onPressed: () => context.goNamed('home'), child: const Text('Home')),
+            OutlinedButton(onPressed: () => context.go('/authenticator'), child: const Text('Authenticator')),
           ],
         ),
       ),

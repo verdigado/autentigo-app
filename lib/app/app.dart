@@ -1,7 +1,7 @@
+import 'package:authenticator_app/app/router.dart';
+import 'package:authenticator_app/app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kc_auth_app/app/router.dart';
-import 'package:kc_auth_app/app/theme/theme.dart';
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});

@@ -20,8 +20,7 @@ class AuthenticatorRepository {
 
   Future<Authenticator> add(KeycloakAuthenticator authenticator) async {
     await _storage.write(
-        key: _getAuthenticatorStorageKey(authenticator.getId()),
-        value: jsonEncode(authenticator.toJson()));
+        key: _getAuthenticatorStorageKey(authenticator.getId()), value: jsonEncode(authenticator.toJson()));
 
     await _addToEntries(authenticator);
 
@@ -29,8 +28,7 @@ class AuthenticatorRepository {
   }
 
   Future<Authenticator?> getById(String authenticatorId) async {
-    var serialized =
-        await _storage.read(key: _getAuthenticatorStorageKey(authenticatorId));
+    var serialized = await _storage.read(key: _getAuthenticatorStorageKey(authenticatorId));
     if (serialized == null) {
       return null;
     }
@@ -47,20 +45,16 @@ class AuthenticatorRepository {
     var serialized = await _storage.read(key: 'entries');
     if (serialized != null) {
       List<dynamic> jsonList = jsonDecode(serialized);
-      entries =
-          jsonList.map((json) => AuthenticatorEntry.fromJson(json)).toList();
+      entries = jsonList.map((json) => AuthenticatorEntry.fromJson(json)).toList();
     }
     return entries;
   }
 
   Future<void> _saveEntries(List<AuthenticatorEntry> entries) async {
-    await _storage.write(
-        key: 'entries',
-        value: jsonEncode(entries.map((e) => e.toJson()).toList()));
+    await _storage.write(key: 'entries', value: jsonEncode(entries.map((e) => e.toJson()).toList()));
   }
 
-  Future<List<AuthenticatorEntry>> _addToEntries(
-      Authenticator authenticator) async {
+  Future<List<AuthenticatorEntry>> _addToEntries(Authenticator authenticator) async {
     var entries = await getEntries();
     entries.add(AuthenticatorEntry(
       id: authenticator.getId(),
@@ -70,8 +64,7 @@ class AuthenticatorRepository {
     return entries;
   }
 
-  Future<List<AuthenticatorEntry>> _deleteFromEntries(
-      Authenticator authenticator) async {
+  Future<List<AuthenticatorEntry>> _deleteFromEntries(Authenticator authenticator) async {
     var list = await getEntries();
     list.removeWhere((element) => element.id == authenticator.getId());
     await _saveEntries(list);
