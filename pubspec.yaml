@@ -33,21 +33,32 @@ flutter:
   assets:
     - assets/images/
   fonts:
-    - family: GrueneType
+    - family: iAWriter
       fonts:
-        - asset: assets/fonts/GrueneType/GrueneType-BlackCondensedItalic.otf
-    - family: PTSans
-      fonts:
-        - asset: assets/fonts/PTSans/PTS55F.ttf
+        - asset: assets/fonts/iAWriterDuospace/iAWriterDuoS-Regular.ttf
           weight: 400
           style: normal
-        - asset: assets/fonts/PTSans/PTS56F.ttf
+        - asset: assets/fonts/iAWriterDuospace/iAWriterDuoS-Italic.ttf
           weight: 400
           style: italic
-        - asset: assets/fonts/PTSans/PTS75F.ttf
+        - asset: assets/fonts/iAWriterDuospace/iAWriterDuoS-Bold.ttf
           weight: 700
           style: normal
-        - asset: assets/fonts/PTSans/PTS76F.ttf
+        - asset: assets/fonts/iAWriterDuospace/iAWriterDuoS-BoldItalic.ttf
+          weight: 700
+          style: italic
+    - family: Sarabun
+      fonts:
+        - asset: assets/fonts/Sarabun/Sarabun-Regular.ttf
+          weight: 400
+          style: normal
+        - asset: assets/fonts/Sarabun/Sarabun-Italic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/Sarabun/Sarabun-Bold.ttf
+          weight: 700
+          style: normal
+        - asset: assets/fonts/Sarabun/Sarabun-BoldItalic.ttf
           weight: 700
           style: italic
 

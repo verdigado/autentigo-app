@@ -1,5 +1,4 @@
 import 'package:authenticator_app/app/constants/image_paths.dart';
-import 'package:authenticator_app/app/theme/custom_colors.dart';
 import 'package:authenticator_app/app/utils/snackbar_utils.dart';
 import 'package:authenticator_app/features/authenticator/models/authenticator_model.dart';
 import 'package:authenticator_app/features/authenticator/models/tip_of_the_day_model.dart';
@@ -103,7 +102,6 @@ class _SetupView extends StatelessWidget {
               Container(
                 width: 260,
                 decoration: BoxDecoration(
-                  color: CustomColors.himmel.shade500..withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(180),
                 ),
                 child: Padding(
