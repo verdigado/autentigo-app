@@ -3,8 +3,8 @@ import 'package:authenticator_app/app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class MyApp extends StatelessWidget {
-  MyApp({super.key});
+class App extends StatelessWidget {
+  App({super.key});
 
   // If the router is created outside of the `build` method, the
   // navigation will not reset after a hot reload

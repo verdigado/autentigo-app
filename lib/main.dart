@@ -15,5 +15,5 @@ void main() {
 
   GetIt.I.registerFactory<AuthenticatorService>(AuthenticatorFactory.create);
 
-  runApp(MyApp());
+  runApp(App());
 }
