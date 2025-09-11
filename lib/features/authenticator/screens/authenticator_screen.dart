@@ -35,7 +35,7 @@ class AuthenticatorScreen extends StatelessWidget {
                     tooltip: 'Menü anzeigen',
                   ),
                   menuChildren: [
-                    MenuItemButton(onPressed: () => {model.delete()}, child: const Text('Entfernen')),
+                    MenuItemButton(onPressed: model.delete, child: const Text('Entfernen')),
                   ],
                 ),
             ],
