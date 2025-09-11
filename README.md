@@ -1,4 +1,4 @@
-# KC Auth App
+# Autentigo
 
 This is a Dart app that implements an Keycloak App Authenticator from the [netzbegruenung/keycloak-mfa-plugins](https://github.com/netzbegruenung/keycloak-mfa-plugins/tree/main/app-authenticator) app authenticator.
 
