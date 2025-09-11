@@ -1,3 +1,4 @@
+import 'package:authenticator_app/app/constants/app.dart';
 import 'package:authenticator_app/app/router.dart';
 import 'package:authenticator_app/app/theme/theme.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Grünes Netz Authenticator',
+      title: appName,
       theme: CustomTheme.lightTheme,
       darkTheme: CustomTheme.darkTheme,
       themeMode: ThemeMode.system,

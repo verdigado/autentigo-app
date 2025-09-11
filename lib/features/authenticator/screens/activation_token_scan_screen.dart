@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:authenticator_app/app/theme/theme.dart';
 import 'package:authenticator_app/app/utils/snackbar_utils.dart';
 import 'package:authenticator_app/features/authenticator/models/authenticator_model.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +44,6 @@ class _ActivationTokenScanScreenState extends State<ActivationTokenScanScreen> {
     return Consumer<AuthenticatorModel>(
       builder: (context, model, child) {
         return Scaffold(
-          backgroundColor: Colors.black,
           body: Stack(
             fit: StackFit.expand,
             children: [
@@ -61,26 +61,18 @@ class _ActivationTokenScanScreenState extends State<ActivationTokenScanScreen> {
                 scanWindow: scanWindow,
                 fit: BoxFit.contain,
               ),
-              Positioned(
-                top: 0,
-                child: Container(
-                  color: Colors.red..withValues(alpha: 0.8),
-                  height: 40,
-                  width: MediaQuery.of(context).size.width,
-                ),
-              ),
               if (!model.isLoading)
                 Stack(
                   fit: StackFit.expand,
                   children: [
                     CustomPaint(painter: _ScannerOverlay(scanWindow)),
-                    const Align(
+                    Align(
                       alignment: Alignment.bottomCenter,
                       child: Padding(
                         padding: EdgeInsets.only(bottom: 40),
                         child: Text(
                           'Platziere den QR-Code innheralb des Rechtecks',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: CustomTheme.contrastColor),
                         ),
                       ),
                     ),
@@ -97,12 +89,9 @@ class _ActivationTokenScanScreenState extends State<ActivationTokenScanScreen> {
   BackdropFilter _loadingOverlay() {
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-      child: Container(
-        decoration: BoxDecoration(color: Colors.white..withValues(alpha: 0.0)),
-        child: const Align(
-          alignment: Alignment.center,
-          child: SizedBox(height: 80, width: 80, child: CircularProgressIndicator(strokeWidth: 6, color: Colors.white)),
-        ),
+      child: const Align(
+        alignment: Alignment.center,
+        child: SizedBox(height: 80, width: 80, child: CircularProgressIndicator(strokeWidth: 6)),
       ),
     );
   }
@@ -125,7 +114,7 @@ class _ScannerOverlay extends CustomPainter {
 
     // draw background overlay with the seeker window cut out
     final backgroundPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.3)
+      ..color = CustomTheme.tertiaryColor.withValues(alpha: 0.6)
       ..style = PaintingStyle.fill
       ..blendMode = BlendMode.dstOut;
 
@@ -155,7 +144,7 @@ class _ScannerOverlay extends CustomPainter {
     borderPath = Path.combine(PathOperation.difference, borderPath, borderCutoutHorizontal);
 
     final borderPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.9)
+      ..color = CustomTheme.primaryColor
       ..style = PaintingStyle.fill;
     canvas.drawPath(borderPath, borderPaint);
   }

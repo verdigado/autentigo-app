@@ -9,11 +9,12 @@ class TipOfTheDay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<TipOfTheDayModel>(
-      builder: (context, model, child) => model.current != null ? _renderTip(model) : const SizedBox(height: 240),
+      builder: (context, model, child) =>
+          model.current != null ? _renderTip(model, context) : const SizedBox(height: 240),
     );
   }
 
-  Widget _renderTip(TipOfTheDayModel model) {
+  Widget _renderTip(TipOfTheDayModel model, BuildContext context) {
     return GestureDetector(
       onTap: () {
         model.next();
@@ -26,7 +27,7 @@ class TipOfTheDay extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  Text(model.current!.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text(model.current!.title, style: TextTheme.of(context).titleLarge),
                   if (model.current!.iconPath != null)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -35,12 +36,7 @@ class TipOfTheDay extends StatelessWidget {
                   Text(
                     model.current!.text,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      wordSpacing: 1,
-                      letterSpacing: 0.8,
-                      fontStyle: FontStyle.italic,
-                    ),
+                    style: TextStyle(fontStyle: FontStyle.italic),
                   ),
                   // if (model.current!.url?.isNotEmpty ?? false)
                   //   Padding(
@@ -78,12 +74,12 @@ class TipOfTheDay extends StatelessWidget {
               ),
             ),
           ),
-          const Positioned(
+          Positioned(
             top: 8,
             right: 8,
             child: Text(
               'Grüner IT-Tip',
-              style: TextStyle(fontStyle: FontStyle.italic, fontSize: 11, letterSpacing: 0.4),
+              style: TextTheme.of(context).labelMedium?.apply(fontStyle: FontStyle.italic)
             ),
           ),
         ],
