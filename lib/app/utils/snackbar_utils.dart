@@ -1,4 +1,5 @@
 import 'package:authenticator_app/app/models/ui_message.dart';
+import 'package:authenticator_app/app/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 SnackBar createSnackbarForMessage(
@@ -9,11 +10,11 @@ SnackBar createSnackbarForMessage(
 }) {
   var color = switch (message.type) {
     UIMessageType.error => Theme.of(context).colorScheme.errorContainer,
-    UIMessageType.warning => Colors.deepOrange,
-    UIMessageType.success => Colors.greenAccent,
+    UIMessageType.warning => CustomTheme.warningColor,
+    UIMessageType.success => CustomTheme.successColor,
   };
   return SnackBar(
-    content: Text(message.text),
+    content: Text(message.text, style: TextStyle(color: CustomTheme.tertiaryColor)),
     backgroundColor: color,
     showCloseIcon: showCloseIcon,
     duration: duration,

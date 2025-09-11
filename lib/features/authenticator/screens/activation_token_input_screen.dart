@@ -1,3 +1,4 @@
+import 'package:authenticator_app/app/theme/theme.dart';
 import 'package:authenticator_app/app/utils/snackbar_utils.dart';
 import 'package:authenticator_app/features/authenticator/models/authenticator_model.dart';
 import 'package:flutter/material.dart';
@@ -66,27 +67,29 @@ class _ActivationTokenInputScreenState extends State<ActivationTokenInputScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Authenticator Einrichtung')),
+      appBar: AppBar(title: Text('Einrichtung', style: TextTheme.of(context).titleLarge)),
       body: Consumer<AuthenticatorModel>(
         builder: (context, model, child) => ListView(
           padding: const EdgeInsets.all(24),
           children: [
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(bottom: 8),
-              child: Text('Manuelle Eingabe', style: TextStyle(fontSize: 24)),
+              child: Text('Manuelle Eingabe', style: TextTheme.of(context).titleLarge),
             ),
             const Text('Füge hier die Activation Token URL aus der Grünes Netz Account Konsole ein.'),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: TextField(
                 controller: tokenInput,
-                decoration: const InputDecoration(hintText: 'Aktivierungstoken'),
+                decoration: InputDecoration(hintText: 'Aktivierungstoken', hintStyle: TextStyle(color: CustomTheme.contrastColorDark)),
               ),
             ),
-            Opacity(
-              opacity: invalidToken ? 1 : 0,
-              child: const Text('Das eingegebene Aktivierungstoken ist nicht gültig.'),
-            ),
+            invalidToken
+                ? Text(
+                    'Das eingegebene Aktivierungstoken ist nicht gültig.',
+                    style: TextStyle(color: Theme.of(context).colorScheme.error),
+                  )
+                : Container(),
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -99,7 +102,7 @@ class _ActivationTokenInputScreenState extends State<ActivationTokenInputScreen>
                             width: 24,
                             height: 24,
                             padding: const EdgeInsets.all(2.0),
-                            child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                            child: const CircularProgressIndicator(strokeWidth: 3),
                           )
                         : const Icon(Icons.check),
                     label: const Text('Abschließen'),

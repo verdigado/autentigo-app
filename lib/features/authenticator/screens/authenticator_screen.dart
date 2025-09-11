@@ -1,5 +1,5 @@
+import 'package:authenticator_app/app/constants/app.dart';
 import 'package:authenticator_app/app/constants/image_paths.dart';
-import 'package:authenticator_app/app/theme/custom_colors.dart';
 import 'package:authenticator_app/app/utils/snackbar_utils.dart';
 import 'package:authenticator_app/features/authenticator/models/authenticator_model.dart';
 import 'package:authenticator_app/features/authenticator/models/tip_of_the_day_model.dart';
@@ -25,7 +25,7 @@ class AuthenticatorScreen extends StatelessWidget {
       child: Consumer<AuthenticatorModel>(
         builder: (context, model, child) => Scaffold(
           appBar: AppBar(
-            title: const Text('Grünes Netz Authenticator', style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic)),
+            title: Text(appName, style: TextTheme.of(context).titleLarge),
             actions: [
               if (model.status == AuthenticatorStatus.ready)
                 MenuAnchor(
@@ -35,7 +35,7 @@ class AuthenticatorScreen extends StatelessWidget {
                     tooltip: 'Menü anzeigen',
                   ),
                   menuChildren: [
-                    MenuItemButton(onPressed: () => {model.delete()}, child: const Text('Entfernen')),
+                    MenuItemButton(onPressed: model.delete, child: const Text('Entfernen')),
                   ],
                 ),
             ],
@@ -96,14 +96,13 @@ class _SetupView extends StatelessWidget {
           Column(
             mainAxisSize: MainAxisSize.max,
             children: [
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(bottom: 24),
-                child: Text('Einrichtung', style: TextStyle(fontSize: 24)),
+                child: Text('Einrichtung', style: TextTheme.of(context).titleLarge),
               ),
               Container(
                 width: 260,
                 decoration: BoxDecoration(
-                  color: CustomColors.himmel.shade500..withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(180),
                 ),
                 child: Padding(
@@ -217,7 +216,7 @@ class _ReadyViewState extends State<_ReadyView> {
               const Padding(padding: EdgeInsets.only(top: 42, bottom: 24), child: Text('Keine Login-Anfragen')),
               SizedBox(
                 width: 240,
-                child: TextButton.icon(
+                child: OutlinedButton.icon(
                   icon: model.isLoading
                       ? Container(
                           width: 24,
