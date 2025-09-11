@@ -14,7 +14,12 @@ SnackBar createSnackbarForMessage(
     UIMessageType.success => CustomTheme.successColor,
   };
   return SnackBar(
-    content: Text(message.text, style: TextStyle(color: CustomTheme.tertiaryColor)),
+    content: Text(
+      message.text,
+      style: TextStyle(
+        color: message.type == UIMessageType.error ? Theme.of(context).colorScheme.onErrorContainer : CustomTheme.tertiaryColor,
+      ),
+    ),
     backgroundColor: color,
     showCloseIcon: showCloseIcon,
     duration: duration,
