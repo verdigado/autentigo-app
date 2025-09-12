@@ -1,5 +1,5 @@
-import 'package:authenticator_app/app/models/ui_message.dart';
-import 'package:authenticator_app/app/theme/theme.dart';
+import 'package:autentigo_app/app/models/ui_message.dart';
+import 'package:autentigo_app/app/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 SnackBar createSnackbarForMessage(

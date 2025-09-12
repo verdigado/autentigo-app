@@ -1,6 +1,6 @@
-import 'package:authenticator_app/app/constants/app.dart';
-import 'package:authenticator_app/app/router.dart';
-import 'package:authenticator_app/app/theme/theme.dart';
+import 'package:autentigo_app/app/constants/app.dart';
+import 'package:autentigo_app/app/router.dart';
+import 'package:autentigo_app/app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

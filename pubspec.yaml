@@ -1,4 +1,4 @@
-name: authenticator_app
+name: autentigo_app
 description: Second factor keycloak authenticator app.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 

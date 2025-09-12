@@ -1,4 +1,4 @@
-import 'package:authenticator_app/features/authenticator/domain/mock_authenticator.dart';
+import 'package:autentigo_app/features/authenticator/domain/mock_authenticator.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:keycloak_authenticator/api.dart';
 

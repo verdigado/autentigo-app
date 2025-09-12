@@ -9,7 +9,7 @@ dependencies {
 }
 
 android {
-    namespace "com.verdigado.authenticator"
+    namespace "com.verdigado.autentigo"
     compileSdk = flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
@@ -24,7 +24,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.verdigado.authenticator"
+        applicationId "com.verdigado.autentigo"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
 
