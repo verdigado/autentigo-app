@@ -1,4 +1,4 @@
-import 'package:authenticator_app/app/widgets/nav_drawer.dart';
+import 'package:autentigo_app/app/widgets/nav_drawer.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {

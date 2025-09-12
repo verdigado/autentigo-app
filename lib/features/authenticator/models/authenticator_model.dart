@@ -1,5 +1,5 @@
-import 'package:authenticator_app/app/models/ui_message.dart';
-import 'package:authenticator_app/features/authenticator/dtos/login_attempt_dto.dart';
+import 'package:autentigo_app/app/models/ui_message.dart';
+import 'package:autentigo_app/features/authenticator/dtos/login_attempt_dto.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:keycloak_authenticator/api.dart';

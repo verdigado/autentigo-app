@@ -1,8 +1,8 @@
 import 'dart:ui';
 
-import 'package:authenticator_app/app/theme/theme.dart';
-import 'package:authenticator_app/app/utils/snackbar_utils.dart';
-import 'package:authenticator_app/features/authenticator/models/authenticator_model.dart';
+import 'package:autentigo_app/app/theme/theme.dart';
+import 'package:autentigo_app/app/utils/snackbar_utils.dart';
+import 'package:autentigo_app/features/authenticator/models/authenticator_model.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';

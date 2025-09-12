@@ -1,4 +1,4 @@
-import 'package:authenticator_app/features/authenticator/models/tip_of_the_day_model.dart';
+import 'package:autentigo_app/features/authenticator/models/tip_of_the_day_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';

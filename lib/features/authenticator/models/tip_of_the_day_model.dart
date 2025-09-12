@@ -1,5 +1,5 @@
-import 'package:authenticator_app/app/constants/image_paths.dart';
-import 'package:authenticator_app/features/authenticator/dtos/tip_of_the_day_dto.dart';
+import 'package:autentigo_app/app/constants/image_paths.dart';
+import 'package:autentigo_app/features/authenticator/dtos/tip_of_the_day_dto.dart';
 import 'package:flutter/material.dart';
 
 class TipOfTheDayModel extends ChangeNotifier {
