@@ -1,0 +1,17 @@
+when:
+    equal: [<< pipeline.parameters.workflow_type >>, promotion]
+jobs:
+  - promote_android:
+      context:
+        - verdigado_google_playstore
+
+  - promote_ios:
+      context:
+        - verdigado_apple_appstore
+
+  - notify_promotion:
+      context:
+        - github
+      requires:
+        - promote_android
+        - promote_ios

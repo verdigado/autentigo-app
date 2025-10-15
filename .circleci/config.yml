@@ -1,152 +1,369 @@
 commands:
-    install_android_build_tools:
-        description: |
-            Installs and caches the Android SDK build-tools 30.0.3 so that subsequent builds do not need to install during flutter builds. This saves time to build and CircleCI credits. https://github.com/flutter/flutter/issues/83573 https://github.com/flutter/flutter/issues/41462
+    install_app_toolbelt:
+        steps:
+            - run:
+                command: npm ci
+                name: Install app-toolbelt
+                working_directory: ~/project/tools
+    install_fastlane:
+        description: Restores and saves fastlane cache of the passed directory.
         parameters:
-            cache-version:
-                default: v1
-                description: Change the default cache version if you need to clear the cache for any reason.
+            directory:
                 type: string
         steps:
             - restore_cache:
                 keys:
-                    - android-sdk-build-tools-<<parameters.cache-version>>-{{ arch }}
+                    - v1-gems-{{ arch }}-{{ checksum "<< parameters.directory >>/Gemfile.lock" }}
+                    - v1-gems-{{ arch }}-
+                name: Restore Ruby Cache
             - run:
-                command: sdkmanager "build-tools;30.0.3"
-                name: Install Android SDK Build-Tools 30.0.3
+                command: bundle config set path 'vendor/bundle'
+                name: Configure Installation Directory
+                working_directory: << parameters.directory >>
+            - run:
+                command: bundle check || bundle install
+                name: Bundle Install
+                working_directory: << parameters.directory >>
             - save_cache:
-                key: android-sdk-build-tools-<<parameters.cache-version>>-{{ arch }}
+                key: v1-gems-{{ arch }}-{{ checksum "<< parameters.directory >>/Gemfile.lock" }}
+                name: Save Ruby Cache
                 paths:
-                    - ~/android-sdk/build-tools/30.0.3
-    restore_bash_env:
-        steps:
-            - attach_workspace:
-                at: .
-            - run: cat bash.env >> $BASH_ENV
-jobs:
-    beta_deploy_android:
-        docker:
-            - image: cimg/ruby:3.3.0
-        steps:
-            - checkout
-            - attach_workspace:
-                at: .
-            - android/create-google-play-key:
-                working-directory: android
-            - flutter/install_android_gem
-            - run:
-                command: |
-                    cd android
-                    bundle exec fastlane play_store_beta
-                name: Upload to play store
-    build_android:
-        executor:
-            name: android/android-docker
-            tag: 2024.01.1
+                    - << parameters.directory >>/vendor/bundle
+    install_flutter:
         parameters:
-            build_path:
-                type: string
-            build_target:
-                type: string
+            precache:
+                default: none
+                enum:
+                    - none
+                    - android
+                    - ios
+                type: enum
         steps:
-            - checkout
-            - install_android_build_tools
-            - flutter/install_sdk_and_pub:
-                version: 3.16.9
-            - flutter/install_android_gem
-            - android/decode-keystore:
-                keystore-location: android/app/upload-keystore.jks
-            - android/create-keystore-properties:
-                release-keystore: ./upload-keystore.jks
-                working-directory: android
-            - restore_bash_env
             - run:
-                command: |
-                    flutter build << parameters.build_target >> --build-number ${BUILD_NUMBER} --build-name ${BUILD_NAME}
-                name: Build appbundle
+                command: curl -fsSL https://raw.githubusercontent.com/leoafarias/fvm/refs/heads/main/scripts/install.sh | bash
+                name: Install FVM
+            - run:
+                command: curl -sL https://raw.githubusercontent.com/leoafarias/fvm/refs/heads/main/scripts/install.sh | shasum -a 256
+                name: FVM Install Script Checksum
+            - restore_cache:
+                keys:
+                    - v1-fvm-{{ arch }}-{{ checksum ".fvmrc" }}-{{ checksum "pubspec.yaml" }}-{{ checksum "pubspec.lock"  }}
+                    - v1-fvm-{{ arch }}-
+            - run:
+                command: fvm install
+                name: Install Flutter
+            - run:
+                command: fvm flutter config --no-analytics
+                name: Configure Flutter
+            - run:
+                command: fvm flutter --version
+                name: Show Flutter version
+            - run:
+                command: fvm flutter pub get --enforce-lockfile
+                name: Install Flutter Packages
+            - unless:
+                condition:
+                    equal:
+                        - << parameters.precache >>
+                        - none
+                steps:
+                    - run:
+                        command: fvm flutter precache --<< parameters.precache >>
+                        name: Precache Flutter Binary Artifacts
+                        working_directory: << parameters.precache >>
+            - save_cache:
+                key: v1-fvm-{{ arch }}-{{ checksum ".fvmrc" }}-{{ checksum "pubspec.yaml" }}-{{ checksum "pubspec.lock"  }}
+                paths:
+                    - .fvm
+                    - ~/fvm/
+    install_pods:
+        description: Restores and saves the cocoa pods cache.
+        steps:
+            - restore_cache:
+                keys:
+                    - v1-pods-{{ checksum "ios/Podfile.lock" }}
+                    - v1-pods
+                name: Restore pods
+            - run:
+                command: bundle exec pod install --deployment
+                name: Install pods
+                working_directory: ios
+            - save_cache:
+                key: v1-pods-{{ checksum "ios/Podfile.lock" }}
+                name: Save pods
+                paths:
+                    - ~/Library/Caches/CocoaPods
+    persist_environment_variables:
+        description: Sets the environment variables specified in the file 'environment_variables'. Make sure the file is persisted and has been attached.
+        steps:
+            - run:
+                command: cat ${BASH_ENV}
+                name: List environment variables
+            - run:
+                command: cat ${BASH_ENV} >> environment_variables
+                name: Save environment variables to file
             - persist_to_workspace:
                 paths:
-                    - build/app/outputs/<< parameters.build_path >>
-                root: .
+                    - environment_variables
+                root: ./
+    prepare_workspace:
+        description: Checkout repository, attach the workspace at ~/attached_workspace and restore environment variables
+        steps:
+            - checkout:
+                path: ~/project
+            - attach_workspace:
+                at: ~/attached_workspace
+            - run:
+                command: |
+                    ls -A ~/attached_workspace
+                    ls -AR ~/attached_workspace
+                name: Attached workspace contents
+            - run:
+                command: "touch ~/attached_workspace/environment_variables \ncat ~/attached_workspace/environment_variables >> ${BASH_ENV}\ncat ~/attached_workspace/environment_variables\n"
+                name: Restore environment variables
+jobs:
+    build_android:
+        docker:
+            - image: cimg/android:2024.01.1-node
+        steps:
+            - prepare_workspace
+            - install_flutter:
+                precache: android
+            - install_fastlane:
+                precache: android
+            - run:
+                command: bundle exec fastlane keystore
+                name: '[FL] Prepare Android Keystore'
+                working_directory: android
+            - run:
+                command: bundle exec fastlane android build version_name:${NEW_VERSION_NAME} version_code:${NEW_VERSION_CODE}
+                name: '[FL] Build'
+                working_directory: android
+            - run:
+                command: |
+                    mv build/app/outputs/bundle/release/app-release.aab ~/attached_workspace/app-release.aab
+                    mv build/app/outputs/apk/release/app-release.apk ~/attached_workspace/app-release.apk
+                name: Move artifacts
+            - persist_to_workspace:
+                paths:
+                    - app-release.aab
+                    - app-release.apk
+                root: ~/attached_workspace
+            - store_artifacts:
+                path: ~/attached_workspace
+    build_ios:
+        macos:
+            xcode: 16.1.0
+        steps:
+            - prepare_workspace
+            - run:
+                command: softwareupdate --install-rosetta --agree-to-license
+                name: Install rosetta
+            - install_flutter:
+                precache: ios
+            - install_fastlane:
+                directory: ios
+            - install_pods
+            - run:
+                command: bundle exec fastlane ios build version_name:${NEW_VERSION_NAME} version_code:${NEW_VERSION_CODE}
+                name: '[FL] Build'
+                working_directory: ios
+            - persist_to_workspace:
+                paths:
+                    - autentigo.ipa
+                root: ~/
+            - store_artifacts:
+                path: ~/autentigo.ipa
     bump_version:
         docker:
-            - image: cimg/base:2024.01
-        steps:
-            - checkout
-            - run:
-                command: |
-                    ./bump_version.sh
-                    cp $BASH_ENV bash.env
-                name: Update pubspec.yaml version
-            - persist_to_workspace:
-                paths:
-                    - bash.env
-                root: .
-            - run:
-                command: |
-                    git config user.email "technik@verdigado.com"
-                    git config user.name "CircleCI"
-                    git add pubspec.yaml
-                    git commit -m "Bump version ${NEW_PUBSPEC_VERSION}" -m "[skip ci]"
-                    git push origin "${CIRCLE_BRANCH}"
-                name: Commit and push version bump
-    create_release:
-        docker:
-            - image: cimg/base:2024.01
+            - image: cimg/node:20.18.0
         parameters:
-            additional_args:
-                default: ""
-                type: string
-            apk_file_name:
-                default: app-release.apk
-                type: string
-            version_suffix:
-                default: ""
-                type: string
+            prepare_delivery:
+                default: false
+                description: Whether to prepare for a delivery. If true, the version bump is committed.
+                type: boolean
+        resource_class: small
+        steps:
+            - prepare_workspace
+            - install_app_toolbelt
+            - run:
+                command: echo "export NEW_VERSION_NAME=$(yarn --silent app-toolbelt v0 version calc | jq .versionName)" >> ${BASH_ENV}
+                name: Calculate next version name
+                working_directory: tools
+            - run:
+                command: echo "export NEW_VERSION_CODE=$(yarn --silent app-toolbelt v0 version calc | jq .versionCode)" >> ${BASH_ENV}
+                name: Calculate next version code
+                working_directory: tools
+            - when:
+                condition: << parameters.prepare_delivery >>
+                steps:
+                    - run:
+                        command: yarn app-toolbelt v0 release bump-to ${NEW_VERSION_NAME} ${NEW_VERSION_CODE} --github-private-key ${GITHUB_PRIVATE_KEY} --owner ${CIRCLE_PROJECT_USERNAME} --repo ${CIRCLE_PROJECT_REPONAME} --branch ${CIRCLE_BRANCH}
+                        name: Bump git version
+                        working_directory: tools
+            - persist_environment_variables
+    deliver_android:
+        docker:
+            - image: cimg/android:2025.04.1-node
+        parameters:
+            production_delivery:
+                description: Whether to deliver the build to production.
+                type: boolean
+        resource_class: small
+        steps:
+            - prepare_workspace
+            - install_fastlane:
+                precache: android
+            - run:
+                command: bundle exec fastlane android upload production_delivery:"<< parameters.production_delivery >>" version_name:${NEW_VERSION_NAME} version_code:${NEW_VERSION_CODE}
+                name: '[FL] Google PlayStore Upload'
+                working_directory: android
+    deliver_ios:
+        macos:
+            xcode: 16.1.0
+        parameters:
+            production_delivery:
+                description: Whether to deliver the build to production.
+                type: boolean
+        steps:
+            - prepare_workspace
+            - install_fastlane:
+                precache: ios
+            - when:
+                condition: << parameters.production_delivery >>
+                steps:
+                    - run:
+                        command: bundle exec fastlane ios production_upload ipa_path:attached_workspace/autentigo.ipa version_name:${NEW_VERSION_NAME}
+                        name: '[FL] Apple AppStore Upload'
+                        working_directory: ios
+            - unless:
+                condition: << parameters.production_delivery >>
+                steps:
+                    - run:
+                        command: bundle exec fastlane ios beta_upload ipa_path:attached_workspace/autentigo.ipa
+                        name: '[FL] Apple TestFlight Upload'
+                        working_directory: ios
+    notify_promotion:
+        docker:
+            - image: cimg/android:2024.08.1-node
+        parameters:
+            production_delivery:
+                description: Whether to deliver the build to production.
+                type: boolean
+        resource_class: small
+        shell: /bin/bash -eo pipefail
         steps:
             - checkout
-            - github-cli/setup
-            - restore_bash_env
+            - install_app_toolbelt
             - run:
-                command: mv build/app/outputs/apk/release/app-release.apk ./<< parameters.apk_file_name >>
-                name: Rename apk file
+                command: yarn app-toolbelt v0 release promote --github-private-key ${GITHUB_PRIVATE_KEY} --owner ${CIRCLE_PROJECT_USERNAME} --repo ${CIRCLE_PROJECT_REPONAME} --platform all
+                name: Remove Beta Flag from Github Release
+                working_directory: tools
+    notify_release:
+        docker:
+            - image: cimg/node:20.18.0
+        parameters:
+            production_delivery:
+                description: Whether to deliver the build to production.
+                type: boolean
+        resource_class: small
+        steps:
+            - prepare_workspace
+            - install_app_toolbelt
             - run:
-                command: |
-                    TAG="v${BUILD_NAME}<< parameters.version_suffix >>"
-                    gh release create "${TAG}" << parameters.apk_file_name >> --target ${CIRCLE_BRANCH} \
-                    --generate-notes << parameters.additional_args >>
+                command: echo "export RELEASE_ID='$(yarn --silent app-toolbelt v0 release create all ${NEW_VERSION_NAME} ${NEW_VERSION_CODE} --github-private-key ${GITHUB_PRIVATE_KEY} --owner ${CIRCLE_PROJECT_USERNAME} --repo ${CIRCLE_PROJECT_REPONAME} <<# parameters.production_delivery >>--production-release<</ parameters.production_delivery >>)'" >> ${BASH_ENV}
                 name: Create github release
-orbs:
-    android: circleci/android@2.4.0
-    flutter: circleci/flutter@2.0.2
-    github-cli: circleci/github-cli@2.3.0
+            - run:
+                command: yarn app-toolbelt v0 release upload --releaseId ${RELEASE_ID} --files "$(ls ~/attached_workspace/*.apk)" --github-private-key ${GITHUB_PRIVATE_KEY} --owner ${CIRCLE_PROJECT_USERNAME} --repo ${CIRCLE_PROJECT_REPONAME}
+                name: Upload android apk to github release
+    promote_android:
+        docker:
+            - image: cimg/android:2024.08.1-node
+        resource_class: small
+        steps:
+            - prepare_workspace
+            - install_fastlane:
+                directory: android
+            - run:
+                command: bundle exec fastlane android promote
+                name: '[FL] Google PlayStore Promotion'
+                working_directory: android
+    promote_ios:
+        macos:
+            xcode: 16.1.0
+        steps:
+            - prepare_workspace
+            - install_fastlane:
+                directory: ios
+            - run:
+                command: bundle exec fastlane ios promote
+                name: '[FL] Apple AppStore Promotion'
+                working_directory: ios
+parameters:
+    workflow_type:
+        default: none
+        enum:
+            - beta_delivery
+            - promotion
+            - none
+        type: enum
 version: 2.1
 workflows:
-    beta_deploy:
+    beta_delivery:
         jobs:
-            - bump_version
+            - bump_version:
+                context:
+                    - github
+                prepare_delivery: true
             - build_android:
-                build_path: bundle/release/app-release.aab
-                build_target: appbundle
-                name: build_appbundle
+                context:
+                    - app_signing_android
                 requires:
                     - bump_version
-            - build_android:
-                build_path: apk/release/app-release.apk
-                build_target: apk
-                name: build_apk
+            - deliver_android:
+                context:
+                    - verdigado_google_playstore
+                production_delivery: false
+                requires:
+                    - build_android
+            - build_ios:
+                context:
+                    - app_signing_ios
                 requires:
                     - bump_version
-            - beta_deploy_android:
+            - deliver_ios:
+                context:
+                    - verdigado_apple_appstore
+                production_delivery: false
                 requires:
-                    - build_appbundle
-            - create_release:
-                additional_args: --prerelease
+                    - build_ios
+            - notify_release:
+                context:
+                    - github
+                production_delivery: false
                 requires:
-                    - build_apk
-                version_suffix: -beta
+                    - deliver_android
+                    - deliver_ios
         when:
             equal:
-                - develop
-                - << pipeline.git.branch >>
+                - << pipeline.parameters.workflow_type >>
+                - beta_delivery
+    promotion:
+        jobs:
+            - promote_android:
+                context:
+                    - verdigado_google_playstore
+            - promote_ios:
+                context:
+                    - verdigado_apple_appstore
+            - notify_promotion:
+                context:
+                    - github
+                requires:
+                    - promote_android
+                    - promote_ios
+        when:
+            equal:
+                - << pipeline.parameters.workflow_type >>
+                - promotion
 

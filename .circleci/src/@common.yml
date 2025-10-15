@@ -1,5 +1,12 @@
 version: 2.1
-orbs:
-  android: circleci/android@2.4.0
-  flutter: circleci/flutter@2.0.2
-  github-cli: circleci/github-cli@2.3.0
+
+parameters:
+  workflow_type:
+    type: enum
+    enum:
+      [
+        beta_delivery,
+        promotion,
+        none,
+      ]
+    default: none

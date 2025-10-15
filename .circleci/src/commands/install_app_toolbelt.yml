@@ -1,0 +1,5 @@
+steps:
+  - run:
+      name: Install app-toolbelt
+      command: npm ci
+      working_directory: ~/project/tools

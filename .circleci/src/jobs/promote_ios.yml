@@ -1,0 +1,10 @@
+macos:
+  xcode: 16.1.0
+steps:
+  - prepare_workspace
+  - install_fastlane:
+      directory: ios
+  - run:
+      name: '[FL] Apple AppStore Promotion'
+      command: bundle exec fastlane ios promote
+      working_directory: ios

@@ -1,29 +1,28 @@
-parameters:
-  build_target:
-    type: string
-  build_path:
-    type: string
-executor:
-  name: android/android-docker
-  tag: 2024.01.1
+docker:
+  - image: cimg/android:2024.01.1-node
 steps:
-  - checkout
-  - install_android_build_tools
-  - flutter/install_sdk_and_pub:
-      version: 3.16.9
-  - flutter/install_android_gem
-  - android/decode-keystore:
-      keystore-location: android/app/upload-keystore.jks
-  - android/create-keystore-properties:
-      working-directory: android
-      release-keystore: ./upload-keystore.jks
-  - restore_bash_env
+  - prepare_workspace
+  - install_flutter:
+      precache: android
+  - install_fastlane:
+      precache: android
   - run:
-      name: Build appbundle
-      command: >
-        flutter build << parameters.build_target >> --build-number ${BUILD_NUMBER}
-        --build-name ${BUILD_NAME}
+      name: '[FL] Prepare Android Keystore'
+      command: bundle exec fastlane keystore
+      working_directory: android
+  - run:
+      name: '[FL] Build'
+      command: bundle exec fastlane android build version_name:${NEW_VERSION_NAME} version_code:${NEW_VERSION_CODE}
+      working_directory: android
+  - run:
+      name: Move artifacts
+      command: |
+        mv build/app/outputs/bundle/release/app-release.aab ~/attached_workspace/app-release.aab
+        mv build/app/outputs/apk/release/app-release.apk ~/attached_workspace/app-release.apk
   - persist_to_workspace:
-      root: .
+      root: ~/attached_workspace
       paths:
-        - build/app/outputs/<< parameters.build_path >>
+        - app-release.aab
+        - app-release.apk
+  - store_artifacts:
+      path: ~/attached_workspace

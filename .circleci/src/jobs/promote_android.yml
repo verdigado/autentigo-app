@@ -1,0 +1,11 @@
+docker:
+  - image: cimg/android:2024.08.1-node
+resource_class: small
+steps:
+  - prepare_workspace
+  - install_fastlane:
+      directory: android
+  - run:
+      name: '[FL] Google PlayStore Promotion'
+      command: bundle exec fastlane android promote
+      working_directory: android
