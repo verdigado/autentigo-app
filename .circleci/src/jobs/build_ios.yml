@@ -1,0 +1,24 @@
+macos:
+  xcode: 16.1.0
+steps:
+  - prepare_workspace
+  - run:
+      # Rosetta is necessary to build flutter apps on circleci mac m1 images
+      # https://github.com/digitalfabrik/entitlementcard/pull/2001#discussion_r2010122708
+      name: Install rosetta
+      command: softwareupdate --install-rosetta --agree-to-license
+  - install_flutter:
+      precache: ios
+  - install_fastlane:
+      directory: ios
+  - install_pods
+  - run:
+      name: '[FL] Build'
+      command: bundle exec fastlane ios build version_name:${NEW_VERSION_NAME} version_code:${NEW_VERSION_CODE}
+      working_directory: ios
+  - persist_to_workspace:
+      root: ~/
+      paths:
+        - autentigo.ipa
+  - store_artifacts:
+      path: ~/autentigo.ipa
