@@ -3,22 +3,22 @@ parameters:
     description: Whether to deliver the build to production.
     type: boolean
 macos:
-  xcode: 16.1.0
+  xcode: 16.3.0
 steps:
   - prepare_workspace
   - install_fastlane:
-      precache: ios
+      directory: ios
   - when:
       condition: << parameters.production_delivery >>
       steps:
         - run:
             name: '[FL] Apple AppStore Upload'
-            command: bundle exec fastlane ios production_upload ipa_path:attached_workspace/autentigo.ipa version_name:${NEW_VERSION_NAME}
+            command: bundle exec fastlane ios production_upload ipa_path:attached_workspace/app-release.ipa version_name:${NEW_VERSION_NAME}
             working_directory: ios
   - unless:
       condition: << parameters.production_delivery >>
       steps:
         - run:
             name: '[FL] Apple TestFlight Upload'
-            command: bundle exec fastlane ios beta_upload ipa_path:attached_workspace/autentigo.ipa
+            command: bundle exec fastlane ios beta_upload ipa_path:attached_workspace/app-release.ipa
             working_directory: ios

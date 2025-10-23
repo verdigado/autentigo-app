@@ -3,7 +3,7 @@ parameters:
     description: Whether to deliver the build to production.
     type: boolean
 docker:
-  - image: cimg/android:2024.08.1-node
+  - image: cimg/android:2025.10.1-node
 resource_class: small
 shell: /bin/bash -eo pipefail
 steps:
@@ -11,5 +11,5 @@ steps:
   - install_app_toolbelt
   - run:
       name: Remove Beta Flag from Github Release
-      command: yarn app-toolbelt v0 release promote --github-private-key ${GITHUB_PRIVATE_KEY} --owner ${CIRCLE_PROJECT_USERNAME} --repo ${CIRCLE_PROJECT_REPONAME} --platform all
+      command: yarn app-toolbelt v0 release promote --private-key ${GITHUB_PRIVATE_KEY} --github-app 1059509 --owner ${CIRCLE_PROJECT_USERNAME} --repo ${CIRCLE_PROJECT_REPONAME} --platform all
       working_directory: tools
