@@ -1,0 +1,7 @@
+git_url "git@github.com:verdigado/app-signing.git"
+git_branch "verdigado"
+storage_mode "git"
+
+team_id "Y73382Y2WN"
+app_identifier "app.autentigo"
+username "app@verdigado.com"
