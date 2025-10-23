@@ -1,5 +1,6 @@
 macos:
-  xcode: 16.1.0
+  xcode: 16.3.0
+resource_class: m4pro.medium
 steps:
   - prepare_workspace
   - run:
@@ -19,6 +20,6 @@ steps:
   - persist_to_workspace:
       root: ~/
       paths:
-        - autentigo.ipa
+        - app-release.ipa
   - store_artifacts:
-      path: ~/autentigo.ipa
+      path: ~/app-release.ipa

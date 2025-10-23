@@ -7,14 +7,13 @@ steps:
       name: Restore Ruby Cache
       keys:
         - v1-gems-{{ arch }}-{{ checksum "<< parameters.directory >>/Gemfile.lock" }}
-        - v1-gems-{{ arch }}-
+        - v1-gems-{{ arch }}
   - run:
-      name: Configure Installation Directory
-      command: bundle config set path 'vendor/bundle'
-      working_directory: << parameters.directory >>
-  - run:
-      name: Bundle Install
-      command: bundle check || bundle install
+      name: Install fastlane
+      command: |
+        bundle config set path '~/.bundle'
+        bundle config set frozen true
+        bundle check || bundle install
       working_directory: << parameters.directory >>
   - save_cache:
       name: Save Ruby Cache

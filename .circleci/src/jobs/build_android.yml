@@ -1,14 +1,14 @@
 docker:
-  - image: cimg/android:2024.01.1-node
+  - image: cimg/android:2025.10.1-node
 steps:
   - prepare_workspace
   - install_flutter:
       precache: android
   - install_fastlane:
-      precache: android
+      directory: android
   - run:
       name: '[FL] Prepare Android Keystore'
-      command: bundle exec fastlane keystore
+      command: bundle exec fastlane android keystore
       working_directory: android
   - run:
       name: '[FL] Build'

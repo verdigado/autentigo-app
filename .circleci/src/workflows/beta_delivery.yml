@@ -2,9 +2,9 @@ when:
     equal: [<< pipeline.parameters.workflow_type >>, beta_delivery]
 jobs:
   - bump_version:
+      prepare_delivery: true
       context:
         - github
-      prepare_delivery: true
 
   - build_android:
       context:
@@ -20,7 +20,7 @@ jobs:
 
   - build_ios:
       context:
-        - app_signing_ios
+        - verdigado_app_signing_ios
       requires:
         - bump_version
   - deliver_ios:
