@@ -24,7 +24,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.verdigado.autentigo"
+        applicationId "app.autentigo"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
 
@@ -38,16 +38,16 @@ android {
     }
 
     signingConfigs {
-        if (project.hasProperty("KEYSTORE_PATH")) { // Signing with env variables (CI)
-            println "Signing using env variables"
-            release {
-                keyAlias keyStoreProperties['releaseKeyAlias']
-                keyPassword keyStoreProperties['releaseKeyPassword']
-                storeFile file(keyStoreProperties['releaseKeyStore'])
-                storePassword keyStoreProperties['releaseStorePassword']
+        release {
+            if (project.hasProperty("KEYSTORE_PATH")) { // Signing with env variables (CI)
+                println "Signing using env variables"
+                storeFile file(project.KEYSTORE_PATH)
+                storePassword project.KEYSTORE_PASSWORD
+                keyAlias project.KEYSTORE_KEY_ALIAS
+                keyPassword project.KEYSTORE_KEY_PASSWORD
+            } else {
+                println "Selecting debug keystore"
             }
-        } else {
-            println "Selecting debug keystore"
         }
     }
 
