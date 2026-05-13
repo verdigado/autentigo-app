@@ -81,7 +81,10 @@ class _ActivationTokenInputScreenState extends State<ActivationTokenInputScreen>
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: TextField(
                 controller: tokenInput,
-                decoration: InputDecoration(hintText: 'Aktivierungstoken', hintStyle: TextStyle(color: CustomTheme.contrastColorDark)),
+                decoration: InputDecoration(
+                  hintText: 'Aktivierungstoken',
+                  hintStyle: TextStyle(color: CustomTheme.contrastColorDark),
+                ),
               ),
             ),
             invalidToken

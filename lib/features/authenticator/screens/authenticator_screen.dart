@@ -34,9 +34,7 @@ class AuthenticatorScreen extends StatelessWidget {
                     icon: const Icon(Icons.settings_outlined),
                     tooltip: 'Menü anzeigen',
                   ),
-                  menuChildren: [
-                    MenuItemButton(onPressed: model.delete, child: const Text('Entfernen')),
-                  ],
+                  menuChildren: [MenuItemButton(onPressed: model.delete, child: const Text('Entfernen'))],
                 ),
             ],
           ),
@@ -102,9 +100,7 @@ class _SetupView extends StatelessWidget {
               ),
               Container(
                 width: 260,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(180),
-                ),
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(180)),
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: SvgPicture.asset(imageUndrawMobileAnalytics, height: 220),
