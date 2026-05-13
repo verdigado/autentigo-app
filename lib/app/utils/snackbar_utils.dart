@@ -17,7 +17,9 @@ SnackBar createSnackbarForMessage(
     content: Text(
       message.text,
       style: TextStyle(
-        color: message.type == UIMessageType.error ? Theme.of(context).colorScheme.onErrorContainer : CustomTheme.tertiaryColor,
+        color: message.type == UIMessageType.error
+            ? Theme.of(context).colorScheme.onErrorContainer
+            : CustomTheme.tertiaryColor,
       ),
     ),
     backgroundColor: color,

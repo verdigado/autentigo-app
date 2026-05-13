@@ -77,10 +77,7 @@ class TipOfTheDay extends StatelessWidget {
           Positioned(
             top: 8,
             right: 8,
-            child: Text(
-              'Grüner IT-Tip',
-              style: TextTheme.of(context).labelMedium?.apply(fontStyle: FontStyle.italic)
-            ),
+            child: Text('Grüner IT-Tip', style: TextTheme.of(context).labelMedium?.apply(fontStyle: FontStyle.italic)),
           ),
         ],
       ),

@@ -54,7 +54,7 @@ class AuthenticatorModel extends ChangeNotifier {
     status = AuthenticatorStatus.ready;
     loginAttempt = null;
     notifyListeners();
-    return UIMessage.success('Authenticator eingerichtet');
+    return UIMessage.success('Autentigo eingerichtet');
   }
 
   Future<UIMessage?> delete() async {
@@ -96,7 +96,7 @@ class AuthenticatorModel extends ChangeNotifier {
     } on KeycloakClientException catch (err) {
       UIMessage message;
       if (err.type == KeycloakExceptionType.notRegistered) {
-        message = UIMessage.error('Authenticator nicht mehr bekannt');
+        message = UIMessage.error('Autentigo nicht mehr bekannt');
         try {
           await _service.delete(_authenticator!);
           _authenticator = null;
