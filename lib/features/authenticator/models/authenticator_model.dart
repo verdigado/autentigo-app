@@ -1,8 +1,8 @@
 import 'package:autentigo_app/app/models/ui_message.dart';
 import 'package:autentigo_app/features/authenticator/dtos/login_attempt_dto.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keycloak_authenticator/flutter_keycloak_authenticator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:keycloak_authenticator/api.dart';
 
 enum AuthenticatorStatus { init, setup, ready, verify }
 
@@ -22,6 +22,11 @@ class AuthenticatorModel extends ChangeNotifier {
     }
     try {
       _authenticator = await _service.getFirst();
+
+      // final firebaseToken = await FirebaseMessaging.instance.getToken();
+      // await _updateDevicePushId(firebaseToken);
+      // FirebaseMessaging.instance.onTokenRefresh.listen(_updateDevicePushId);
+
       status = _authenticator != null ? AuthenticatorStatus.ready : AuthenticatorStatus.setup;
     } on Exception catch (err) {
       error = err;
@@ -43,7 +48,8 @@ class AuthenticatorModel extends ChangeNotifier {
     error = null;
     notifyListeners();
     try {
-      _authenticator = await _service.create(activationToken);
+      // String? firebaseToken = await FirebaseMessaging.instance.getToken();
+      _authenticator = await _service.create(activationToken, devicePushId: null);
     } on Exception catch (err) {
       error = err;
       isLoading = false;
@@ -130,7 +136,7 @@ class AuthenticatorModel extends ChangeNotifier {
       return true;
     }
     try {
-      var challenge = await _authenticator!.fetchChallenge(async: true);
+      var challenge = await _authenticator!.fetchChallenge();
       if (challenge != null) {
         loginAttempt = LoginAttemptDto(
           browser: challenge.browser,
@@ -190,4 +196,20 @@ class AuthenticatorModel extends ChangeNotifier {
     notifyListeners();
     return UIMessage.warning('Login abgelehnt');
   }
+
+  // Future<void> _updateDevicePushId(String? devicePushId) async {
+  //   try {
+  //     await _authenticator?.updateDevicePushId(devicePushId: devicePushId);
+  //   } on KeycloakClientException catch (error) {
+  //     if (error.type == KeycloakExceptionType.notRegistered) {
+  //       // The authenticator is not registered and will be removed anyway
+  //       // Therefore, we can just fail silently
+  //       return;
+  //     }
+  //     if (error.type == KeycloakExceptionType.networkError) {
+  //       return;
+  //     }
+  //     rethrow;
+  //   }
+  // }
 }

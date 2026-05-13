@@ -9,7 +9,6 @@ import 'package:autentigo_app/features/authenticator/widgets/tip_of_the_day.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:keycloak_authenticator/api.dart';
 import 'package:provider/provider.dart';
 
 class AuthenticatorScreen extends StatelessWidget {
@@ -177,12 +176,6 @@ class _ReadyViewState extends State<_ReadyView> {
       try {
         bool success = await model.poll();
         if (success == true) {
-          _isPolling = false;
-        }
-      } on KeycloakClientException catch (e) {
-        if (e.type == KeycloakExceptionType.timeout) {
-          continue;
-        } else {
           _isPolling = false;
         }
       } on Exception {

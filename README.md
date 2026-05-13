@@ -1,6 +1,6 @@
 # Autentigo
 
-This is a Dart app that implements an Keycloak App Authenticator from the [netzbegruenung/keycloak-mfa-plugins](https://github.com/netzbegruenung/keycloak-mfa-plugins/tree/main/app-authenticator) app authenticator.
+Autentigo is a flutter Android and iOS app that implements Keycloak App Authenticator from the [netzbegruenung/keycloak-mfa-plugins](https://github.com/netzbegruenung/keycloak-mfa-plugins/tree/main/app-authenticator) app authenticator.
 
 ## Getting Started
 
