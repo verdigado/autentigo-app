@@ -6,9 +6,9 @@ import 'package:autentigo_app/features/authenticator/models/tip_of_the_day_model
 import 'package:autentigo_app/features/authenticator/screens/activation_token_input_screen.dart';
 import 'package:autentigo_app/features/authenticator/screens/activation_token_scan_screen.dart';
 import 'package:autentigo_app/features/authenticator/widgets/tip_of_the_day.dart';
-import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:keycloak_authenticator/api.dart';
 import 'package:provider/provider.dart';
 
@@ -358,7 +358,7 @@ class _VerifyView extends StatelessWidget {
           padding: EdgeInsets.only(bottom: 4),
           child: Text('Zeitpunkt', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         ),
-        Text(formatDate(model.loginAttempt!.loggedInAt, [dd, '.', M, '.', yyyy, ', ', HH, ':', nn])),
+        Text(DateFormat(DateFormat.HOUR_MINUTE_SECOND).format(model.loginAttempt!.loggedInAt)),
       ],
     );
   }
